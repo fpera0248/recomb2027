@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+work/
+tools_src/
+out/
+*.log
+*.h5ad
+*.parquet
