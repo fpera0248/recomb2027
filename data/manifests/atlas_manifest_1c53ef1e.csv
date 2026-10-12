@@ -1,0 +1,9 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_1c53ef1e_p0,1c53ef1e,test,P030+P073+P112,0,20000,6
+atl_1c53ef1e_p1,1c53ef1e,test,P018,1,20000,6
+atl_1c53ef1e_p2,1c53ef1e,test,P071+P069,2,20000,6
+atl_1c53ef1e_p3,1c53ef1e,test,P074+P086+P028+P108,3,20000,6
+atl_1c53ef1e_p4,1c53ef1e,test,P022+P019+P026+P080+P058,4,20000,7
+atl_1c53ef1e_p5,1c53ef1e,test,P029+P084,5,20000,7
+atl_1c53ef1e_p6,1c53ef1e,test,P021,6,20000,5
+atl_1c53ef1e_p7,1c53ef1e,test,P016+P076,7,20000,5

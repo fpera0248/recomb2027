@@ -1,0 +1,7 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_228438db_p0,228438db,test,h-BMO-106+h-BMO-169,0,20000,10
+atl_228438db_p1,228438db,test,h-BMO-55+h-BMO-73+h-BMO-97+h-BMO-149,1,20000,10
+atl_228438db_p2,228438db,test,h-BMO-107,2,20000,10
+atl_228438db_p3,228438db,test,h-BMO-93+h-BMO-77+h-BMO-50,3,20000,10
+atl_228438db_p4,228438db,test,h-BMO-78+h-BMO-110,4,20000,10
+atl_228438db_p5,228438db,test,h-BMO-101+h-BMO-167,5,20000,10

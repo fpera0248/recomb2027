@@ -1,0 +1,3 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_b57462e3_p0,b57462e3,test,HC_1+HC_8+ALS_5+HC_5+ALS_3,0,20000,9
+atl_b57462e3_p1,b57462e3,test,HC_3+ALS_2+HC_2+HC_4+ALS_4,1,20000,9

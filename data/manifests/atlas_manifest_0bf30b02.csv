@@ -1,0 +1,4 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_0bf30b02_p0,0bf30b02,test,P02+P07+P09+P10+P14,0,20000,9
+atl_0bf30b02_p1,0bf30b02,test,P05+P03+P15+P11,1,20000,9
+atl_0bf30b02_p2,0bf30b02,test,P08+P17+P12+P04+P01+P06+P16,2,20000,9

@@ -1,0 +1,5 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_c3bf8bcf_p0,c3bf8bcf,test,CS14_2+CS14_1+CS20_4+CS16_2+CS20_2,0,20000,8
+atl_c3bf8bcf_p1,c3bf8bcf,test,CS12_2+CS16_1+CS20_5+CS17_1+CS13_5+CS13_3,1,20000,8
+atl_c3bf8bcf_p2,c3bf8bcf,test,CS17_2+CS13_1+CS12_3+CS13_2+CS17_3+CS13_6,2,20000,8
+atl_c3bf8bcf_p3,c3bf8bcf,test,CS13_4+CS20_1+CS12_4+CS12_1+CS20_3,3,20000,8

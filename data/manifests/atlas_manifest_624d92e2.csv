@@ -1,0 +1,5 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_624d92e2_p0,624d92e2,test,kurten8+kurten6+kurten2+choi7+quah2+peng5+kurten12+choi8+choi11+peng2,0,20000,6
+atl_624d92e2_p1,624d92e2,test,quah1+quah3+quah7+quah5+peng6,1,20000,6
+atl_624d92e2_p2,624d92e2,test,quah4+choi5+kurten1+choi2+kurten3+kurten11+choi4+peng4,2,20000,6
+atl_624d92e2_p3,624d92e2,test,choi10+choi9+peng3+peng1+choi3+kurten9+choi13+kurten4+kurten7,3,20000,6

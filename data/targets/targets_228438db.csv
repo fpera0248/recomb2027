@@ -1,0 +1,110 @@
+pilot_id,label,target,n
+atl_228438db_p0,B,Pro-B,10
+atl_228438db_p0,EC,Cycling EC,11
+atl_228438db_p0,Fibroblast,Active Fibroblast,182
+atl_228438db_p0,Fibroblast,Proliferating Fibroblast,17
+atl_228438db_p0,Fibroblast,Synovial Fibroblast,78
+atl_228438db_p0,Fibroblast,Tissue Fibroblast,81
+atl_228438db_p0,Monocyte,cDC,42
+atl_228438db_p0,Progenitor,Cycling GMP,134
+atl_228438db_p0,Progenitor,Cycling Ly,129
+atl_228438db_p0,Progenitor,Cycling Progenitor,185
+atl_228438db_p0,Progenitor,EoBaMa Precursor,118
+atl_228438db_p0,Progenitor,Ly Progenitor,156
+atl_228438db_p0,TNK,CD4TReg,46
+atl_228438db_p0,TNK,CD56bright NK,70
+atl_228438db_p0,TNK,CD56dim NK,136
+atl_228438db_p0,TNK,CD8TEff,52
+atl_228438db_p0,TNK,CD8TN,41
+atl_228438db_p0,TNK,MAIT,40
+atl_228438db_p1,B,Cycling Pro/Pre-B,52
+atl_228438db_p1,B,Pre-B,61
+atl_228438db_p1,B,Pro-B,17
+atl_228438db_p1,EC,AEC,141
+atl_228438db_p1,EC,Cycling EC,21
+atl_228438db_p1,Fibroblast,Active Fibroblast,15
+atl_228438db_p1,Fibroblast,Proliferating Fibroblast,16
+atl_228438db_p1,Fibroblast,Synovial Fibroblast,72
+atl_228438db_p1,Monocyte,CD16+ Monocyte,14
+atl_228438db_p1,Monocyte,cDC,173
+atl_228438db_p1,Progenitor,Cycling GMP,240
+atl_228438db_p1,Progenitor,Cycling Ly,190
+atl_228438db_p1,Progenitor,Cycling Progenitor,386
+atl_228438db_p1,Progenitor,EoBaMa Precursor,296
+atl_228438db_p1,Progenitor,Ly Progenitor,289
+atl_228438db_p1,TNK,CD4TReg,103
+atl_228438db_p1,TNK,CD56bright NK,59
+atl_228438db_p1,TNK,CD8TEff,189
+atl_228438db_p1,TNK,MAIT,103
+atl_228438db_p2,B,Plasma Cell,16
+atl_228438db_p2,B,Pro-B,27
+atl_228438db_p2,EC,AEC,39
+atl_228438db_p2,EC,Cycling EC,28
+atl_228438db_p2,Fibroblast,CXCL12+ Fibroblast,563
+atl_228438db_p2,Fibroblast,Fibrocartilage Chondrocyte,391
+atl_228438db_p2,Fibroblast,Proliferating Fibroblast,658
+atl_228438db_p2,Monocyte,CD16+ Monocyte,33
+atl_228438db_p2,Progenitor,Cycling GMP,58
+atl_228438db_p2,Progenitor,Cycling Ly,76
+atl_228438db_p2,Progenitor,Cycling Progenitor,127
+atl_228438db_p2,Progenitor,EoBaMa Precursor,136
+atl_228438db_p2,Progenitor,Late GMP,198
+atl_228438db_p2,Progenitor,Ly Progenitor,222
+atl_228438db_p2,TNK,CD4TReg,97
+atl_228438db_p2,TNK,CD56bright NK,63
+atl_228438db_p2,TNK,CD56dim NK,254
+atl_228438db_p2,TNK,CD8TEff,42
+atl_228438db_p2,TNK,CD8TN,154
+atl_228438db_p2,TNK,MAIT,90
+atl_228438db_p3,B,Cycling Pro/Pre-B,24
+atl_228438db_p3,B,Plasma Cell,19
+atl_228438db_p3,EC,Cycling EC,81
+atl_228438db_p3,Fibroblast,Proliferating Fibroblast,75
+atl_228438db_p3,Fibroblast,Synovial Fibroblast,46
+atl_228438db_p3,Monocyte,cDC,49
+atl_228438db_p3,Progenitor,Cycling GMP,147
+atl_228438db_p3,Progenitor,Cycling Ly,58
+atl_228438db_p3,Progenitor,Cycling Progenitor,187
+atl_228438db_p3,Progenitor,EoBaMa Precursor,140
+atl_228438db_p3,Progenitor,Late GMP,212
+atl_228438db_p3,Progenitor,Ly Progenitor,108
+atl_228438db_p3,TNK,CD4TReg,49
+atl_228438db_p3,TNK,CD56bright NK,35
+atl_228438db_p3,TNK,CD56dim NK,78
+atl_228438db_p3,TNK,CD8TEff,40
+atl_228438db_p3,TNK,CD8TN,39
+atl_228438db_p3,TNK,MAIT,25
+atl_228438db_p4,B,Cycling Pro/Pre-B,107
+atl_228438db_p4,B,Mature B,110
+atl_228438db_p4,B,Plasma Cell,18
+atl_228438db_p4,B,Pro-B,25
+atl_228438db_p4,Fibroblast,Proliferating Fibroblast,104
+atl_228438db_p4,Fibroblast,Synovial Fibroblast,117
+atl_228438db_p4,Fibroblast,Tissue Fibroblast,189
+atl_228438db_p4,Monocyte,CD16+ Monocyte,13
+atl_228438db_p4,Monocyte,cDC,116
+atl_228438db_p4,Progenitor,Cycling GMP,159
+atl_228438db_p4,Progenitor,Cycling Ly,163
+atl_228438db_p4,Progenitor,Cycling Progenitor,255
+atl_228438db_p4,Progenitor,EoBaMa Precursor,148
+atl_228438db_p4,Progenitor,Ly Progenitor,246
+atl_228438db_p4,TNK,CD4TReg,49
+atl_228438db_p4,TNK,CD56bright NK,89
+atl_228438db_p4,TNK,CD56dim NK,121
+atl_228438db_p4,TNK,CD8TEff,155
+atl_228438db_p4,TNK,CD8TN,101
+atl_228438db_p4,TNK,MAIT,32
+atl_228438db_p5,B,Pro-B,16
+atl_228438db_p5,Fibroblast,Active Fibroblast,46
+atl_228438db_p5,Fibroblast,Tissue Fibroblast,44
+atl_228438db_p5,Monocyte,cDC,118
+atl_228438db_p5,Progenitor,Cycling GMP,406
+atl_228438db_p5,Progenitor,Cycling Ly,361
+atl_228438db_p5,Progenitor,Cycling Progenitor,614
+atl_228438db_p5,Progenitor,EoBaMa Precursor,388
+atl_228438db_p5,Progenitor,Ly Progenitor,602
+atl_228438db_p5,TNK,CD4TReg,147
+atl_228438db_p5,TNK,CD56bright NK,28
+atl_228438db_p5,TNK,CD56dim NK,107
+atl_228438db_p5,TNK,CD8TEff,181
+atl_228438db_p5,TNK,MAIT,128

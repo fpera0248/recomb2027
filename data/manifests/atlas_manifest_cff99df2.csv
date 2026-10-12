@@ -1,0 +1,9 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_cff99df2_p0,cff99df2,test,111+76+30,0,20000,7
+atl_cff99df2_p1,cff99df2,test,44+117+146,1,20000,7
+atl_cff99df2_p2,cff99df2,test,75+19,2,20000,7
+atl_cff99df2_p3,cff99df2,test,49+50,3,20000,7
+atl_cff99df2_p4,cff99df2,test,35+108,4,20000,7
+atl_cff99df2_p5,cff99df2,test,145+92+91,5,20000,7
+atl_cff99df2_p6,cff99df2,test,14+124,6,20000,7
+atl_cff99df2_p7,cff99df2,test,114+45,7,20000,7

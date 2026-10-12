@@ -1,0 +1,11 @@
+name,dataset_id,collection_id,stratum,label_col,fine_col,h5ad_url
+6f9de485,6f9de485-58cd-4342-bfc4-b3d3dd223aa8,ceef2841-5333-46ac-92ef-ccbe0c20fe55,tumour,author_cell_type,cell_state,https://datasets.cellxgene.cziscience.com/e94bd3cc-6271-424a-baac-12f8eb320a0e.h5ad
+1c53ef1e,1c53ef1e-45c7-4498-be59-6797f3950875,962df42d-9675-4d05-bc75-597ec7bf4afb,tumour,broad_anno,fine_anno,https://datasets.cellxgene.cziscience.com/fed94c35-c0ff-425a-abc8-4ecc30cc445d.h5ad
+fe067858,fe067858-1282-46ea-9553-b8cd19167266,be2285ed-d27d-4249-97a2-9b23ea924413,tumour,author_cell_type,author_sub_cell_type,https://datasets.cellxgene.cziscience.com/296a7df6-3505-418a-9762-4fe844bc90bc.h5ad
+0bf30b02,0bf30b02-db97-4560-b9cd-0fe3588892af,573e2e06-8af0-4d96-bfdd-7d64a4bb9c21,tumour,lv1_annot,lv2_annot,https://datasets.cellxgene.cziscience.com/0d240f09-c7d4-4420-89ca-376d19663777.h5ad
+624d92e2,624d92e2-d006-4241-9fd8-03535f850301,bc7397a3-ea49-4d57-84b8-80bd6885d4c4,tumour,cell_type,atlas_classification,https://datasets.cellxgene.cziscience.com/be2f74ea-f487-4650-8c03-080798c2872c.h5ad
+cff99df2,cff99df2-4904-44f7-9173-ff837f95606e,0d35c0fd-ef0b-4b70-bce6-645a4660e5fa,non-tumour,Major_celltypes,Author_Annotation,https://datasets.cellxgene.cziscience.com/7bfa165b-b3af-4f84-9a89-ca22d3e093f3.h5ad
+228438db,228438db-5728-4e10-b660-56a54d9a24dd,2317da21-e990-4002-85e2-b75f94f78403,non-tumour,High_Lvl_Annotation,Annotation,https://datasets.cellxgene.cziscience.com/a43d1b30-44d6-403d-b0fb-e5502d3f47cd.h5ad
+b58c19c6,b58c19c6-bc2d-4461-b9bf-60fa2ac91479,131c68c1-c457-4e3b-88bc-92c4e43ed680,non-tumour,broad_celltype,author_cell_type,https://datasets.cellxgene.cziscience.com/d89e5a47-adb7-454a-b654-c3eeabdc57c3.h5ad
+b57462e3,b57462e3-1df5-463a-a3fa-4d67b93ef087,0986e4cd-7a58-405d-9b91-4b199bb4124e,non-tumour,PrimaryAnnotation,ThirdAnnotation,https://datasets.cellxgene.cziscience.com/72dab565-a96b-4b06-a1b7-3413efeff523.h5ad
+c3bf8bcf,c3bf8bcf-abb7-4d71-8491-bd4901b474cf,690fb28b-e364-4d3d-8934-bae50ae93857,non-tumour,main_cell_type,subtype,https://datasets.cellxgene.cziscience.com/0ba987e4-3040-448d-a3db-49e0ea73c80b.h5ad

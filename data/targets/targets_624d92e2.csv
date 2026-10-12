@@ -1,0 +1,22 @@
+pilot_id,label,target,n
+atl_624d92e2_p0,fibroblast,Fib3,69
+atl_624d92e2_p0,squamous epithelial cell,Epi2,686
+atl_624d92e2_p0,squamous epithelial cell,Epi3,632
+atl_624d92e2_p0,squamous epithelial cell,Epi5,755
+atl_624d92e2_p0,squamous epithelial cell,Epi7,458
+atl_624d92e2_p1,salivary gland glandular cell,Salivary4,492
+atl_624d92e2_p1,squamous epithelial cell,Epi2,26
+atl_624d92e2_p1,squamous epithelial cell,Epi3,60
+atl_624d92e2_p1,squamous epithelial cell,Epi4,120
+atl_624d92e2_p1,squamous epithelial cell,Epi5,46
+atl_624d92e2_p1,squamous epithelial cell,Epi6,244
+atl_624d92e2_p2,fibroblast,Fib3,50
+atl_624d92e2_p2,squamous epithelial cell,Epi2,31
+atl_624d92e2_p2,squamous epithelial cell,Epi4,473
+atl_624d92e2_p2,squamous epithelial cell,Epi6,1080
+atl_624d92e2_p2,squamous epithelial cell,Epi7,433
+atl_624d92e2_p3,fibroblast,Fib3,158
+atl_624d92e2_p3,squamous epithelial cell,Epi3,203
+atl_624d92e2_p3,squamous epithelial cell,Epi5,427
+atl_624d92e2_p3,squamous epithelial cell,Epi6,930
+atl_624d92e2_p3,squamous epithelial cell,Epi7,993

@@ -1,0 +1,57 @@
+pilot_id,label,target,n
+atl_fe067858_p0,T-cells,MAIT cells,10
+atl_fe067858_p0,T-cells,Regulatory T cells,81
+atl_fe067858_p0,T-cells,cytotoxic T cells,53
+atl_fe067858_p0,T-cells,effector T cells,130
+atl_fe067858_p0,T-cells,naive T cells,444
+atl_fe067858_p1,ILC/NK,exhausted T cells,10
+atl_fe067858_p1,T-cells,CD16+ NK cells,22
+atl_fe067858_p1,T-cells,MAIT cells,53
+atl_fe067858_p1,T-cells,Regulatory T cells,518
+atl_fe067858_p1,T-cells,cytotoxic T cells,431
+atl_fe067858_p1,T-cells,exhausted T cells,63
+atl_fe067858_p1,T-cells,naive cytotoxic T cells,49
+atl_fe067858_p2,ILC/NK,NK cells,37
+atl_fe067858_p2,ILC/NK,exhausted T cells,26
+atl_fe067858_p2,T-cells,CD16+ NK cells,15
+atl_fe067858_p2,T-cells,MAIT cells,115
+atl_fe067858_p2,T-cells,Regulatory T cells,761
+atl_fe067858_p2,T-cells,cytotoxic T cells,419
+atl_fe067858_p2,T-cells,exhausted T cells,25
+atl_fe067858_p2,T-cells,naive cytotoxic T cells,72
+atl_fe067858_p3,T-cells,Regulatory T cells,184
+atl_fe067858_p3,T-cells,cytotoxic T cells,32
+atl_fe067858_p3,T-cells,effector T cells,564
+atl_fe067858_p3,T-cells,naive cytotoxic T cells,17
+atl_fe067858_p4,ILC/NK,cytotoxic T cells,18
+atl_fe067858_p4,T-cells,CD16+ NK cells,25
+atl_fe067858_p4,T-cells,MAIT cells,21
+atl_fe067858_p4,T-cells,Regulatory T cells,128
+atl_fe067858_p4,T-cells,cytotoxic T cells,258
+atl_fe067858_p4,T-cells,effector T cells,214
+atl_fe067858_p4,T-cells,exhausted T cells,19
+atl_fe067858_p4,T-cells,naive T cells,633
+atl_fe067858_p4,T-cells,naive cytotoxic T cells,52
+atl_fe067858_p5,T-cells,MAIT cells,53
+atl_fe067858_p5,T-cells,Regulatory T cells,56
+atl_fe067858_p5,T-cells,cytotoxic T cells,217
+atl_fe067858_p5,T-cells,effector T cells,222
+atl_fe067858_p5,T-cells,naive T cells,454
+atl_fe067858_p5,T-cells,naive cytotoxic T cells,14
+atl_fe067858_p6,ILC/NK,cytotoxic T cells,17
+atl_fe067858_p6,ILC/NK,exhausted T cells,12
+atl_fe067858_p6,T-cells,CD16+ NK cells,22
+atl_fe067858_p6,T-cells,MAIT cells,75
+atl_fe067858_p6,T-cells,Regulatory T cells,104
+atl_fe067858_p6,T-cells,cytotoxic T cells,1196
+atl_fe067858_p6,T-cells,effector T cells,682
+atl_fe067858_p6,T-cells,exhausted T cells,11
+atl_fe067858_p6,T-cells,naive T cells,1107
+atl_fe067858_p6,T-cells,naive cytotoxic T cells,119
+atl_fe067858_p7,T-cells,CD16+ NK cells,11
+atl_fe067858_p7,T-cells,ILC,34
+atl_fe067858_p7,T-cells,Regulatory T cells,719
+atl_fe067858_p7,T-cells,cytotoxic T cells,288
+atl_fe067858_p7,T-cells,effector T cells,1880
+atl_fe067858_p7,T-cells,exhausted T cells,78
+atl_fe067858_p7,T-cells,naive cytotoxic T cells,77

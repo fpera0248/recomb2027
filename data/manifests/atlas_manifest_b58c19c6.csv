@@ -1,0 +1,7 @@
+pilot_id,atlas,split,block,pool,n_cells,n_labels
+atl_b58c19c6_p0,b58c19c6,test,LEG1009+LEG1025,0,20000,3
+atl_b58c19c6_p1,b58c19c6,test,LEG1007+LEG1021,1,20000,3
+atl_b58c19c6_p2,b58c19c6,test,LEG1005+LEG1018,2,20000,3
+atl_b58c19c6_p3,b58c19c6,test,LEG1004,3,20000,3
+atl_b58c19c6_p4,b58c19c6,test,LEG1017+LEG1019,4,20000,3
+atl_b58c19c6_p5,b58c19c6,test,LEG1006+LEG1002+LEG1008,5,20000,3

@@ -1,0 +1,35 @@
+pilot_id,label,target,n
+atl_0bf30b02_p0,B cells,B cell Memory,184
+atl_0bf30b02_p0,CD4 T cells,CD4 IFN Response,298
+atl_0bf30b02_p0,CD4 T cells,CD4 T helper,487
+atl_0bf30b02_p0,CD4 T cells,CD4 Th17,447
+atl_0bf30b02_p0,CD8 T cells,CD8 Exhausted,265
+atl_0bf30b02_p0,CD8 T cells,CD8 Pre-exhausted,318
+atl_0bf30b02_p0,CD8 T cells,T cells Proliferative,244
+atl_0bf30b02_p0,DC,DC mreg,64
+atl_0bf30b02_p0,Macrophages,Macrophages proliferative,52
+atl_0bf30b02_p0,Macrophages,Microglia-like,25
+atl_0bf30b02_p0,Monocytes,Monocytes intermediate,35
+atl_0bf30b02_p1,B cells,B cell Memory,45
+atl_0bf30b02_p1,B cells,B cell Naive,68
+atl_0bf30b02_p1,B cells,B cell Switch memory,77
+atl_0bf30b02_p1,CD4 T cells,CD4 IFN Response,224
+atl_0bf30b02_p1,CD4 T cells,CD4 T helper,225
+atl_0bf30b02_p1,CD4 T cells,CD4 Th17,417
+atl_0bf30b02_p1,CD8 T cells,CD8 Pre-exhausted,356
+atl_0bf30b02_p1,CD8 T cells,T cells Proliferative,143
+atl_0bf30b02_p1,DC,DC mreg,15
+atl_0bf30b02_p1,DC,DC1,115
+atl_0bf30b02_p1,Macrophages,Macrophages MT-RTM-like,34
+atl_0bf30b02_p1,Macrophages,Macrophages proliferative,68
+atl_0bf30b02_p2,B cells,B cell Switch memory,57
+atl_0bf30b02_p2,CD4 T cells,CD4 IFN Response,357
+atl_0bf30b02_p2,CD4 T cells,CD4 T helper,317
+atl_0bf30b02_p2,CD4 T cells,CD4 Th17,450
+atl_0bf30b02_p2,CD8 T cells,CD8 Exhausted,211
+atl_0bf30b02_p2,CD8 T cells,T cells Proliferative,176
+atl_0bf30b02_p2,DC,DC mreg,114
+atl_0bf30b02_p2,DC,DC5,100
+atl_0bf30b02_p2,Macrophages,Macrophages MT-RTM-like,96
+atl_0bf30b02_p2,Macrophages,Macrophages proliferative,58
+atl_0bf30b02_p2,Monocytes,Monocytes intermediate,14
