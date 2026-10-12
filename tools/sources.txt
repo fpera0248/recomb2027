@@ -1,0 +1,9 @@
+# tool, official repository, commit used
+scCAD       https://github.com/xuyp-csu/scCAD            ee59678e29b0f04eba04f033264691b8d0657c6c
+GiniClust3  https://github.com/rdong08/GiniClust3        a58d0c886cde690398c2a46e4320f1247f72cd4f
+FiRE        https://github.com/princethewinner/FiRE      5e0828375373f7a5af6381a66c214d61da8a8bf6
+mars        https://github.com/snap-stanford/mars        f6f03ba2c1f42221e337e934dad52a1d085b917c
+scGPT       https://github.com/bowang-lab/scGPT          cebd6fae655b9c585a4807daa3ac31bb764f06b4
+CellSIUS    https://github.com/Novartis/CellSIUS         3c88967128dbc427015e909652aa44c64924ea5a
+GapClust    https://github.com/fabotao/GapClust          bdec2ad21a8791b85315588d94e2e5537def146f
+SCISSORS    https://github.com/jr-leary7/SCISSORS        79001b24001bba4fb9f45a8795707805468ebb5a
