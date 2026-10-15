@@ -1,0 +1,208 @@
+pool,atlas,seed,eligible,reason,n_donors
+atl_luad_p0,luad,0,True,ok,4
+atl_luad_p0,luad,1,True,ok,4
+atl_luad_p0,luad,2,True,ok,4
+atl_luad_p1,luad,0,True,ok,4
+atl_luad_p1,luad,1,True,ok,4
+atl_luad_p1,luad,2,True,ok,4
+atl_luad_p2,luad,0,True,ok,4
+atl_luad_p2,luad,1,True,ok,4
+atl_luad_p2,luad,2,True,ok,4
+atl_luad_p3,luad,0,True,ok,3
+atl_luad_p3,luad,1,True,ok,3
+atl_luad_p3,luad,2,True,ok,3
+atl_cereb_p0,cereb,0,True,ok,5
+atl_cereb_p0,cereb,1,True,ok,5
+atl_cereb_p0,cereb,2,True,ok,5
+atl_cereb_p1,cereb,0,True,ok,4
+atl_cereb_p1,cereb,1,True,ok,4
+atl_cereb_p1,cereb,2,True,ok,4
+atl_cereb_p2,cereb,0,True,ok,4
+atl_cereb_p2,cereb,1,True,ok,4
+atl_cereb_p2,cereb,2,True,ok,4
+atl_cereb_p3,cereb,0,True,ok,5
+atl_cereb_p3,cereb,1,True,ok,5
+atl_cereb_p3,cereb,2,True,ok,5
+atl_cereb_p4,cereb,0,True,ok,4
+atl_cereb_p4,cereb,1,True,ok,4
+atl_cereb_p4,cereb,2,True,ok,4
+atl_hspc_p0,hspc,0,True,ok,3
+atl_hspc_p0,hspc,1,True,ok,3
+atl_hspc_p0,hspc,2,True,ok,3
+atl_hspc_p1,hspc,0,True,ok,4
+atl_hspc_p1,hspc,1,True,ok,4
+atl_hspc_p1,hspc,2,True,ok,4
+atl_hspc_p2,hspc,0,True,ok,4
+atl_hspc_p2,hspc,1,True,ok,4
+atl_hspc_p2,hspc,2,True,ok,4
+atl_hspc_p3,hspc,0,True,ok,8
+atl_hspc_p3,hspc,1,True,ok,8
+atl_hspc_p3,hspc,2,True,ok,8
+atl_hspc_p4,hspc,0,True,ok,4
+atl_hspc_p4,hspc,1,True,ok,4
+atl_hspc_p4,hspc,2,True,ok,4
+atl_hspc_p5,hspc,0,True,ok,4
+atl_hspc_p5,hspc,1,True,ok,4
+atl_hspc_p5,hspc,2,True,ok,4
+atl_hspc_p6,hspc,0,True,ok,4
+atl_hspc_p6,hspc,1,True,ok,4
+atl_hspc_p6,hspc,2,True,ok,4
+atl_hspc_p7,hspc,0,True,ok,8
+atl_hspc_p7,hspc,1,True,ok,8
+atl_hspc_p7,hspc,2,True,ok,8
+atl_hspc_p8,hspc,0,True,ok,2
+atl_hspc_p8,hspc,1,True,ok,2
+atl_hspc_p8,hspc,2,False,two donors: seed repeats the seed-0 split,2
+atl_hspc_p9,hspc,0,True,ok,5
+atl_hspc_p9,hspc,1,True,ok,5
+atl_hspc_p9,hspc,2,True,ok,5
+atl_hspc_p10,hspc,0,True,ok,3
+atl_hspc_p10,hspc,1,True,ok,3
+atl_hspc_p10,hspc,2,True,ok,3
+atl_hspc_p11,hspc,0,True,ok,3
+atl_hspc_p11,hspc,1,True,ok,3
+atl_hspc_p11,hspc,2,True,ok,3
+atl_hspc_p12,hspc,0,True,ok,5
+atl_hspc_p12,hspc,1,True,ok,5
+atl_hspc_p12,hspc,2,True,ok,5
+atl_hspc_p13,hspc,0,True,ok,11
+atl_hspc_p13,hspc,1,True,ok,11
+atl_hspc_p13,hspc,2,True,ok,11
+atl_hspc_p14,hspc,0,False,test donors hold 6 hidden cells (< 20),3
+atl_hspc_p14,hspc,1,True,ok,3
+atl_hspc_p14,hspc,2,True,ok,3
+atl_hspc_p15,hspc,0,True,ok,3
+atl_hspc_p15,hspc,1,True,ok,3
+atl_hspc_p15,hspc,2,True,ok,3
+atl_hspc_p16,hspc,0,True,ok,6
+atl_hspc_p16,hspc,1,True,ok,6
+atl_hspc_p16,hspc,2,True,ok,6
+atl_hspc_p17,hspc,0,True,ok,7
+atl_hspc_p17,hspc,1,True,ok,7
+atl_hspc_p17,hspc,2,True,ok,7
+atl_hspc_p18,hspc,0,True,ok,8
+atl_hspc_p18,hspc,1,True,ok,8
+atl_hspc_p18,hspc,2,True,ok,8
+atl_hspc_p19,hspc,0,True,ok,3
+atl_hspc_p19,hspc,1,True,ok,3
+atl_hspc_p19,hspc,2,True,ok,3
+atl_hspc_p20,hspc,0,True,ok,4
+atl_hspc_p20,hspc,1,True,ok,4
+atl_hspc_p20,hspc,2,True,ok,4
+atl_htapp_p0,htapp,0,True,ok,5
+atl_htapp_p0,htapp,1,True,ok,5
+atl_htapp_p0,htapp,2,True,ok,5
+atl_htapp_p1,htapp,0,True,ok,5
+atl_htapp_p1,htapp,1,True,ok,5
+atl_htapp_p1,htapp,2,True,ok,5
+atl_htapp_p2,htapp,0,True,ok,7
+atl_htapp_p2,htapp,1,True,ok,7
+atl_htapp_p2,htapp,2,True,ok,7
+atl_htapp_p3,htapp,0,True,ok,4
+atl_htapp_p3,htapp,1,True,ok,4
+atl_htapp_p3,htapp,2,True,ok,4
+atl_htapp_p4,htapp,0,False,test donors hold 0 hidden cells (< 20),4
+atl_htapp_p4,htapp,1,True,ok,4
+atl_htapp_p4,htapp,2,True,ok,4
+atl_htapp_p5,htapp,0,False,test donors hold 7 hidden cells (< 20),4
+atl_htapp_p5,htapp,1,False,test donors hold 0 hidden cells (< 20),4
+atl_htapp_p5,htapp,2,False,train donors hold 7 hidden cells in classes >= 5 (< 20),4
+atl_arthritis_p0,arthritis,0,True,ok,2
+atl_arthritis_p0,arthritis,1,True,ok,2
+atl_arthritis_p0,arthritis,2,False,two donors: seed repeats the seed-0 split,2
+atl_arthritis_p1,arthritis,0,False,single donor,1
+atl_arthritis_p1,arthritis,1,False,single donor,1
+atl_arthritis_p1,arthritis,2,False,single donor,1
+atl_arthritis_p2,arthritis,0,True,ok,2
+atl_arthritis_p2,arthritis,1,True,ok,2
+atl_arthritis_p2,arthritis,2,False,two donors: seed repeats the seed-0 split,2
+atl_arthritis_p3,arthritis,0,True,ok,2
+atl_arthritis_p3,arthritis,1,True,ok,2
+atl_arthritis_p3,arthritis,2,False,two donors: seed repeats the seed-0 split,2
+atl_arthritis_p4,arthritis,0,False,single donor,1
+atl_arthritis_p4,arthritis,1,False,single donor,1
+atl_arthritis_p4,arthritis,2,False,single donor,1
+atl_arthritis_p5,arthritis,0,True,ok,2
+atl_arthritis_p5,arthritis,1,True,ok,2
+atl_arthritis_p5,arthritis,2,False,two donors: seed repeats the seed-0 split,2
+atl_arthritis_p6,arthritis,0,True,ok,2
+atl_arthritis_p6,arthritis,1,True,ok,2
+atl_arthritis_p6,arthritis,2,False,two donors: seed repeats the seed-0 split,2
+atl_arthritis_p7,arthritis,0,False,single donor,1
+atl_arthritis_p7,arthritis,1,False,single donor,1
+atl_arthritis_p7,arthritis,2,False,single donor,1
+atl_psccolon_p0,psccolon,0,True,ok,3
+atl_psccolon_p0,psccolon,1,True,ok,3
+atl_psccolon_p0,psccolon,2,True,ok,3
+atl_psccolon_p1,psccolon,0,True,ok,2
+atl_psccolon_p1,psccolon,1,True,ok,2
+atl_psccolon_p1,psccolon,2,False,two donors: seed repeats the seed-0 split,2
+atl_psccolon_p2,psccolon,0,False,single donor,1
+atl_psccolon_p2,psccolon,1,False,single donor,1
+atl_psccolon_p2,psccolon,2,False,single donor,1
+atl_psccolon_p3,psccolon,0,True,ok,3
+atl_psccolon_p3,psccolon,1,True,ok,3
+atl_psccolon_p3,psccolon,2,True,ok,3
+atl_psccolon_p4,psccolon,0,True,ok,3
+atl_psccolon_p4,psccolon,1,True,ok,3
+atl_psccolon_p4,psccolon,2,True,ok,3
+atl_psccolon_p5,psccolon,0,True,ok,4
+atl_psccolon_p5,psccolon,1,True,ok,4
+atl_psccolon_p5,psccolon,2,True,ok,4
+atl_hypomap_p0,hypomap,0,False,single donor,1
+atl_hypomap_p0,hypomap,1,False,single donor,1
+atl_hypomap_p0,hypomap,2,False,single donor,1
+atl_hypomap_p1,hypomap,0,True,ok,2
+atl_hypomap_p1,hypomap,1,True,ok,2
+atl_hypomap_p1,hypomap,2,False,two donors: seed repeats the seed-0 split,2
+atl_hypomap_p2,hypomap,0,False,single donor,1
+atl_hypomap_p2,hypomap,1,False,single donor,1
+atl_hypomap_p2,hypomap,2,False,single donor,1
+atl_hypomap_p3,hypomap,0,False,single donor,1
+atl_hypomap_p3,hypomap,1,False,single donor,1
+atl_hypomap_p3,hypomap,2,False,single donor,1
+atl_hypomap_p4,hypomap,0,False,single donor,1
+atl_hypomap_p4,hypomap,1,False,single donor,1
+atl_hypomap_p4,hypomap,2,False,single donor,1
+atl_ocular_p0,ocular,0,True,ok,3
+atl_ocular_p0,ocular,1,True,ok,3
+atl_ocular_p0,ocular,2,True,ok,3
+atl_ocular_p1,ocular,0,True,ok,2
+atl_ocular_p1,ocular,1,True,ok,2
+atl_ocular_p1,ocular,2,False,two donors: seed repeats the seed-0 split,2
+atl_ocular_p2,ocular,0,True,ok,4
+atl_ocular_p2,ocular,1,True,ok,4
+atl_ocular_p2,ocular,2,True,ok,4
+atl_ocular_p3,ocular,0,True,ok,5
+atl_ocular_p3,ocular,1,True,ok,5
+atl_ocular_p3,ocular,2,True,ok,5
+atl_ocular_p4,ocular,0,True,ok,5
+atl_ocular_p4,ocular,1,True,ok,5
+atl_ocular_p4,ocular,2,True,ok,5
+atl_ocular_p5,ocular,0,False,single donor,1
+atl_ocular_p5,ocular,1,False,single donor,1
+atl_ocular_p5,ocular,2,False,single donor,1
+atl_ocular_p6,ocular,0,True,ok,2
+atl_ocular_p6,ocular,1,True,ok,2
+atl_ocular_p6,ocular,2,False,two donors: seed repeats the seed-0 split,2
+atl_ocular_p7,ocular,0,True,ok,2
+atl_ocular_p7,ocular,1,True,ok,2
+atl_ocular_p7,ocular,2,False,two donors: seed repeats the seed-0 split,2
+atl_ocular_p8,ocular,0,True,ok,2
+atl_ocular_p8,ocular,1,True,ok,2
+atl_ocular_p8,ocular,2,False,two donors: seed repeats the seed-0 split,2
+atl_ocular_p9,ocular,0,True,ok,4
+atl_ocular_p9,ocular,1,True,ok,4
+atl_ocular_p9,ocular,2,True,ok,4
+atl_ocular_p10,ocular,0,True,ok,3
+atl_ocular_p10,ocular,1,True,ok,3
+atl_ocular_p10,ocular,2,True,ok,3
+atl_ocular_p11,ocular,0,True,ok,3
+atl_ocular_p11,ocular,1,False,test donors hold 8 hidden cells (< 20),3
+atl_ocular_p11,ocular,2,True,ok,3
+atl_ocular_p12,ocular,0,False,single donor,1
+atl_ocular_p12,ocular,1,False,single donor,1
+atl_ocular_p12,ocular,2,False,single donor,1
+atl_ocular_p13,ocular,0,True,ok,2
+atl_ocular_p13,ocular,1,True,ok,2
+atl_ocular_p13,ocular,2,False,two donors: seed repeats the seed-0 split,2
