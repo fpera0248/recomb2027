@@ -15,6 +15,23 @@ Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables be
 
 Python 3.12. `pip install -r requirements.txt`. scikit-learn must be 1.5.2 (the model pickle was written with it). The 10-atlas results were computed with these versions on macOS arm64. Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ (Spearman about 0.8 to 0.9 on one test pool) and pool union AP moves by about 0.01. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper.
 
+## Reproducing the numbers
+
+```
+./reproduce.sh paper     # download the release assets, recompute every Part II number, assert the match
+./reproduce.sh rerun     # rescore the 69 held-out pools with this repository's scorer
+./reproduce.sh full      # rebuild the 10-atlas test pools from CELLxGENE and rerun everything
+```
+`fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; without `--check` it refreshes the manifest from the CELLxGENE curation API.
+
+| Tier | Input | Exactness | Time |
+|---|---|---|---|
+| paper | saved predictions of every method on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and Part I figures are asserted; the bootstrap interval is checked to 0.005 | 2 minutes, 1.3 GB |
+| rerun | frozen candidate tables and Leiden scores | not exact: mean Spearman of per-cell scores 0.88 against the saved ones, atlas-equal union AP 0.3195 against 0.3213; asserted within 0.01 | 2 minutes |
+| full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | about 30 GB of downloads, hours to days |
+
+The `paper` tier executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, MARS and scCAD style metrics), `03_null_test.ipynb` (twin pools with the hidden cells removed) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Part I numbers outside the notebook (generator training, the full data panel) are not recomputed; notebook 04 lists what it covers. The `paper` and `rerun` tiers use only the 69 pools of the 8-atlas test set; the 10-atlas predictions are produced by `full`.
+
 ## One pool
 
 ```
