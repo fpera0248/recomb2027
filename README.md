@@ -18,19 +18,21 @@ Python 3.12. `pip install -r requirements.txt`. scikit-learn must be 1.5.2 (the 
 ## Reproducing the numbers
 
 ```
-./reproduce.sh paper     # download the release assets, recompute every Part II number, assert the match
+./reproduce.sh paper     # download the release assets, recompute the Part II numbers of the 8-atlas test set, assert the match
 ./reproduce.sh rerun     # rescore the 69 held-out pools with this repository's scorer
 ./reproduce.sh full      # rebuild the 10-atlas test pools from CELLxGENE and rerun everything
 ```
-`fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; without `--check` it refreshes the manifest from the CELLxGENE curation API.
+`fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
+
+While the repository is private, the plain release URLs return 404. `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in with read access), or set `ASSET_SRC=DIR` to take the assets from a local directory. Set `TAG` for another release.
 
 | Tier | Input | Exactness | Time |
 |---|---|---|---|
-| paper | saved predictions of every method on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and Part I figures are asserted; the bootstrap interval is checked to 0.005 | 2 minutes, 1.3 GB |
+| paper | saved predictions of every method on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and Part I figures are asserted; the bootstrap interval is checked to 0.005 | 2 minutes, 1.2 GB |
 | rerun | frozen candidate tables and Leiden scores | not exact: mean Spearman of per-cell scores 0.88 against the saved ones, atlas-equal union AP 0.3195 against 0.3213; asserted within 0.01 | 2 minutes |
 | full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | about 30 GB of downloads, hours to days |
 
-The `paper` tier executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, MARS and scCAD style metrics), `03_null_test.ipynb` (twin pools with the hidden cells removed) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Part I numbers outside the notebook (generator training, the full data panel) are not recomputed; notebook 04 lists what it covers. The `paper` and `rerun` tiers use only the 69 pools of the 8-atlas test set; the 10-atlas predictions are produced by `full`.
+The `paper` tier executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, MARS and scCAD style metrics), `03_null_test.ipynb` (twin pools with the hidden cells removed) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Container images, an image build workflow and per-tool environment files are not provided yet. The `paper` and `rerun` tiers use only the 69 pools of the 8-atlas test set; the 10-atlas predictions are produced by `full`.
 
 ## One pool
 

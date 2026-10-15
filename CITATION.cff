@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Hidden rare cell types: code to reproduce the paper"
+authors:
+  - family-names: "Peralta Castro"
+    given-names: "Fernando"
+repository-code: "https://github.com/fpera0248/recomb2027"
