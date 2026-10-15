@@ -30,13 +30,18 @@ RUN bash tools/fetch_sources.sh \
     && cd $FIRE_BUILD && BOOST_INC=/usr/include /opt/venv/bin/python setup.py build_ext --inplace
 
 # Seurat 4.4.0 / SeuratObject 4.1.4: GapClust and SCISSORS read the v3/v4 slots. Nothing may upgrade them.
-# rflann (GapClust dependency) needs -std=gnu++14.
-RUN R_MAKEVARS_USER=/opt/recomb2027/tools/Makevars.rflann Rscript -e ' \
+RUN Rscript -e ' \
       install.packages(c("remotes", "BiocManager")); \
       BiocManager::install("SingleCellExperiment", ask = FALSE, update = FALSE); \
       remotes::install_version("SeuratObject", "4.1.4", upgrade = "never"); \
-      remotes::install_version("Seurat", "4.4.0", upgrade = "never"); \
-      for (p in c("rflann", "CellSIUS", "GapClust", "SCISSORS")) remotes::install_local(file.path("/opt/tools_src", p), dependencies = NA, upgrade = "never"); \
+      remotes::install_version("Seurat", "4.4.0", upgrade = "never")'
+
+# rflann (GapClust dependency) needs -std=gnu++14; the flag is set for this step only.
+RUN R_MAKEVARS_USER=/opt/recomb2027/tools/Makevars.rflann Rscript -e \
+      'remotes::install_local("/opt/tools_src/rflann", dependencies = NA, upgrade = "never")'
+
+RUN Rscript -e ' \
+      for (p in c("CellSIUS", "GapClust", "SCISSORS")) remotes::install_local(file.path("/opt/tools_src", p), dependencies = NA, upgrade = "never"); \
       stopifnot(packageVersion("Seurat") == "4.4.0", packageVersion("SeuratObject") == "4.1.4", \
                 all(c("CellSIUS", "GapClust", "SCISSORS", "rflann") %in% rownames(installed.packages())))'
 
