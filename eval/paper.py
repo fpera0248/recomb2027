@@ -4,7 +4,6 @@ Inputs are the release assets, extracted under one root: pilots/, manifests/, po
 tool_out/<tool>/<pool>.parquet. Nothing is refit.
 """
 import glob
-import itertools
 
 import numpy as np
 import pandas as pd
@@ -13,7 +12,7 @@ from sklearn.metrics import adjusted_mutual_info_score, adjusted_rand_score, coh
 from .analyze import compare, exact
 from .score_atl import score, truth_table
 
-OURS, LEIDEN = "hiddenrare", "leiden_sub"
+OURS = "hiddenrare"
 METRICS = ("union_AP", "E1_union")
 
 
@@ -32,14 +31,16 @@ def read_scores(path, df):
 
 def pool_metrics(root, methods, pids=None, call=False):
     """methods: {name: directory with <pool>.parquet}. -> long table (pilot_id, method, metric, value) of union AP and E1.
-    call=True ranks cells by the method's declared call (calls first, one tie group) instead of its saved score."""
+    call=True ranks cells by the method's declared call (calls first, then by score) instead of its saved score."""
     pids = pids or pools(root)[0]
     rows = []
     for pid in pids:
         df, tg = truth_table(f"{root}/pilots", pid)
         for name, d in methods.items():
             p = read_scores(f"{d}/{pid}.parquet", df)
-            s = (p.call.astype(float) if call else p.score.fillna(0)).values
+            s = p.score.fillna(0).values
+            if call:
+                s = p.call.astype(float).values * (np.abs(s).max() * 2 + 1) + s
             rows += [(pid, name, r[2], r[6]) for r in score(df, tg, s, pid, name) if r[3] == "*" and r[2] in METRICS]
     return pd.DataFrame(rows, columns=["pilot_id", "method", "metric", "value"])
 
