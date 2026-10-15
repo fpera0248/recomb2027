@@ -1,0 +1,28 @@
+name: container-check
+
+# Run the paper and rerun tiers inside a published recomb2027-hiddenrare image. Manual only.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: image tag
+        default: v0.1.0
+
+permissions:
+  contents: read
+
+jobs:
+  paper-rerun:
+    runs-on: ubuntu-latest
+    env:
+      IMG: ghcr.io/fpera0248/recomb2027-hiddenrare:${{ inputs.tag }}
+    steps:
+      - run: docker pull "$IMG"
+      - name: paper tier
+        run: |
+          mkdir -p out
+          time docker run --rm -v "$PWD/out":/out "$IMG" env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
+      - name: rerun tier
+        run: time docker run --rm -v "$PWD/out":/out "$IMG" env ASSETS=/out/assets OUT=/out/reproduce_out reproduce rerun
+      - if: always()
+        run: df -h
