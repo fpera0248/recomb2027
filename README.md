@@ -19,7 +19,7 @@ Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables be
 
 Pick one.
 
-**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is its full `pip list`. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
+**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
 **Container (untested).** Two images, defined in `docker/` and built by `.github/workflows/build-images.yml`, which pushes them to GHCR on every release. They have not been built or run yet. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
@@ -40,7 +40,7 @@ Apptainer and details: `CONTAINER.md`.
 ```
 ./reproduce.sh paper     # download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type tables, assert the match
 ./reproduce.sh rerun     # rescore the 69 held-out pools with this repository's scorer
-./reproduce.sh full      # rebuild the 10-atlas test pools from CELLxGENE and rerun everything
+./reproduce.sh full      # rebuild the 10-atlas test pools from CELLxGENE and rerun our method, Leiden subclustering and (TOOLS=1) the published tools on them (untested)
 ```
 
 | Tier | Input | Exactness | Time and disk |
@@ -51,7 +51,7 @@ Apptainer and details: `CONTAINER.md`.
 
 `full` does not rebuild the twin pools, run the leak check or the Part I panel, and does not produce the strata, separability tiers, ablations, CHOIR or figures. `TOOLS=1` also runs the published tools: they need their own Python environment (scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it, see `ENVIRONMENTS.md`) and `SCGPT_CKPT`, a tool with an output is skipped and failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
-At the `paper` tier the results match the paper exactly: every table value, test and null-test rate is recomputed from the saved predictions and asserted, so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Time estimates for the containers have not been measured, and the images have not been built from this checkout (no Docker on the machine that prepared them); the first CI build is the first test of the Dockerfiles.
+At the `paper` tier the results match the paper exactly: every value, test and null-test rate of the 8-atlas test set and the Part I numbers of notebook 04 is recomputed from the saved predictions and asserted, so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Time estimates for the containers have not been measured, and the images have not been built from this checkout (no Docker on the machine that prepared them); the first CI build is the first test of the Dockerfiles.
 
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
 
@@ -63,7 +63,7 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 
 ## Notebooks
 
-`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, metrics used in the MARS and scCAD papers), `03_null_test.ipynb` (twin pools with the hidden cells removed: 101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks assert numbers and draw no figures. They only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. The `paper` and `rerun` tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases). The 8-atlas test set (69 pools) and the 10-atlas test set (57 pools) are different sets; the 10-atlas predictions are produced by `full`.
+`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, metrics used in the MARS and scCAD papers), `03_null_test.ipynb` (twin pools with the hidden cells removed: 101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks assert numbers and draw no figures. They only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. The `paper` and `rerun` tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases). The 8-atlas test set (69 pools) and the 10-atlas test set (57 pools) are different sets; the 10-atlas predictions are produced by `full` (untested).
 
 ## Paper items
 
@@ -71,7 +71,7 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 
 | Paper item | Notebook section | Tier | Status |
 |---|---|---|---|
-| Fig. 1a, augmentation minus duplication over 88 datasets | 04 section 1 | paper | partial: win counts and deep-generator summary; the 352-test counts are not recomputed |
+| Fig. 1a, augmentation minus duplication over 88 datasets | 04 section 1 | paper | partial: win counts and deep-generator summary; the per-test counts are not recomputed |
 | Fig. 1b, default threshold against matched point | 04 section 1 | paper | partial: duplication against no augmentation only |
 | Fig. 1c, duplication equals sample weighting | 04 section 2 | paper | reproduced |
 | Fig. 1d, union AP of our method, Leiden subclustering, scCAD and the loops | 01 sections 2, 4, 5; 02 section 2 | paper | partial: union AP values; the random-ranking line is not recomputed |
@@ -80,7 +80,7 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 | Fig. 3, separability tiers and UMAPs | none | none | not in repo (10-atlas results) |
 | Fig. 4, hidden-type calls plus duplication | none | none | not in repo (`combination/` code only, results pending) |
 | Supp. Fig. S1, example pool | none | none | not in repo |
-| Supp. Fig. S2, null twins | 03 and 03 section 2 | paper | reproduced (rates and AUC) |
+| Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced (rates and AUC) |
 | Supp., published detectors against our method | 02 sections 2 and 3 | paper | reproduced |
 | Supp., metrics for the called cells | 02 section 4 | paper | reproduced |
 | Supp., 31-type run | 04 section 3 | paper | reproduced |

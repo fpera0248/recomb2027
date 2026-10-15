@@ -3,7 +3,7 @@
 #
 #   reproduce.sh paper    download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type tables, assert the match
 #   reproduce.sh rerun    rescore the 69 held-out pools from the frozen candidate tables with this repository's scorer
-#   reproduce.sh full     rebuild the 10-atlas test pools from CELLxGENE and rerun the whole pipeline
+#   reproduce.sh full     rebuild the 10-atlas test pools from CELLxGENE and rerun our method, Leiden subclustering and (TOOLS=1) the published tools on them (untested)
 #
 # Env: PYTHON (python3), ASSETS (./assets), OUT (./reproduce_out), TAG and ASSET_SRC (see fetch_data.sh).
 # full also: HR_DATA (./work); TOOLS=1 runs the published tools. They need their own Python environment (tools/requirements.txt, scikit-learn 1.9.1,
