@@ -62,6 +62,10 @@ Python tools run in their own environment: `pip install -r tools/requirements.tx
 
 Datasets used before the test are listed in `data/used_datasets.csv`; the Human Breast Cell Atlas (collection 48259aa8) was also used and is not in that list.
 
+## Part I code
+
+`part1/` holds the code behind the duplication-versus-generators study of known rare types. `part1/run.sh` lists the commands: `aida.py` (all generators and duplication on AIDA), `split_cache.py`, `statistical.py` and `dup_weight.py` (statistical augmentation conditions and sample weighting on the same split), `hlca.py` and `lupus.py` (the same protocol on two more datasets), and `panel_run.sh`, `panel_pull.py`, `panel_readout.py`, `noaug.py` and `panel_analysis.py` (the 88-dataset CELLxGENE panel). `scdesign3.R` is the scDesign3 driver and `diffusion.py` wraps scDiffusion. These runs need the source h5ad files, a GPU and days of compute; the `paper` tier only reads their result tables through `part1/panel.py` and `part1/probe31.py`.
+
 ## Not included
 
 CELLxGENE data (downloaded by the builders), the training pools, and the tool checkouts. `hiddenrare/scorer.py fit` is the training script; it needs the training pools. Run it from the repository root (it imports eval/targets.py). Also not included: the runtime and memory table of the paper (per-job `/usr/bin/time -l` logs on the run machine).
