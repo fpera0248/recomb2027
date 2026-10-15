@@ -39,8 +39,6 @@ def build_sdiff(
     # vae_ckpt reuses a converged autoencoder; vae_steps trains to a step budget with the
     # authors' optimizer (AdamW, lr 5e-4, wd 0.01) at their batch size, because the 40-epoch budget
     # left the autoencoder round trip unusable.
-    import os
-
     if vae_ckpt and os.path.exists(vae_ckpt):
         vae.load_state_dict(torch.load(vae_ckpt, map_location='cpu'))
     elif vae_steps:

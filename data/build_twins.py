@@ -203,4 +203,5 @@ def _check():
 
 if __name__ == "__main__":
     _check()
-    [build_twins(n) for n in sys.argv[1:]]
+    for n in sys.argv[1:]:
+        build_twins(n)

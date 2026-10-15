@@ -5,11 +5,6 @@ HR_DATA holds pilots/, manifests/, pools.csv and predictions/ (the paper-tier as
 Pseudo-labels use only the method's own calls on training-donor cells; true labels enter the true_* settings, the scores and the purity diagnostic.
 """
 
-
-class IdMismatch(Exception):
-    pass
-
-
 import os, sys, time, glob, hashlib, argparse, resource, warnings
 
 ROOT = os.environ.get("HR_DATA", "assets")
@@ -23,6 +18,11 @@ import numpy as np, pandas as pd
 from hiddenrare.io import opaque_order, load_pool, rprec
 from eval.targets import targets
 from eval.score_atl import in_top
+
+
+class IdMismatch(Exception):
+    pass
+
 
 TARGET = 256  # each pseudo or hidden class is topped up to this many cells
 CLFS = ("lr", "rf", "mlp")
@@ -278,11 +278,8 @@ def run(pid, seed, out, clf="lr"):
     U = u & te
     nU = int(U.sum())
     rows, store = [], {}
-    for (
-        st
-    ) in (
-        SETTINGS
-    ):  # broad-only has no pseudo class, so its score is 1 - max probability and is never compared as a detector
+    # broad-only has no pseudo class, so its score is 1 - max probability and is never compared as a detector
+    for st in SETTINGS:
         p = ps[st]
         y = np.where(p != "", p, lab).astype(object)
         cls = sorted(set(p[p != ""]))
@@ -330,11 +327,8 @@ def run(pid, seed, out, clf="lr"):
                 ),
             )
         )
-    for (
-        r
-    ) in (
-        rows
-    ):  # precision and recall of the ranking at K = argmax calls of the duplication counterpart
+    # precision and recall of the ranking at K = argmax calls of the duplication counterpart
+    for r in rows:
         s, ut, nc = store[r["setting"]]
         K = store[PAIR.get(r["setting"], r["setting"])][2]
         r["k_ref"] = K
@@ -414,11 +408,10 @@ if __name__ == "__main__":
     ap.add_argument("--plan", action="store_true")
     g = ap.parse_args()
     if g.plan:
-        (
+        if not g.out:
             ap.error("--plan needs --out")
-            if not g.out
-            else plan().to_csv(g.out, index=False)
-        )
+        else:
+            plan().to_csv(g.out, index=False)
     else:
         run(
             g.pool, g.seed, g.out or f"{HERE}/rows_{g.pool}_{g.seed}_{g.clf}.csv", g.clf

@@ -245,9 +245,6 @@ elif sys.argv[1] == 'report':
     )
     print('panel per tissue:\n' + Pn.tissue.value_counts().to_string())
     print('panel per assay:\n' + Pn.assay.value_counts().to_string())
-    for x in ('c838aec3', '218acb0f', '9f222629'):
-        m = R[R.dataset_id.str.startswith(x)]
-        print(x, m[['donors', 'eligible', 'qualifies', 'panel']].to_dict('records'))
 
 if __name__ == '__main__' and sys.argv[1] == 'test':  # the split rule on a toy table
     D = pd.DataFrame(

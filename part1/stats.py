@@ -5,18 +5,7 @@ import itertools
 import numpy as np
 import pandas as pd
 
-
-def signflip_p(d, groups):
-    """Exact two-sided sign-flip p over cell types, on per-type mean differences; above 16 types, 200,000 seeded draws."""
-    dt = np.array([d[groups == g].mean() for g in np.unique(groups)])
-    obs = abs(dt.mean())
-    if len(dt) > 16:
-        S = np.random.default_rng(0).choice((-1.0, 1.0), size=(200_000, len(dt)))
-        with np.errstate(all="ignore"):
-            T = np.abs(S @ dt) / len(dt)
-        return float((1 + np.sum(T >= obs - 1e-12)) / (1 + len(S))), dt
-    null = [abs((dt * s).mean()) for s in itertools.product((-1, 1), repeat=len(dt))]
-    return float(np.mean(np.array(null) >= obs - 1e-12)), dt
+from .signflip import signflip_p
 
 
 def bh(p):

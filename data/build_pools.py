@@ -245,7 +245,8 @@ def _check():
 
 if __name__ == "__main__":
     if not sys.argv[1:] or {"-h", "--help"} & set(sys.argv):
-        sys.exit(print(__doc__))
+        print(__doc__)
+        sys.exit()
     _check()
     ok = [
         build(n, "--force" in sys.argv) for n in sys.argv[1:] if not n.startswith("--")

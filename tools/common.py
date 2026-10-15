@@ -15,7 +15,7 @@ def read_pool(path):
     return a
 
 
-def opaque_order(pid, obs_names):
+def opaque_order_inv(pid, obs_names):
     """Order by sha1(pid NUL obs_name) and its inverse."""
     dg = np.array(
         [hashlib.sha1(f"{pid}\x00{o}".encode()).hexdigest() for o in obs_names]

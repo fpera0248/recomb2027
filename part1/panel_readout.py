@@ -12,15 +12,18 @@ METHODS = sorted(
     - {'base', 'sd3'}
     | {'sd3_nosingle'}
 )
-_fn = lambda s, a: next(
-    (
-        f
-        for f in (f'{HL}/s{s}_{a}.npz',)
-        + ((f'{HL}/s{s}_sd3.npz',) if a == 'sd3_nosingle' else ())
-        if os.path.exists(f)
-    ),
-    None,
-)
+
+
+def _fn(s, a):
+    return next(
+        (
+            f
+            for f in (f'{HL}/s{s}_{a}.npz',)
+            + ((f'{HL}/s{s}_sd3.npz',) if a == 'sd3_nosingle' else ())
+            if os.path.exists(f)
+        ),
+        None,
+    )
 
 
 def _base(seed):

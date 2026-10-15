@@ -25,14 +25,14 @@ import numpy as np
 import scipy.sparse as sp
 import scCAD as sccad
 
-from common import opaque_order, read_pool, write_out
+from common import opaque_order_inv, read_pool, write_out
 from sccad_label import convert
 
 if __name__ == "__main__":
     pool, out = sys.argv[1], sys.argv[2]
     pid = os.path.basename(pool).replace(".h5ad", "")
     a = read_pool(pool)
-    o, inv = opaque_order(pid, a.obs_names)
+    o, inv = opaque_order_inv(pid, a.obs_names)
     X = a.X[o]
     X = (X.toarray() if sp.issparse(X) else np.asarray(X)).astype(np.float32)
     cells = np.array(a.obs_names)[o]

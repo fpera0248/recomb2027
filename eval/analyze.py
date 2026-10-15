@@ -449,7 +449,7 @@ def render(res, args):
     L = [
         "# Analysis",
         "",
-        f"VERDICT (primary, union_AP): **{res['verdict']}**"
+        f"Verdict (primary, union_AP): **{res['verdict']}**"
         + (f" (failed: {', '.join(res['failed_part'])})" if res["failed_part"] else ""),
         f"{res['n_pools']} pools, {res['n_atlases']} atlases, {len(res['dropped_pools'])} pools dropped by leak check, {len(res['ours_at_chance_pools'])} pools where our method is scored at chance.",
         "",
@@ -457,7 +457,7 @@ def render(res, args):
     L += ["## Primary and E1_union\n", HDR]
     for m in POOLM:
         for t in ("T1", "T2"):
-            L.append(row(res[m][t]) + f" <- {m} {t}")
+            L.append(row(res[m][t]) + f" ({m} {t})")
     L += [
         "",
         f"T2 evaluable: {res['union_AP']['T2']['evaluable']} (comparator scored on {res['union_AP']['T2']['atlases_with_scorer']} atlases). Pools dropped from T1 for Leiden did-not-fit: {res['union_AP']['T1']['leiden_dropped_pools']}.",
@@ -476,7 +476,7 @@ def render(res, args):
     L += ["", "## Every other method vs our method (exploratory, unadjusted)\n", HDR]
     for m, v in res["vs_ours"].items():
         for k in POOLM:
-            L.append(row(v[k]) + f" <- {k}")
+            L.append(row(v[k]) + f" ({k})")
     L += [
         "",
         "## Hit rate (det50)\n",
@@ -495,17 +495,17 @@ def render(res, args):
         for m, v in res["masked_AP"].items()
     ]
     L += ["", HDR] + [
-        row(res["masked_AP_vs"][t]) + f" <- masked_AP {t}" for t in ("T1", "T2")
+        row(res["masked_AP_vs"][t]) + f" (masked_AP {t})" for t in ("T1", "T2")
     ]
     L += [
         "",
         "## Ours vs learned scorer alone, and vs Leiden on pools where every tool completed\n",
         HDR,
     ]
-    L += [row(res["learned_alone"][m]) + f" <- {m}" for m in POOLM]
+    L += [row(res["learned_alone"][m]) + f" ({m})" for m in POOLM]
     L += [
         row(res["vs_leiden_tools_complete_pools"][m])
-        + f" <- {m} (tools: {', '.join(res['vs_leiden_tools_complete_pools']['tools'])}; {res['vs_leiden_tools_complete_pools']['n_pools']} pools)"
+        + f" ({m}; tools: {', '.join(res['vs_leiden_tools_complete_pools']['tools'])}; {res['vs_leiden_tools_complete_pools']['n_pools']} pools)"
         for m in POOLM
     ]
     if "tiefair" in res:

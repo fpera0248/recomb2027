@@ -16,14 +16,10 @@ REP = os.environ.get(
     'REP', 'split'
 )  # splittrain = train-only HVGs (HVG_TRAIN=1 split_cache.py)
 
-ANCHORS = None
-
 
 def dup(Z, y, c, k, rng):
     pos = np.where(y == c)[0]
     i = rng.choice(pos, k, replace=True)
-    if ANCHORS is not None:
-        ANCHORS.append(i)
     return Z[i], np.full(k, c), np.ones(k)
 
 
@@ -47,8 +43,6 @@ def smote(Z, y, c, k, rng, kn):
     ind = NearestNeighbors(n_neighbors=kk + 1).fit(X).kneighbors(X)[1]
     i = rng.integers(n, size=k)
     j = ind[i, rng.integers(1, kk + 1, size=k)]
-    if ANCHORS is not None:
-        ANCHORS.append(np.where(y == c)[0][i])
     return X[i] + rng.random((k, 1)) * (X[j] - X[i]), np.full(k, c), np.ones(k)
 
 
@@ -135,14 +129,11 @@ def methods(Z, y, seed):
         'smote_k5': lambda *a: smote(*a, kn=5),
         'smote_kall': lambda *a: smote(*a, kn=None),
     }
-    for mod, grid in (('aug_li2025', 'LI_GRID'), ('aug_jmo', 'JMO_GRID')):
+    for mod in ('aug_li2025', 'aug_jmo'):
         if not os.path.exists(mod + '.py'):
             continue
         m = importlib.import_module(mod)
-        for tag, params in getattr(m, grid, {'': {}}).items():
-            A[mod[4:] + tag] = (lambda m, p: lambda *a, **kw: m.augment(*a, **p, **kw))(
-                m, dict(params)
-            )
+        A[mod[4:]] = m.augment
     return A
 
 

@@ -12,7 +12,7 @@ sys.dont_write_bytecode = True
 import numpy as np, pandas as pd
 from scipy import stats
 from eval.analyze import exact
-from eval.paper import weights, pool_flip
+from eval.paper import weights, pool_flip, holm as paper_holm
 
 ROOT = os.environ.get("HR_DATA", "assets")
 # (A, B, metric, family). Cross-method recall uses rprec; rec_at_kref only for duplication against none, where K is shared.
@@ -34,15 +34,8 @@ CON = [
 
 
 def holm(p):
-    p = np.asarray(p, float)
-    o = np.argsort(p)
-    adj = np.empty_like(p)
-    m = len(p)
-    run = 0
-    for r, i in enumerate(o):
-        run = max(run, (m - r) * p[i])
-        adj[i] = min(1, run)
-    return adj
+    h = paper_holm(dict(enumerate(np.asarray(p, float))))
+    return np.array([h[i] for i in range(len(h))])
 
 
 def check(d, plan, clf):

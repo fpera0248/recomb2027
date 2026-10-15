@@ -231,33 +231,6 @@ def build_fm(ae, INIT, tr_idx, ytr, seed, sfs, bal=False):
     return fm
 
 
-def metrics(G, R, c, CENT):
-    dgr = np.linalg.norm(G[:, None] - R[None], axis=2)
-    dgg = np.linalg.norm(G[:, None] - G[None], axis=2)
-    drr = np.linalg.norm(R[:, None] - R[None], axis=2)
-    e = 2 * dgr.mean() - dgg.mean() - drr.mean()
-    rr = np.sort(drr, 1)[:, K]
-    gg = np.sort(dgg, 1)[:, K]
-    return dict(
-        energy=float(e),
-        purity=float(
-            (np.linalg.norm(G[:, None] - CENT[None], axis=2).argmin(1) == c).mean()
-        ),
-        precision=float((dgr <= rr[None, :]).any(1).mean()),
-        recall=float((dgr <= gg[:, None]).any(0).mean()),
-    )
-
-
-K = 5
-
-
-def energy(Ga, Rb):
-    ab = np.linalg.norm(Ga[:, None] - Rb[None], axis=2).mean()
-    aa = np.linalg.norm(Ga[:, None] - Ga[None], axis=2).mean()
-    bb = np.linalg.norm(Rb[:, None] - Rb[None], axis=2).mean()
-    return 2 * ab - aa - bb
-
-
 rows = []
 drows = []
 lrows = []
@@ -537,10 +510,9 @@ for seed in SEEDS:
             ).astype(np.float32)
         )[:, None]
         boot = torch.from_numpy(rng.integers(0, len(idx_c), k))
-        for enc, dst in ((ae, lb),):
-            with torch.no_grad():
-                z = enc.encode(mk_batch(idx_c))["rna"]
-            dst[int(c)] = to_pca(decode_latents(enc, z[boot], L))
+        with torch.no_grad():
+            z = ae.encode(mk_batch(idx_c))["rna"]
+        lb[int(c)] = to_pca(decode_latents(ae, z[boot], L))
         with torch.no_grad():
             zr = ae.encode(mk_batch(idx_c))["rna"]
         mu_z = zr.mean(0, keepdim=True)
@@ -962,7 +934,7 @@ D = pd.DataFrame(drows)
 D.to_csv('aida_disp.csv', index=False)
 L = pd.DataFrame(lrows)
 L.to_csv('aida_ilisi.csv', index=False)
-GARMS = [
+GEN_METHODS = [
     a
     for a in (
         'train',
@@ -986,12 +958,12 @@ for stat, lab in (
     ('pull_glob', 'fraction of the way toward the abundant-cell centroid'),
 ):
     print(f"\n=== {stat}: {lab}")
-    print('  n_c     ' + ''.join(f'{a:>11s}' for a in GARMS))
+    print('  n_c     ' + ''.join(f'{a:>11s}' for a in GEN_METHODS))
     for lo, hi, nm in BINS:
         d = D[(D.n >= lo) & (D.n <= hi)]
         print(
             f'  {nm:6s}  '
-            + ''.join(f'{d[d.method==a][stat].mean():11.3f}' for a in GARMS)
+            + ''.join(f'{d[d.method==a][stat].mean():11.3f}' for a in GEN_METHODS)
         )
 
 print("\n=== paired vs the upsampling null, mean and t")
@@ -1002,7 +974,7 @@ for stat in ('d_norm', 'pull_glob'):
         p = D[(D.n >= lo) & (D.n <= hi)].pivot_table(
             index=['seed', 'c'], columns='method', values=stat
         )
-        for a in GARMS[2:]:
+        for a in GEN_METHODS[2:]:
             if a not in p.columns or 'upsample' not in p.columns:
                 continue
             v = (p[a] - p['upsample']).dropna()
@@ -1013,7 +985,7 @@ for stat in ('d_norm', 'pull_glob'):
             )
         print(f'    n_c {nm:5s}: ' + '  '.join(out))
 
-LARMS = [
+LOSS_METHODS = [
     a
     for a in (
         'upsample',
@@ -1036,12 +1008,12 @@ for scope, note in (
     ('within', 'backdrop = held-out real cells of that class'),
 ):
     print(f'  {scope}: {note}')
-    print('    n_c   ' + ''.join(f'{a:>11s}' for a in LARMS))
+    print('    n_c   ' + ''.join(f'{a:>11s}' for a in LOSS_METHODS))
     for lo, hi, nm in BINS:
         d = L[(L.scope == scope) & (L.n >= lo) & (L.n <= hi)]
         print(
             f'    {nm:5s} '
-            + ''.join(f'{d[d.method==a].ilisi.mean():11.3f}' for a in LARMS)
+            + ''.join(f'{d[d.method==a].ilisi.mean():11.3f}' for a in LOSS_METHODS)
         )
 
 # per method: delta = mean recall@200 minus upsampling (paired per seed, class), t_CLUST over the 8 types, win rate, median seconds
