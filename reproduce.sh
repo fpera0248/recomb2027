@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Reproduce the numbers of the paper at three depths.
 #
-#   reproduce.sh paper    download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type tables, assert the match
+#   reproduce.sh paper    download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type check, assert the match
 #   reproduce.sh rerun    rescore the 69 held-out pools from the frozen candidate tables with this repository's scorer
 #   reproduce.sh full     rebuild the 10-atlas test pools from CELLxGENE and rerun our method, Leiden subclustering and (TOOLS=1) the published tools on them (untested)
 #
@@ -23,6 +23,7 @@
 set -euo pipefail
 case ${1:-} in -h|--help) awk 'NR > 1 && /^#/ {sub(/^# ?/, ""); print; next} NR > 1 {exit}' "$0"; exit 0;; esac
 mode=${1:?usage: reproduce.sh paper|rerun|full}
+case $mode in paper|rerun|full) ;; *) echo "unknown mode $mode" >&2; exit 2;; esac
 here=$(cd "$(dirname "$0")" && pwd)
 PYTHON=${PYTHON:-python3}; ASSETS=$(mkdir -p "${ASSETS:-assets}" && cd "${ASSETS:-assets}" && pwd); export ASSETS; OUT=${OUT:-reproduce_out}; mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
 export REPO=$here PYTHONPATH=$here PYTHONWARNINGS=ignore PYTHONDONTWRITEBYTECODE=1
@@ -53,7 +54,7 @@ case $mode in
       tp=${TOOLS_PYTHON:-$PYTHON}; mkdir -p "$run/tool_out"
       for t in "$HR_DATA"/pilots/atl_*.parquet; do
         pid=$(basename "$t" .parquet); a=${pid#atl_}; a=${a%_p*}
-        $tp "$here/tools/adapt_pool.py" "$HR_DATA/pools/${pid#atl_}.h5ad" "$t" "$HR_DATA/genemap/$a.csv" "$OUT/toolin"
+        $tp "$here/tools/adapt_pool.py" "$HR_DATA/pools/${pid#atl_}.h5ad" "$t" "$HR_DATA/genemap/$a.csv" "$OUT/toolin" || { echo "adapt_pool $pid" >> "$OUT/tool_failures.txt"; continue; }
         for tool in giniclust3 fire mars sccad scgpt_if cellsius gapclust scissors; do
           dir=$tool; [ $tool = cellsius ] && dir=cellsius_label; [ $tool = scissors ] && dir=scissors_cluster
           [ -s "$run/tool_out/$dir/$pid.parquet" ] || TOOLS_PYTHON=$tp "$here/scripts/run_tool.sh" $tool "$pid" "$OUT/toolin" "$run" || echo "$tool $pid" >> "$OUT/tool_failures.txt"
