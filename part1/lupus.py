@@ -446,12 +446,21 @@ for seed in SEEDS:
         # SD3_TIMEOUT: observed a lupus-specific fit_copula hang (20+ min, <5% CPU, no AIDA precedent;
         # AIDA's own nosingle method ran 8-45s) that a bare subprocess.run would wait on forever.
         try:
-            r = subprocess.run(
+            # own process group: on timeout kill R and its forked workers (a bare run() orphaned 8 busy workers)
+            p = subprocess.Popen(
                 [RS_BIN, 'scdesign3.R', wd, str(SD3_CORES), str(seed)],
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
-                timeout=SD3_TIMEOUT or None,
+                start_new_session=True,
             )
+            try:
+                out, errs = p.communicate(timeout=SD3_TIMEOUT or None)
+            except subprocess.TimeoutExpired:
+                os.killpg(p.pid, 9)
+                p.communicate()
+                raise
+            r = subprocess.CompletedProcess(p.args, p.returncode, out, errs)
         except subprocess.TimeoutExpired:
             cost(seed, 'sd3' if tag == 'all' else 'sd3_nosingle', time.time() - t)
             print(
