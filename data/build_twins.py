@@ -11,7 +11,7 @@ Per real pool (donor pack):
   3. sample 20,000 cells; if the sample still has a target-sized pair (10 to 199 cells, or 10 or more
      and under 10% of the label), remove that pair and redraw, at most 3 times.
 A twin is dropped if more than 25% of its pack was removed or it has fewer than 5 labels.
-Writes pools/null5_<name>_p<k>.h5ad, pilots/atl_null5_<name>_p<k>.parquet, manifests/atlas_manifest_null5_<name>.csv
+Writes pools/twin_<name>_p<k>.h5ad, pilots/atl_twin_<name>_p<k>.parquet, manifests/atlas_manifest_twin_<name>.csv
 and twin_log_<name>.csv.
 """
 import sys
@@ -113,11 +113,11 @@ def build_twins(name):
         rows = r.pop("rows", None)
         L.append(r)
         if rows is not None:
-            tp = f"null5_{name}_p{k}"  # pool ids kept from the original run: cell order is hashed from the pool id
+            tp = f"twin_{name}_p{k}"  # the pool id seeds the cell ids (hiddenrare.io.opaque_order): another prefix gives other ids
             write_pool(P, tp, f"atl_{tp}", rows)
             man.append((f"atl_{tp}", name, "twin", pid, k, len(rows), o[lab].iloc[rows].nunique()))
             print(f"atl_{tp}", len(rows), flush=True)
-    pd.DataFrame(man, columns=["pilot_id", "atlas", "split", "block", "pool", "n_cells", "n_labels"]).to_csv(f"{ROOT}/manifests/atlas_manifest_null5_{name}.csv", index=False)
+    pd.DataFrame(man, columns=["pilot_id", "atlas", "split", "block", "pool", "n_cells", "n_labels"]).to_csv(f"{ROOT}/manifests/atlas_manifest_twin_{name}.csv", index=False)
     d = pd.DataFrame(L)
     d.insert(0, "atlas", name)
     d.to_csv(f"{ROOT}/twin_log_{name}.csv", index=False)

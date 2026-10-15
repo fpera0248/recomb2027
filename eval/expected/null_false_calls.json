@@ -1,0 +1,46 @@
+{
+ "leiden_sub": {
+  "atlas_equal": 0.8956349206349206,
+  "pool_weighted": 0.900990099009901
+ },
+ "iforest_pca": {
+  "atlas_equal": 0.8676587301587301,
+  "pool_weighted": 0.9207920792079208
+ },
+ "lof_pca": {
+  "atlas_equal": 0.8837301587301587,
+  "pool_weighted": 0.8910891089108911
+ },
+ "iforest_scvi": {
+  "atlas_equal": 0.806415343915344,
+  "pool_weighted": 0.7722772277227723
+ },
+ "uncertainty": {
+  "atlas_equal": 0.9109457671957673,
+  "pool_weighted": 0.9207920792079208
+ },
+ "dup_loop": {
+  "atlas_equal": 0.8916335978835979,
+  "pool_weighted": 0.9108910891089109
+ },
+ "nodup_loop": {
+  "atlas_equal": 0.9175595238095239,
+  "pool_weighted": 0.9306930693069307
+ },
+ "classweight_loop": {
+  "atlas_equal": 0.952281746031746,
+  "pool_weighted": 0.9504950495049505
+ },
+ "seprank": {
+  "atlas_equal": 0.9083333333333333,
+  "pool_weighted": 0.8613861386138614
+ },
+ "scorer": {
+  "atlas_equal": 0.9722222222222222,
+  "pool_weighted": 0.9702970297029703
+ },
+ "hiddenrare": {
+  "atlas_equal": 0.9300595238095237,
+  "pool_weighted": 0.9306930693069307
+ }
+}

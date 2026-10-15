@@ -1,0 +1,42 @@
+{
+ "hiddenrare": {
+  "atlas_equal": 0.822470238095238,
+  "pool_weighted": 0.8260869565217391
+ },
+ "leiden_sub": {
+  "atlas_equal": 0.8642857142857143,
+  "pool_weighted": 0.8840579710144928
+ },
+ "iforest_pca": {
+  "atlas_equal": 0.7916666666666667,
+  "pool_weighted": 0.9130434782608695
+ },
+ "lof_pca": {
+  "atlas_equal": 0.903422619047619,
+  "pool_weighted": 0.8840579710144928
+ },
+ "iforest_scvi": {
+  "atlas_equal": 0.8276785714285715,
+  "pool_weighted": 0.7391304347826086
+ },
+ "uncertainty": {
+  "atlas_equal": 0.8848214285714285,
+  "pool_weighted": 0.9130434782608695
+ },
+ "dup_loop": {
+  "atlas_equal": 0.8877976190476191,
+  "pool_weighted": 0.9130434782608695
+ },
+ "nodup_loop": {
+  "atlas_equal": 0.928422619047619,
+  "pool_weighted": 0.927536231884058
+ },
+ "classweight_loop": {
+  "atlas_equal": 0.944047619047619,
+  "pool_weighted": 0.9420289855072463
+ },
+ "seprank": {
+  "atlas_equal": 0.831547619047619,
+  "pool_weighted": 0.8115942028985508
+ }
+}

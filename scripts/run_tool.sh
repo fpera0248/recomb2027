@@ -1,11 +1,11 @@
 #!/bin/bash
 # One published tool on one adapted pool.
 # usage: scripts/run_tool.sh TOOL POOL_ID TOOLIN_DIR OUT_DIR      TOOLIN_DIR/{py,r}/<pool>.h5ad from tools/adapt_pool.py
-# Results land in OUT_DIR/tool_out/<arm>/<pool>.parquet. Python tools: PYTHON (default python3), TOOLS_SRC, FIRE_BUILD, SCGPT_CKPT;
+# Results land in OUT_DIR/tool_out/<method>/<pool>.parquet. Python tools: TOOLS_PYTHON (else PYTHON, else python3; the tools environment, not the one for run_pool.sh), TOOLS_SRC, FIRE_BUILD, SCGPT_CKPT;
 # R tools: RSCRIPT (default Rscript), RETICULATE_PYTHON, R_EXTRA_LIBS, MCL (see tools/io.R).
 set -euo pipefail
 tool=$1; pid=$2; in=$3; out=$4
-t=$(cd "$(dirname "$0")/../tools" && pwd); py=${PYTHON:-python3}; rs=${RSCRIPT:-Rscript}
+t=$(cd "$(dirname "$0")/../tools" && pwd); py=${TOOLS_PYTHON:-${PYTHON:-python3}}; rs=${RSCRIPT:-Rscript}
 w=$out/tool_out/.work/$pid; mkdir -p "$w"
 keep() { mkdir -p "$out/tool_out/$1"; mv "$w/$2.parquet" "$out/tool_out/$1/$pid.parquet"; }
 case $tool in

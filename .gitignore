@@ -6,3 +6,6 @@ out/
 *.log
 *.h5ad
 *.parquet
+assets/
+reproduce_out/
+combination/rows*

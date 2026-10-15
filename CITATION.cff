@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this code or reproduce our results, please cite the paper."
+title: "Finding Rare Cell Subtypes Hidden Inside Broad Labels"
+version: v0.1.0
+abstract: "Our method for ranking cells of a pool by how likely they belong to an unlabelled finer subtype, the evaluation on the held-out atlases, the wrappers for the published detectors, pinned environments and container images."
+type: software
+authors:
+  - family-names: "Peralta Castro"
+    given-names: "Fernando"
+  - family-names: "Zhang"
+    given-names: "Jiaqi"
+  - family-names: "Singh"
+    given-names: "Ritambhara"
+repository-code: "https://github.com/fpera0248/recomb2027"
+url: "https://github.com/fpera0248/recomb2027"
+keywords:
+  - single-cell RNA sequencing
+  - rare cell types
+  - hidden subtypes
+  - benchmarking
+preferred-citation:
+  type: unpublished
+  title: "Finding Rare Cell Subtypes Hidden Inside Broad Labels"
+  authors:
+    - family-names: "Peralta Castro"
+      given-names: "Fernando"
+    - family-names: "Zhang"
+      given-names: "Jiaqi"
+    - family-names: "Singh"
+      given-names: "Ritambhara"

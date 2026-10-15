@@ -1,0 +1,21 @@
+# Apptainer definition for HPC use.
+#
+# Without a .def file:
+#   apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:latest
+#
+# This file bootstraps from the same image. Build and run:
+#   apptainer build recomb2027.sif Apptainer.def
+#   apptainer exec -B /path/to/out:/out recomb2027.sif env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
+# For the published tools bootstrap from recomb2027-tools instead.
+
+Bootstrap: docker
+From: ghcr.io/fpera0248/recomb2027-hiddenrare:latest
+
+%environment
+    export PYTHONDONTWRITEBYTECODE=1
+
+%runscript
+    exec /bin/bash "$@"
+
+%labels
+    org.opencontainers.image.source https://github.com/fpera0248/recomb2027

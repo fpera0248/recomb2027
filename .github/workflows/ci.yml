@@ -1,0 +1,22 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-env:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install requirements.txt in a clean environment
+        run: pip install -r requirements.txt
+      - name: Self-tests and model load
+        run: |
+          python -m eval.paper
+          python -m eval.nulltest
+          python -m eval.full_check --selftest
+          python -c "import pickle; pickle.load(open('models/refit_dev_nat.pkl', 'rb'))"
