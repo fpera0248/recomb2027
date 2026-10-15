@@ -52,6 +52,17 @@ python -m data.leak_check cells <names> --panel work/panel    # panel: each data
 ```
 Then run `scripts/run_pool.sh` on every pool, the published tools with `scripts/run_tool.sh` (inputs from `tools/adapt_pool.py`), and `eval/run_eval.sh $HR_DATA RUN_DIR OUT_DIR` to score and analyse. `eval/signflip.py` recomputes the exact sign-flip p-values independently. `data/manifests` and `data/targets` are the pool lists and target tables of the original run; they are what `build_pools.py` writes.
 
+## Hidden-type calls plus duplication
+
+`combination/` tests whether calling hidden types and duplicating the called cells helps a classifier find the hidden cells in new donors: our hidden-type calls plus duplication, against Leiden subclustering calls plus duplication, with matched call counts and with true labels as the upper bound. Each pool is split by donor, calls come from the saved scores of both methods on the training donors only, and the held-out donors are scored. `combination/DESIGN.md` is the design, fixed before any full-run result.
+
+```
+export HR_DATA=assets HR_POOLS=pools    # paper-tier assets (pilots/, manifests/, pools.csv, predictions/) and the pool h5ad files
+python -m combination.run_one atl_luad_p0 0                  # one pool, one seed: one row per setting
+combination/run_all.sh lr                                    # all eligible pools and seeds, then the analysis; also rf and mlp
+```
+The pool h5ad files hold raw counts and come from `data/build_pools.py`. Results will be added here when the full run is finished.
+
 ## Published tools
 
 `tools/sources.txt` lists the official repositories and commits; `tools/fetch_sources.sh` clones them into `$TOOLS_SRC`. The wrappers in `tools/` only adapt input and output. R tools need Seurat 4.4.0 / SeuratObject 4.1.4.
