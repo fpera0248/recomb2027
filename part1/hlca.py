@@ -1,4 +1,3 @@
-# (docstring below describes the lupus original; only the loader, PROBE and output names differ here)
 """The AIDA head-to-head protocol on a second dataset (HLCA, or any panel dataset via H5AD and PROBE). Environment: H5AD, PROBE (type;type;...), OUT, SEEDS, SKIP_SD3, PREFLIGHT, SAVE_GENE."""
 import sys, os, subprocess, tempfile, numpy as np, pandas as pd, torch, anndata as ad, scanpy as sc, time, warnings, pathlib
 import scipy.io, scipy.sparse
@@ -13,7 +12,6 @@ from cfgen.models.fm.denoising_model import MLPTimeStep
 from cfgen.models.fm.fm import FM
 from cfgen.models.featurizers.category_featurizer import CategoricalFeaturizer
 
-# shared M4, capped at 3 threads throughout (also set via OMP/MKL/OPENBLAS_NUM_THREADS at launch)
 torch.set_num_threads(8)
 NJ = 8
 
@@ -125,7 +123,7 @@ def build_fm(ae,INIT,tr_idx,ytr,seed,sfs,bal=False):
 
 rows=[]; drows=[]; lrows=[]; srows=[]; crows=[]
 def cost(seed,method,sec): crows.append(dict(seed=seed,method=method,sec=float(sec)))
-SDIFF_BUDGET_S = 1800   # meeting spec: keep scDiffusion only if < 30 min/seed
+SDIFF_BUDGET_S = 1800   # keep scDiffusion only if < 30 min/seed
 sdiff_ok=True
 for seed in SEEDS:
     rng=np.random.default_rng(seed)

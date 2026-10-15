@@ -137,12 +137,8 @@ rows=[]; drows=[]; lrows=[]; srows=[]; crows=[]
 def cost(seed,method,sec): crows.append(dict(seed=seed,method=method,sec=float(sec)))
 for seed in SEEDS:
     rng=np.random.default_rng(seed)
-    # hold out NEV eval cells per type, then PHYSICALLY DELETE the probe class's surplus training
-    # cells. In cfgen_aug.py those cells stayed in the trunk under an UNLAB token, so the autoencoder
-    # and the unconditional flow still saw the manifold and only the label index was withheld. Here
-    # nothing sees them. That is what a genuinely rare cell type looks like to the generator.
-    # DONOR-DISJOINT: take whole donors for eval until every probe class has NEV eval cells.
-    # The remaining donors are the only source of training cells, so no donor is in both sides.
+    # donor-disjoint: whole donors go to eval until every probe class has NEV eval cells;
+    # the probe class's surplus training cells are deleted, not masked
     perm=rng.permutation(UD); cnt={c:0 for c in PROBE}; ev_d=[]
     for d in perm:
         if all(v>=NEV for v in cnt.values()): break
@@ -192,9 +188,7 @@ for seed in SEEDS:
     Ztr=pca.transform(Xn[tr_idx[lab]]); ytr_l=ytr[lab]
     Zev=pca.transform(Xn[ev_idx]); yev=yall[ev_idx]
 
-    # ---- scDesign3 method: same training cells, same targets, conditioned on cell_type only ----
-    # temp dir lives beside the script, NOT under /private/var/folders: that tree gets wiped
-    # on session teardown and took the last run's scratch with it.
+    # scDesign3: same training cells and targets, conditioned on cell_type only
     os.makedirs('sd3_tmp',exist_ok=True)
     def run_sd3(drop, tag):
         """Fit scDesign3 on the training cells whose class is not in `drop`."""
@@ -218,7 +212,7 @@ for seed in SEEDS:
         S=scipy.io.mmread(os.path.join(wd,'sim_counts.mtx')).toarray().T.astype(np.float32)
         sm=pd.read_csv(os.path.join(wd,'sim_meta.csv')).cell_type.values
         assert len(sm)==len(S)==int(want.n.sum()), (len(sm),len(S),int(want.n.sum()))
-        # guard against the ASI fallback trap: synthetic cells must not BE real cells
+        # a scDesign3 failure must not fall back to resampling real cells
         assert not any(np.allclose(S[0],Xc[i]) for i in tr_idx[:300]), 'sd3 returned real cells'
         Sn=np.log1p(S/np.maximum(S.sum(1,keepdims=True),1)*1e4).astype(np.float32)
         print(f"  seed {seed} sd3[{tag}] ok {time.time()-t:.0f}s, {len(S)} cells",flush=True)
@@ -384,11 +378,10 @@ for seed in SEEDS:
 
     # ---- scDiffusion: a third family, and a third conditioning mechanism ----------
     # CFGen conditions by label embedding in the flow, scVI by a decoder covariate,
-    # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer, per
-    # rare-class-lost-in-flow-not-decoder: Adam with coupled weight decay cripples their VAE.
+    # scDiffusion by classifier gradient on noisy latents; its VAE needs decoupled weight decay
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,
-                   vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/g16_s{seed}_{VAE_STEPS}.pt')
+                   vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/aida_s{seed}_{VAE_STEPS}.pt')
     sdf={}
     for c in probe:
         k=TARGET-int(n_c[c])
@@ -566,16 +559,7 @@ for scope,note in (('pooled','backdrop = all real cells, so landing anywhere den
         d=L[(L.scope==scope)&(L.n>=lo)&(L.n<=hi)]
         print(f'    {nm:5s} '+''.join(f'{d[d.method==a].ilisi.mean():11.3f}' for a in LARMS))
 
-# =====================================================================================
-# THE CLAIM: does duplicating real cells beat every generative model?
-# =====================================================================================
-# Three numbers per method, because no single one answers it:
-#   delta     mean recall@200 minus upsampling, paired per (seed, class)
-#   t_CLUST   averaged within cell type FIRST, then t over the 8 types. With only 8 distinct
-#             types, reusing them across seeds does not create independent observations;
-#             the naive t runs 2-3x larger on identical data.
-#   win       fraction of (seed, class) pairs where upsampling is at least as good
-#   cost      median wall-clock seconds to produce one seed's synthetic cells
+# per method: delta = mean recall@200 minus upsampling (paired per seed, class), t_CLUST over the 8 types, win rate, median seconds
 C=pd.DataFrame(crows); C.to_csv('aida_cost.csv',index=False)
 COST=C.groupby('method').sec.median().to_dict()
 

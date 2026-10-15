@@ -1,12 +1,12 @@
 #!/bin/bash
 ds=$1
-if [ "$2" != pull ] && [ -f panel_queue_shuffled.txt ]; then
+if [ -z "$1" ] && [ -f panel_queue_shuffled.txt ]; then
   ds=$(while read q; do [ -e panel_runs/$q/done ] || [ -e panel_runs/$q/failed ] || [ -e panel_runs/$q/claimed ] || { echo $q; break; }; done < panel_queue_shuffled.txt)
   [ -z "$ds" ] && exit 0
 fi
 R=panel_runs/$ds; D=${PANEL_DATA:?set PANEL_DATA}; mkdir -p $R $D
 [ -f $R/done ] && exit 0
-[ "$2" != pull ] && touch $R/claimed
+[ -z "$1" ] && touch $R/claimed
 P=$(python3 -c "import pandas as pd,sys; print(pd.read_csv('panel_eligible.csv').set_index('dataset_id').loc[sys.argv[1],'probe'])" $ds)
 step() { echo "$(date +%m-%d\ %H:%M:%S) $ds $1" >> panel_runs/progress.log; }
 fail() { step "FAILED $1: $(grep -hE 'Error|assert' $R/$1.log | tail -1 | cut -c1-200)"; touch $R/failed; exit 1; }

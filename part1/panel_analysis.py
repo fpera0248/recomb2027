@@ -28,7 +28,7 @@ def load():
     S = []
     for d in sorted(glob.glob(f'{PANEL_DIR}/*/done')):
         ds = os.path.basename(os.path.dirname(d)); R = os.path.dirname(d)
-        x = pd.concat([pd.read_csv(f'{R}/clf.csv'), pd.read_csv(f'{R}/real.csv')]); x = x[x.probe]
+        x = pd.concat([pd.read_csv(f'{R}/clf.csv'), pd.read_csv(f'{R}/real.csv')]); x = x.rename(columns={'arm': 'method'}); x = x[x.probe]
         x['ds'] = ds; x['tissue'] = E.tissue.get(ds, 'n/a'); S.append(x)
     if not S: return None
     S = pd.concat(S)

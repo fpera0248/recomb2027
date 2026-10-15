@@ -55,7 +55,7 @@ def augment(Z, y, c, k, rng, **params):
             rest = pool_h[pool_h != i]      # degenerate split: avoid a trivial i == j
             j = rng.choice(rest) if rest.size > 0 else i
         else:
-            j = i                            # n == 1: only one point exists (adaptation #3)
+            j = i                            # n == 1: only one point exists
 
         if coupled and rng.random() < 0.5:
             alpha = rng.uniform(0.0, 1.0)    # Beta(1,1) == U(0,1)
@@ -142,9 +142,7 @@ if __name__ == "__main__":
         print(f"n={n:4d} k={k:4d} cross_group={bool(minority.shape[0] and majority.shape[0])} OK")
 
     # Directly exercise the cross_group=True branch (Eq. 4 as literally
-    # written, g != g-bar) with a hand-built split, since realistic data at
-    # these class sizes tends to land every probe-class point in one bucket
-    # (adaptation #2's fallback branch, already covered above).
+    # written, g != g-bar) with a hand-built split
     n_classes_tiny = 3
     Z_tiny = np.array([
         [0.0, 0.0],   # class c=0, correctly-classified half (g-bar)

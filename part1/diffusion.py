@@ -76,6 +76,6 @@ def sample_sdiff(M, cls, k, scale=10.0, bs=128):
         z=(r[0] if isinstance(r,(tuple,list)) else r).detach()
         with torch.no_grad():
             out.append(M['vae'](z*M['zsd']+M['zmu'], return_decoded=True).numpy())
-    # decoder output is only ReLU-clipped (values up to ~65, rows far from 1e4 CPM); put it through the
+    # decoder output is only ReLU-clipped (rows far from 1e4 CPM), so renormalise
     from statistical import renorm
     return renorm(np.vstack(out))

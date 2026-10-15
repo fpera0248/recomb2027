@@ -17,7 +17,7 @@ def augment(Z, y, c, k, rng, **params):
     d = Xc.shape[1]
 
     if n == 1:
-        # degenerate case (see module docstring): X_j can only be X_q -> X_new == X_q
+        # degenerate case: X_j can only be X_q -> X_new == X_q
         Zadd = np.repeat(Xc, k, axis=0)
         yadd = np.full(k, c, dtype=y.dtype)
         wadd = np.ones(k, dtype=np.float64)
@@ -66,7 +66,7 @@ if __name__ == '__main__':
         p = _ismote_point(Xq, Xj, a, b)
         assert np.allclose(p[1:], 0.0)
 
-    # --- shapes / weights for every probe count named in the task, with a large
+    # --- shapes / weights for each probe count, with a large
     # --- "other class" cluster present to confirm it is never touched ---
     for n in [1, 2, 4, 8, 16, 32, 64, 128]:
         k = 256 - n

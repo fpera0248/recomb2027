@@ -64,7 +64,7 @@ if __name__ == '__main__':
             Xtr, Xev = lognorm(A.X[tr_idx][:, g]), lognorm(A.X[ev_idx][:, g])
         else: Xtr, Xev = Xn[tr_idx], Xn[ev_idx]
         pca = PCA(50, random_state=seed).fit(Xtr[rng.choice(len(tr_idx), min(30000, len(tr_idx)), replace=False)])
-        fn = f'rep{31 if P31 else 16}{"t" if TRH else ""}_seed{seed}.npz'; Ztr = pca.transform(Xtr)
+        fn = f'split{"31" if P31 else ""}{"train" if TRH else ""}_seed{seed}.npz'; Ztr = pca.transform(Xtr)
         if os.path.exists(fn): assert np.array_equal(np.load(fn)['Ztr'], Ztr), f'{fn}: rerun does not reproduce the cached split'
         np.savez(fn, Ztr=Ztr, ytr=ytr, Zev=pca.transform(Xev), yev=yall[ev_idx], n_c=n_c, probe=probe, cts=np.array(cts),
                  n_ev_donors=len(ev_d), Xtr=Xtr, pmean=pca.mean_, comp=pca.components_)
