@@ -151,7 +151,7 @@ def build(name, force=False):
         problems.append("fewer than 2 pools with a target")
     if problems and not force:
         print(name, "not built:", problems)
-        return
+        return False
     for d in ("manifests", "targets", "genemap"):
         os.makedirs(f"{ROOT}/{d}", exist_ok=True)
     P["genemap"].to_csv(f"{ROOT}/genemap/{name}.csv", index=False)
@@ -161,6 +161,7 @@ def build(name, force=False):
         print(f"atl_{name}_p{k}", len(r), flush=True)
     pd.DataFrame(man, columns=["pilot_id", "atlas", "split", "block", "pool", "n_cells", "n_labels"]).to_csv(f"{ROOT}/manifests/atlas_manifest_{name}.csv", index=False)
     print(json.dumps(dict(atlas=name, cells=len(o), donors=int(o.donor_id.nunique()), pools=len(sel), problems=problems)))
+    return True
 
 
 def _check():
@@ -172,4 +173,5 @@ def _check():
 
 if __name__ == "__main__":
     _check()
-    [build(n, "--force" in sys.argv) for n in sys.argv[1:] if not n.startswith("--")]
+    ok = [build(n, "--force" in sys.argv) for n in sys.argv[1:] if not n.startswith("--")]
+    sys.exit(0 if all(ok) else 1)
