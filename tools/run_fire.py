@@ -1,5 +1,5 @@
 """FiRE, https://github.com/princethewinner/FiRE commit 5e0828375373f7a5af6381a66c214d61da8a8bf6 (python extension built unmodified from python/FiRE).
-usage: python run_fire.py pool.h5ad out.parquet -> out.parquet (as published, pool-wide) and out_lab.parquet (per visible label).
+usage: python run_fire.py pool.h5ad out.parquet; writes out.parquet (as published, pool-wide) and out_lab.parquet (per visible label).
 Published pipeline (example/jurkat_simulation.py): utils/preprocess.ranger_preprocess(ngenes_keep=1000), FiRE(L=100, M=50), score,
 call = score >= Q3 + 1.5 IQR. Label-aware variant: the same preprocess, FiRE and IQR rule within each label with at least 20 cells; other labels
 score 0 and are not called; score = average-tie rank percentile of the raw score within the label.

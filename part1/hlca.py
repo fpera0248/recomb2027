@@ -50,7 +50,7 @@ A.obs['ct']=A.obs.cell_type.astype(str)
 A.var_names_make_unique()
 A=A[:, np.asarray(A.X.sum(0)).ravel()>0].copy()
 sc.pp.highly_variable_genes(A, n_top_genes=HVG, flavor='seurat_v3', subset=True)
-A=A[np.asarray(A.X.sum(1)).ravel()>0].copy()   # smoke's 400 HVGs leave some cells all-zero -> sf=0 -> NaN
+A=A[np.asarray(A.X.sum(1)).ravel()>0].copy()   # smoke's 400 HVGs leave some cells all-zero, and sf=0 gives NaN
 Xc=np.asarray(A.X.todense() if hasattr(A.X,'todense') else A.X, dtype=np.float32)
 assert np.allclose(Xc, np.round(Xc)), 'X must be raw counts'
 cts=sorted(A.obs.ct.unique()); ci={c:i for i,c in enumerate(cts)}; NC=len(cts); UNLAB=NC; NCAT=NC+1
@@ -210,10 +210,10 @@ for seed in SEEDS:
             os.path.join(wd,'train_meta.csv'),index=False)
         want.to_csv(os.path.join(wd,'want.csv'),index=False)
         t=time.time()
-        # SD3_TIMEOUT: observed a lupus-specific fit_copula hang (20+ min, <5% CPU, no AIDA precedent
-        # -- AIDA's own nosingle method ran 8-45s) that a bare subprocess.run would wait on forever.
+        # SD3_TIMEOUT: observed a lupus-specific fit_copula hang (20+ min, <5% CPU, no AIDA precedent;
+        # AIDA's own nosingle method ran 8-45s) that a bare subprocess.run would wait on forever.
         try:
-            # own process group: on timeout kill R AND its forked workers (a bare run() orphaned 8 busy workers)
+            # own process group: on timeout kill R and its forked workers (a bare run() orphaned 8 busy workers)
             p=subprocess.Popen([RS_BIN,'scdesign3.R',wd,str(SD3_CORES),str(seed)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True)
             try: out,errs=p.communicate(timeout=SD3_TIMEOUT or None)
             except subprocess.TimeoutExpired:

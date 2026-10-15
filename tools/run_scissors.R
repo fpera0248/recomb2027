@@ -1,6 +1,6 @@
 # SCISSORS (Leary), https://github.com/jr-leary7/SCISSORS commit 79001b24001bba4fb9f45a8795707805468ebb5a.
 # usage: Rscript run_scissors.R pool.h5ad out.parquet [cluster|label]
-# cluster (default, published workflow): PrepareData -> broad Louvain clusters -> ReclusterCells on the clusters auto = TRUE would pick (mean silhouette < .25).
+# cluster (default, published workflow): PrepareData, broad Louvain clusters, then ReclusterCells on the clusters auto = TRUE would pick (mean silhouette < .25).
 # label: obs['label'] replaces the broad clusters and every label is reclustered (label-aware option; SCISSORS takes a clustering as input).
 # Settings = the package README example (n.HVG 4000, n.PC 15, k 30/40/50, res .2/.3/.4, cutoff.score .25 default); use.parallel = FALSE. Needs Seurat 4.4.0 (pre-5 slots).
 # score = -log(fraction of pool in the cell's final (sub)cluster) + 0.01 * (1 - cosine silhouette in PCA); call = final (sub)cluster < 5% of pool.

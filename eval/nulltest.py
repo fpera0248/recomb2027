@@ -33,7 +33,7 @@ def false_call_rate(real, twin, atlas, by_atlas):
 
 
 def run(root, methods, twins):
-    """-> {method: {atlas_equal, pool_weighted}} over the real/twin pairs of the twins table."""
+    """Returns {method: {atlas_equal, pool_weighted}} over the real/twin pairs of the twins table."""
     atlas = twins.atlas.values
     out = {}
     for m in methods:

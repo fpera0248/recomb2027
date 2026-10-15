@@ -1,5 +1,4 @@
-# lupus: aida.py's exact protocol ported to a second dataset
-"""The AIDA head-to-head protocol on the lupus dataset (H5AD)."""
+"""aida.py's AIDA head-to-head protocol, unchanged, on the lupus dataset (H5AD)."""
 import sys, os, subprocess, tempfile, numpy as np, pandas as pd, torch, anndata as ad, scanpy as sc, time, warnings, pathlib
 import scipy.io, scipy.sparse
 import scvi
@@ -40,7 +39,7 @@ LUPUS=os.environ['H5AD']
 CTRL_CAP = 2000 if SMOKE else 12000    # per-control-type subsample cap (5 controls); probes: keep every cell
 t0=time.time()
 
-# ---- data: sequential chunked scan (contiguous h5 reads only), raw counts from .raw, then HVG ----
+# data: sequential chunked scan (contiguous h5 reads only), raw counts from .raw, then HVG
 _bk=ad.read_h5ad(LUPUS, backed='r')
 _ct=_bk.obs.cell_type.astype(str).values
 _don=_bk.obs.donor_id.astype(str).values
@@ -229,8 +228,8 @@ for seed in SEEDS:
             os.path.join(wd,'train_meta.csv'),index=False)
         want.to_csv(os.path.join(wd,'want.csv'),index=False)
         t=time.time()
-        # SD3_TIMEOUT: observed a lupus-specific fit_copula hang (20+ min, <5% CPU, no AIDA precedent
-        # -- AIDA's own nosingle method ran 8-45s) that a bare subprocess.run would wait on forever.
+        # SD3_TIMEOUT: observed a lupus-specific fit_copula hang (20+ min, <5% CPU, no AIDA precedent;
+        # AIDA's own nosingle method ran 8-45s) that a bare subprocess.run would wait on forever.
         try:
             r=subprocess.run([RS_BIN,'scdesign3.R',wd,str(SD3_CORES),str(seed)],capture_output=True,text=True,timeout=SD3_TIMEOUT or None)
         except subprocess.TimeoutExpired:

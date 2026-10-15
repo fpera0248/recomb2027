@@ -17,7 +17,7 @@ def augment(Z, y, c, k, rng, **params):
     d = Xc.shape[1]
 
     if n == 1:
-        # degenerate case: X_j can only be X_q -> X_new == X_q
+        # degenerate case: X_j can only be X_q, so X_new == X_q
         Zadd = np.repeat(Xc, k, axis=0)
         yadd = np.full(k, c, dtype=y.dtype)
         wadd = np.ones(k, dtype=np.float64)
@@ -45,18 +45,18 @@ if __name__ == '__main__':
     rng = np.random.default_rng(0)
     d = 50
 
-    # --- Eq. (2)/(3) branch geometry, hand-picked alpha/beta (paper's own equations) ---
+    # Eq. (2)/(3) branch geometry with hand-picked alpha/beta
     Xq = np.zeros(d); Xq[0] = 10.0
     Xj = np.zeros(d)  # X_q - X_j = 10 on coord 0 only; distance(X_q, X_j) = 10
 
-    # "+" branch fires when alpha < 0.5 (dist(Xnew1,Xq)=alpha*10 < 5); t=alpha+beta>0
-    # always -> literally always beyond X_q, away from X_j (outside the segment).
+    # "+" branch fires when alpha < 0.5 (dist(Xnew1,Xq)=alpha*10 < 5); t=alpha+beta>0,
+    # so the point is always beyond X_q, away from X_j.
     out_plus = _ismote_point(Xq, Xj, alpha=0.3, beta=0.2)
     assert out_plus[0] > Xq[0], "'+' branch must land beyond X_q per printed Eq. (3)"
     assert np.allclose(out_plus[1:], 0.0)
 
-    # "-" branch fires when alpha >= 0.5; t=alpha-beta can be negative -> can land
-    # back inside [X_j, X_q] when beta > alpha, as here.
+    # "-" branch fires when alpha >= 0.5; t=alpha-beta is negative when beta > alpha,
+    # which lands back inside [X_j, X_q].
     out_minus = _ismote_point(Xq, Xj, alpha=0.7, beta=0.9)
     assert 0.0 < out_minus[0] < Xq[0], "this alpha/beta should land inside [X_j,X_q]"
     assert np.allclose(out_minus[1:], 0.0)
@@ -66,8 +66,7 @@ if __name__ == '__main__':
         p = _ismote_point(Xq, Xj, a, b)
         assert np.allclose(p[1:], 0.0)
 
-    # --- shapes / weights for each probe count, with a large
-    # --- "other class" cluster present to confirm it is never touched ---
+    # shapes and weights per probe count; the far "other class" cluster must stay untouched
     for n in [1, 2, 4, 8, 16, 32, 64, 128]:
         k = 256 - n
         r = np.random.default_rng(n)

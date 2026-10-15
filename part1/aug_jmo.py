@@ -39,8 +39,8 @@ def augment(Z, y, c, k, rng, **params):
         raise ValueError(f"class {c} has no training cells to mix")
 
     pred_c = np.argmax(P[idx_c], axis=1)
-    minority = idx_c[pred_c != c]   # g:      misclassified -> "difficult"  (Sec. 2, B)
-    majority = idx_c[pred_c == c]   # g-bar:  correctly classified -> "easy"
+    minority = idx_c[pred_c != c]   # g: misclassified, "difficult" (Sec. 2, B)
+    majority = idx_c[pred_c == c]   # g-bar: correctly classified, "easy"
 
     cross_group = minority.size > 0 and majority.size > 0
     pool_g = minority if cross_group else idx_c
@@ -67,7 +67,7 @@ def augment(Z, y, c, k, rng, **params):
         Zadd[t] = alpha * Z[i] + (1.0 - alpha) * Z[j]   # Eq. 4
 
     yadd = np.full(k, c, dtype=y.dtype)   # Eq. 4: y_mix = y (hard, class-conditional)
-    wadd = np.ones(k, dtype=np.float64)   # one weight unit per synthetic cell
+    wadd = np.ones(k, dtype=np.float64)   # unit weight per synthetic cell
     return Zadd, yadd, wadd
 
 if __name__ == "__main__":
@@ -77,10 +77,8 @@ if __name__ == "__main__":
     c = 0  # probe class under test
 
     def make_problem(n_probe, seed):
-        # deliberately overlapping clusters (small center spread, large noise)
-        # so the reference model actually misclassifies SOME but not all of a
-        # probe class's own points -- exercising the cross_group=True branch
-        # of augment(), not just the degenerate fallback.
+        # overlapping clusters (small center spread, large noise): the reference model
+        # misclassifies some but not all probe-class points, so cross_group=True is reached
         r = np.random.default_rng(seed)
         centers = r.normal(scale=2.0, size=(n_bg_classes + 1, d))
         Zs, ys = [], []
@@ -141,8 +139,7 @@ if __name__ == "__main__":
 
         print(f"n={n:4d} k={k:4d} cross_group={bool(minority.shape[0] and majority.shape[0])} OK")
 
-    # Directly exercise the cross_group=True branch (Eq. 4 as literally
-    # written, g != g-bar) with a hand-built split
+    # cross_group=True branch (Eq. 4, g != g-bar) on a hand-built split
     n_classes_tiny = 3
     Z_tiny = np.array([
         [0.0, 0.0],   # class c=0, correctly-classified half (g-bar)
@@ -155,10 +152,10 @@ if __name__ == "__main__":
     Z_tiny = np.pad(Z_tiny, ((0, 0), (0, d - 2)))
     y_tiny = np.array([0, 0, 0, 0, 1, 2])
     P_tiny = np.zeros((6, n_classes_tiny))
-    P_tiny[0] = [0.9, 0.05, 0.05]   # argmax = 0 = c  -> g-bar
-    P_tiny[1] = [0.8, 0.1, 0.1]     # argmax = 0 = c  -> g-bar
-    P_tiny[2] = [0.1, 0.8, 0.1]     # argmax = 1 != c -> g
-    P_tiny[3] = [0.1, 0.1, 0.8]     # argmax = 2 != c -> g
+    P_tiny[0] = [0.9, 0.05, 0.05]   # argmax = 0 = c, g-bar
+    P_tiny[1] = [0.8, 0.1, 0.1]     # argmax = 0 = c, g-bar
+    P_tiny[2] = [0.1, 0.8, 0.1]     # argmax = 1 != c, g
+    P_tiny[3] = [0.1, 0.1, 0.8]     # argmax = 2 != c, g
     P_tiny[4] = [0.1, 0.8, 0.1]
     P_tiny[5] = [0.1, 0.1, 0.8]
     rng_tiny = np.random.default_rng(7)

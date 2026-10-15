@@ -17,7 +17,7 @@ METRICS = ("union_AP", "E1_union")
 
 
 def pools(root):
-    """-> pool ids and their manifest (atlas of each pool)."""
+    """Returns pool ids and their manifest (atlas of each pool)."""
     pids = pd.read_csv(f"{root}/pools.csv").pilot_id.tolist()
     man = pd.concat([pd.read_csv(f) for f in sorted(glob.glob(f"{root}/manifests/atlas_manifest_*.csv"))]).set_index("pilot_id")
     return pids, man.loc[pids]
@@ -30,7 +30,7 @@ def read_scores(path, df):
 
 
 def pool_metrics(root, methods, pids=None, call=False):
-    """methods: {name: directory with <pool>.parquet}. -> long table (pilot_id, method, metric, value) of union AP and E1.
+    """methods: {name: directory with <pool>.parquet}. Returns a long table (pilot_id, method, metric, value) of union AP and E1.
     call=True ranks cells by the method's declared call (calls first, then by score) instead of its saved score."""
     pids = pids or pools(root)[0]
     rows = []
@@ -103,7 +103,7 @@ def binary(y, c):
 
 def literature_metrics(root, methods, pids=None):
     """Metrics of the tool papers on every pool. K_*: binary call of the top K cells (K = number of hidden cells; ties broken by a seeded
-    draw), own_*: the tool's declared calls, part_*: partition against the hidden subtypes. -> long table (pilot_id, method, metric, value)."""
+    draw), own_*: the tool's declared calls, part_*: partition against the hidden subtypes. Returns a long table (pilot_id, method, metric, value)."""
     pids = pids or pools(root)[0]
     rows = []
     for pid in pids:
