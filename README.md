@@ -78,7 +78,7 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 | Fig. 2a, atlas-equal means of the methods | 01 section 5; 02 sections 1 and 2 | paper | partial: every method except classifier uncertainty |
 | Fig. 2b, per-atlas differences | 01 sections 2 and 3; 02 section 3 | paper | partial: per-atlas differences against Leiden subclustering are asserted; against scCAD with labels only the mean, atlas count and p |
 | Fig. 3, separability tiers and UMAPs | none | none | not in repo (10-atlas results) |
-| Fig. 4, hidden-type calls plus duplication | none | none | not in repo (`combination/` code only, results pending) |
+| Supp. Fig. S3, hidden-type calls plus duplication | none | none | not in repo (`combination/` holds the code; the per-pool result rows are not included) |
 | Supp. Fig. S1, example pool | none | none | not in repo |
 | Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced: rates; the AUC recomputes to 0.61 against the 0.60 printed |
 | Supp., published detectors against our method | 02 sections 2 and 3 | paper | reproduced |
@@ -119,7 +119,7 @@ export OUT=work/combination_rows                      # keep outputs out of the 
 python -m combination.run_one atl_luad_p0 0 --out $OUT/one.csv                 # one pool, one seed: one row per setting
 combination/run_all.sh lr                                    # all eligible pools and seeds, then the analysis; also rf and mlp
 ```
-`HR_POOLS` holds `<source_path>` h5ad files (raw counts, all genes) for the 69 pools of the 8-atlas test set, for example `luad_p0.h5ad`. `data/build_pools.py` does not write them (it builds the 10-atlas pools) and the paper-tier assets do not contain them, so the experiment cannot yet be run from the repository and release assets alone. Results will be added here when the full run is finished.
+`HR_POOLS` holds `<source_path>` h5ad files (raw counts, all genes) for the 69 pools of the 8-atlas test set, for example `luad_p0.h5ad`. `data/build_pools.py` does not write them (it builds the 10-atlas pools) and the paper-tier assets do not contain them, so the experiment cannot yet be run from the repository and release assets alone. The finished run (58 pools from 8 atlases) is reported in Supp. Fig. S3 of the paper; its per-pool result rows are not in the repository.
 
 ## Published tools
 
