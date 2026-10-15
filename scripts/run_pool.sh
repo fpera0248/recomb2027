@@ -3,8 +3,12 @@
 # usage: scripts/run_pool.sh POOL.h5ad PILOTS.parquet OUT_DIR
 # OUT_DIR/cands holds the feature tables; OUT_DIR/preds/{hiddenrare,scorer,leiden_sub,iforest_pca} the cell scores.
 set -euo pipefail
-pool=$1; table=$2; out=$3
-root=$(cd "$(dirname "$0")/.." && pwd); py=${PYTHON:-python3}; model=${MODEL:-$root/models/refit_dev_nat.pkl}
+pool=$1
+table=$2
+out=$3
+root=$(cd "$(dirname "$0")/.." && pwd)
+py=${PYTHON:-python3}
+model=${MODEL:-$root/models/refit_dev_nat.pkl}
 pid=$(basename "$table" .parquet)
 export PYTHONPATH=$root PYTHONWARNINGS=ignore
 mkdir -p "$out/cands" "$out/preds"

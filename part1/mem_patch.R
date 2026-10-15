@@ -1,29 +1,27 @@
-# mem_patch.R -- P5: hold scDesign3's marginal_list footprint flat in N.
-# Gated on SD3_MEM=1.  Verified output-identical (see p5 validation).
+# Memory patch for scDesign3: keeps the memory used by the fitted marginal models flat as the number of cells N grows.
+# It only acts when the environment variable SD3_MEM is 1 (scdesign3.R sets it). The output matched the unpatched run.
 #
-# Why this is needed: every fitted object keeps formula/terms whose
-# .Environment is the frame it was fitted in, which holds that gene's full
-# training data.  object.size() does not follow environments, so the cost is
-# invisible there while dominating the resident and serialized footprint.
-# Measured on step0b bins: 5202 -> 19 bytes per cell per gene.
+# Why it is needed: every fitted object keeps a formula and terms whose .Environment is the frame the model was
+# fitted in, and that frame holds the full training data for the gene. object.size() does not follow environments,
+# so this cost is invisible there, yet it dominates the resident and the serialized size.
+# Measured on scDesign3 fits to six AIDA rare-type groups of 91 to 779 cells: 5202 bytes per cell per gene before, 19 after.
 #
-# Three parts, all behaviour-preserving:
-#  (a) give every no-newdata predict() an explicit newdata, so no fit has to
-#      retain its own copy of the training rows;
-#  (b) neutralise the AIC/BIC sites in fit_copula -- model_aic/model_bic are
-#      consumed by nothing downstream, but stats::AIC needs the per-cell
-#      arrays we drop;
-#  (c) slim each fit as it is produced, inside fit_marginal's per-gene worker,
-#      so peak memory is held down and not merely the returned object.
+# Three parts, none of which changes the results:
+#  (a) every predict() call without newdata gets an explicit newdata, so a fit does not have to keep its own copy
+#      of the training rows;
+#  (b) the AIC and BIC calls in fit_copula are replaced by NA, because model_aic and model_bic are not used
+#      downstream and stats::AIC needs the per-cell arrays that are dropped;
+#  (c) each fit is slimmed as it is produced, inside the per-gene worker of fit_marginal, so the peak memory stays
+#      low and not only the size of the returned object.
 
-# ---- (c) the slimmer -------------------------------------------------------
+# ---- (c) the slimmer ----
 
 # One shared, empty environment for every stripped fit: it holds nothing but
 # still chains to the search path so predict() can resolve offset(), log(), ...
-# baseenv() is NOT enough -- offset() lives in stats.
+# baseenv() is not enough because offset() lives in stats.
 .SD3_ENV <- new.env(parent = globalenv())
 
-# Components whose size is O(N).  Everything else (coefficients, terms,
+# Components whose size grows with N. Everything else (coefficients, terms,
 # xlevels, contrasts, family, ...) is O(p) and kept, so model.matrix still
 # sees every factor level when a chunk's covariates do not span them.
 .SD3_DROP <- list(
@@ -54,13 +52,16 @@
   f
 }
 
-# Post-hoc form, for a marginal_list that was fitted without the patch.
+# After-the-fact form, for a marginal_list that was fitted without the patch.
 slim_marginal <- function(marginal_list) {
   if (!identical(Sys.getenv("SD3_MEM", "0"), "1")) return(marginal_list)
-  lapply(marginal_list, function(x) { x$fit <- .sd3_slim_fit(x$fit); x })
+  lapply(marginal_list, function(x) {
+    x$fit <- .sd3_slim_fit(x$fit)
+    x
+  })
 }
 
-# ---- (a) + (b) + wiring (c) into fit_marginal ------------------------------
+# ---- (a) and (b), and wiring (c) into fit_marginal ----
 
 if (identical(Sys.getenv("SD3_MEM", "0"), "1")) local({
   ns <- asNamespace("scDesign3")
@@ -80,7 +81,8 @@ if (identical(Sys.getenv("SD3_MEM", "0"), "1")) local({
     pe <- as.environment("package:scDesign3")          # attached copy must match the namespace
     if (exists(fn, envir = pe, inherits = FALSE)) {
       if (bindingIsLocked(fn, pe)) unlockBinding(fn, pe)
-      assign(fn, f, envir = pe); lockBinding(fn, pe)
+      assign(fn, f, envir = pe)
+      lockBinding(fn, pe)
     }
     invisible(f)
   }
@@ -108,7 +110,7 @@ if (identical(Sys.getenv("SD3_MEM", "0"), "1")) local({
     'cal_bic(norm.mat = newmat, cor.mat = cor.mat, ind = ind)' = 'NA_real_'))
 
   # slim per gene, at the two per-gene return sites, so the accumulating list
-  # never holds a full fit -- this is what keeps PEAK memory down
+  # never holds a full fit; this is what keeps the peak memory down
   repatch("fit_marginal", list(
     'return(list(fit = fit, warning = logs, time = time_list, removed_cell = remove_cell))' =
       'return(list(fit = .sd3_slim_fit(fit), warning = logs, time = time_list, removed_cell = remove_cell))',
