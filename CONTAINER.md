@@ -1,13 +1,13 @@
 # Container
 
-Two images, built by `.github/workflows/build-images.yml` on every published release (tagged with the release tag and `latest`) or by manual dispatch.
+Two images, defined in `docker/` and built by `.github/workflows/build-images.yml` on every published release (tagged with the release tag and `latest`) or by manual dispatch. Untested: no image has been built or run yet. They are amd64 only; on Apple silicon add `--platform linux/amd64` (emulated, slow).
 
 | Image | Contents | Use for |
 |---|---|---|
 | `ghcr.io/fpera0248/recomb2027-hiddenrare` | Python 3.12, `requirements.txt`, this repository at `/opt/recomb2027`, `reproduce` on the PATH | `reproduce paper`, `reproduce rerun`, running our method on a pool, the notebooks |
 | `ghcr.io/fpera0248/recomb2027-tools` | R 4.6.1, Seurat 4.4.0, CellSIUS, GapClust, SCISSORS, the Python tools, the official sources at the commits of `tools/sources.txt` under `/opt/tools_src` | `scripts/run_tool.sh` |
 
-No GPU is needed. The images have not been built yet from this checkout (the machine that prepared them has no Docker), so image sizes and build times are unknown.
+No GPU is needed. Image sizes and build times are unknown.
 
 ## Run
 

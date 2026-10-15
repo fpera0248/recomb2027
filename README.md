@@ -17,7 +17,9 @@ Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables be
 
 Pick one.
 
-**Container (recommended).** Two prebuilt images, built by `.github/workflows/build-images.yml` and pushed to GHCR on every release:
+**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is its full `pip list`. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ (Spearman about 0.8 to 0.9 on one test pool) and pool union AP moves by about 0.01. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
+
+**Container (untested).** Two images, defined in `docker/` and built by `.github/workflows/build-images.yml`, which pushes them to GHCR on every release. They have not been built or run yet. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -30,8 +32,6 @@ docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
     env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
 Apptainer and details: `CONTAINER.md`.
-
-**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is its full `pip list`. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ (Spearman about 0.8 to 0.9 on one test pool) and pool union AP moves by about 0.01. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
 ## Reproduce the numbers
 
