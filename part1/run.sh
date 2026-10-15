@@ -3,7 +3,7 @@
 # h5ad files, CFGen/ and the scDiffusion checkout, and take days on CPU. Smoke runs: add --smoke to the generator scripts.
 export AIDA_DIR=${AIDA_DIR:?dir with AIDA_AbundantPool_120k.h5ad and AIDA_RarePool.h5ad}
 export SCDIFFUSION_DIR=${SCDIFFUSION_DIR:?scDiffusion checkout}
-export RSCRIPT=${RSCRIPT:-Rscript}          # R env with scDesign3; MEM_PATCH=<mem_patch.R> must point at the memory patch
+export RSCRIPT=${RSCRIPT:-Rscript}          # R env with scDesign3; MEM_PATCH is the memory patch (default mem_patch.R, i.e. part1/mem_patch.R); scdesign3.R sets SD3_MEM=1, which turns it on
 
 # AIDA head-to-head of all generators and duplication
 python3 aida.py

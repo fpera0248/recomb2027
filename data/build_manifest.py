@@ -6,6 +6,7 @@
 Rows keep their key, name and set. md5 is filled only where we hashed our own copy (CELLxGENE publishes no checksum); a refresh that changes the URL clears it.
 The URL names a dataset version, so it keeps working after the dataset is updated; a refresh would point to the new version.
 """
+
 import csv
 import json
 import os
@@ -27,13 +28,20 @@ def refresh():
     for r in R:
         if not (r["dataset_id"] and r["collection_id"]):
             continue
-        with urllib.request.urlopen(API.format(r["collection_id"], r["dataset_id"]), timeout=60) as u:
+        with urllib.request.urlopen(
+            API.format(r["collection_id"], r["dataset_id"]), timeout=60
+        ) as u:
             d = json.load(u)
         a = [x for x in d["assets"] if x["filetype"] == "H5AD"][0]
         assert a["url"].endswith(".h5ad"), a
         if a["url"] != r["download_url"]:
             r["md5"] = ""  # the md5 belongs to the old version
-        r.update(download_url=a["url"], remote_size=a["filesize"], n_cells=d["cell_count"], title=d["title"][:120].replace(",", ";"))
+        r.update(
+            download_url=a["url"],
+            remote_size=a["filesize"],
+            n_cells=d["cell_count"],
+            title=d["title"][:120].replace(",", ";"),
+        )
     with open(M, "w", newline="") as f:
         w = csv.DictWriter(f, cols, lineterminator="\n")
         w.writeheader()

@@ -4,6 +4,7 @@ isolation forest on the PCA of each label.
     python -m hiddenrare.baselines POOL.h5ad PILOTS.parquet OUT_ROOT [leiden_sub iforest_pca]
 writes OUT_ROOT/<method>/<pool>.parquet with cell_id, score, call and group (-1 = no group)
 """
+
 import os
 import sys
 
@@ -19,15 +20,24 @@ from .io import load_pool
 N_JOBS = 2
 N_ESTIMATORS = 100
 RES_GRID = (0.3, 0.5, 0.8, 1.2)
-MIN_SHARE = 0.10          # a subcluster under 10% of its label is a candidate
+MIN_SHARE = 0.10  # a subcluster under 10% of its label is a candidate
 MIN_LABEL_N = 20
 
 
 def leiden_labels(X, resolution):
     a = sc.AnnData(X)
     a.obsm["X_rep"] = X
-    sc.pp.neighbors(a, n_neighbors=min(N_NEIGHBORS, a.n_obs - 1), use_rep="X_rep", random_state=RNG)
-    sc.tl.leiden(a, resolution=resolution, random_state=RNG, flavor="igraph", n_iterations=2, directed=False)
+    sc.pp.neighbors(
+        a, n_neighbors=min(N_NEIGHBORS, a.n_obs - 1), use_rep="X_rep", random_state=RNG
+    )
+    sc.tl.leiden(
+        a,
+        resolution=resolution,
+        random_state=RNG,
+        flavor="igraph",
+        n_iterations=2,
+        directed=False,
+    )
     return a.obs["leiden"].values.astype(int)
 
 
@@ -66,7 +76,9 @@ def leiden_sub(adata):
             cl = leiden_labels(Xs, res)
             if len(set(cl)) < 2:
                 continue
-            sil = silhouette_score(Xs, cl, sample_size=min(2000, len(cl)), random_state=RNG)
+            sil = silhouette_score(
+                Xs, cl, sample_size=min(2000, len(cl)), random_state=RNG
+            )
             if sil > best_sil:
                 best_sil, best_cl = sil, cl
         if best_cl is None:
@@ -92,10 +104,17 @@ def iforest_pca(adata):
         idx = np.where(labels == lab)[0]
         if len(idx) < 10:
             continue
-        clf = IsolationForest(n_estimators=N_ESTIMATORS, contamination="auto", random_state=RNG, n_jobs=N_JOBS).fit(X[idx])
+        clf = IsolationForest(
+            n_estimators=N_ESTIMATORS,
+            contamination="auto",
+            random_state=RNG,
+            n_jobs=N_JOBS,
+        ).fit(X[idx])
         score.iloc[idx] = -clf.score_samples(X[idx])
         call.iloc[idx] = clf.predict(X[idx]) == -1
-    return dict(score=score, call=call, groups=groups_from_call(adata, X, call.values, labels))
+    return dict(
+        score=score, call=call, groups=groups_from_call(adata, X, call.values, labels)
+    )
 
 
 METHODS = {"leiden_sub": leiden_sub, "iforest_pca": iforest_pca}
@@ -113,9 +132,14 @@ def run(pool, table, out_root, methods):
         for i, g in enumerate(p["groups"]):
             gid.loc[g] = i
         os.makedirs(f"{out_root}/{m}", exist_ok=True)
-        pd.DataFrame({"cell_id": a.obs_names.values, "score": p["score"].reindex(a.obs_names).values.astype(float),
-                      "call": p["call"].reindex(a.obs_names).values.astype(bool), "group": gid.values}
-                     ).to_parquet(f"{out_root}/{m}/{pid}.parquet", index=False)
+        pd.DataFrame(
+            {
+                "cell_id": a.obs_names.values,
+                "score": p["score"].reindex(a.obs_names).values.astype(float),
+                "call": p["call"].reindex(a.obs_names).values.astype(bool),
+                "group": gid.values,
+            }
+        ).to_parquet(f"{out_root}/{m}/{pid}.parquet", index=False)
         print(pid, m, a.n_obs, flush=True)
 
 

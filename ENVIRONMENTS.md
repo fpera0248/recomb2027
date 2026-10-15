@@ -1,6 +1,6 @@
 # Environments
 
-Two environments. Their dependencies differ (Python 3.12 numerics for our method, a pinned R 4 / Seurat 4.4.0 stack plus PyTorch for the published tools), so they are kept apart.
+The code uses two environments, kept apart because their dependencies differ (Python 3.12 numerics for our method, a pinned R 4 / Seurat 4.4.0 stack plus PyTorch for the published tools).
 
 | Environment | Used for | Runtime |
 |---|---|---|
@@ -20,9 +20,9 @@ For the tools, use the container (`CONTAINER.md`) or follow `docker/Dockerfile.t
 
 - `environment_hiddenrare.yml`, `requirements.txt`: the packages the code imports, pinned to the versions of the interpreter the results were computed with (macOS arm64). `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter.
 - `environment_tools.yml`, `tools/requirements.txt`: the Python side of the tools, pinned to the virtual environment they ran in. `piplist_tools.txt` is its complete `pip list` (GiniClust3 and scGPT were installed from source with `--no-deps` and are not listed). PyTorch comes from the CPU wheel index in the container.
-- `Rpackages_tools.csv`: R package versions (dependency closure of CellSIUS, GapClust, SCISSORS and Seurat) in the R 4.6.1 installation the tools ran in. Seurat 4.4.0 and SeuratObject 4.1.4 are required because GapClust and SCISSORS do not support Seurat 5. The image pins only these two and the tool packages (it uses the R 4.6.1 base image's dated CRAN snapshot for the rest); the CSV is the record of the full set. Part I training code (CFGen, scDiffusion, scVI, scDesign3) is not covered by either environment.
+- `Rpackages_tools.csv`: the full set of R package versions (dependency closure of CellSIUS, GapClust, SCISSORS and Seurat) in the R 4.6.1 installation the tools ran in. GapClust and SCISSORS do not support Seurat 5, so Seurat 4.4.0 and SeuratObject 4.1.4 are required; the image pins these two and the tool packages, and the rest comes from the dated CRAN snapshot of the R 4.6.1 base image. Part I training code (CFGen, scDiffusion, scVI, scDesign3) is not covered by either environment.
 
-There is no fully pinned conda export: neither environment was created with conda, so no build strings exist to record. The tools and their commits are in `tools/sources.txt`.
+Neither environment was created with conda, so there is no conda export with build strings. The tools and their commits are in `tools/sources.txt`.
 
 ## Manual build of the tools environment
 

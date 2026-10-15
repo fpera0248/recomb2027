@@ -10,6 +10,7 @@ Target rows: masked_AP and masked_rprec (the other targets' cells removed, each 
 alone), det50 (at least half of the target's cells in the top K), recall_at_K, E2_within_label,
 per_target.
 """
+
 import glob
 import os
 import sys
@@ -35,7 +36,12 @@ def near_miss(df, tg):
     tset = {(lab, typ) for lab, typ, _ in tg}
     m = np.zeros(len(df), bool)
     for (lab, typ), n in df.groupby(["label", "true_type"]).size().items():
-        if typ != lab and typ not in BAD and (lab, typ) not in tset and n / nl[lab] < 0.20:
+        if (
+            typ != lab
+            and typ not in BAD
+            and (lab, typ) not in tset
+            and n / nl[lab] < 0.20
+        ):
             m |= ((df.label == lab) & (df.true_type == typ)).values
     return m
 
@@ -52,33 +58,54 @@ def score(df, tg, s, pid, meth):
         m = (df.label == lab).values
         keep = ~(u & ~t)
         r = top[t].sum() / n
-        for met, v in (("E2_within_label", rprec(s[m], t[m])), ("per_target", rprec(s, t)),
-                       ("masked_rprec", rprec(s[keep], t[keep])), ("masked_AP", average_precision_score(t[keep], s[keep])),
-                       ("recall_at_K", r), ("det50", float(r >= 0.5))):
+        for met, v in (
+            ("E2_within_label", rprec(s[m], t[m])),
+            ("per_target", rprec(s, t)),
+            ("masked_rprec", rprec(s[keep], t[keep])),
+            ("masked_AP", average_precision_score(t[keep], s[keep])),
+            ("recall_at_K", r),
+            ("det50", float(r >= 0.5)),
+        ):
             rows.append((pid, meth, met, lab, typ, n, v))
     nm = ~near_miss(df, tg)
-    for met, v in (("E1_union", rprec(s, u)), ("union_AP", average_precision_score(u, s)), ("E1_dontcare", rprec(s[nm], u[nm])),
-                   ("E1_halfK", in_top(s, max(K // 2, 1))[u].sum() / max(K // 2, 1)),
-                   ("E1_2K", in_top(s, min(2 * K, len(s)))[u].sum() / K)):
+    for met, v in (
+        ("E1_union", rprec(s, u)),
+        ("union_AP", average_precision_score(u, s)),
+        ("E1_dontcare", rprec(s[nm], u[nm])),
+        ("E1_halfK", in_top(s, max(K // 2, 1))[u].sum() / max(K // 2, 1)),
+        ("E1_2K", in_top(s, min(2 * K, len(s)))[u].sum() / K),
+    ):
         rows.append((pid, meth, met, "*", "*", K, v))
     return rows
 
 
 def truth_table(pilot_dir, pid):
-    df = pd.read_parquet(f"{pilot_dir}/{pid}.parquet", columns=["obs_name", "label", "true_type"]).astype({"label": str, "true_type": str})
+    df = pd.read_parquet(
+        f"{pilot_dir}/{pid}.parquet", columns=["obs_name", "label", "true_type"]
+    ).astype({"label": str, "true_type": str})
     order, ids = opaque_order(pid, df.obs_name.values)
     df = df.iloc[order].set_index(ids)
     return df, targets(df)
 
 
 def _check():
-    df = pd.DataFrame({"label": ["a"] * 200, "true_type": ["a"] * 170 + ["x"] * 15 + ["y"] * 10 + ["z"] * 5})
+    df = pd.DataFrame(
+        {
+            "label": ["a"] * 200,
+            "true_type": ["a"] * 170 + ["x"] * 15 + ["y"] * 10 + ["z"] * 5,
+        }
+    )
     tg = targets(df)
     assert sorted(t for _, t, _ in tg) == ["x", "y"]
     s = np.r_[np.zeros(170), np.full(15, 3.0), np.full(10, 2.0), np.full(5, 1.0)]
     r = {(m, t): v for _, _, m, _, t, _, v in score(df, tg, s, "p", "m")}
-    assert r[("E1_union", "*")] == 1 and r[("masked_AP", "y")] == 1 and r[("det50", "x")] == 1 and r[("E1_dontcare", "*")] == 1
-    assert abs(in_top(np.array([1., 1, 1, 0]), 2).sum() - 2) < 1e-12
+    assert (
+        r[("E1_union", "*")] == 1
+        and r[("masked_AP", "y")] == 1
+        and r[("det50", "x")] == 1
+        and r[("E1_dontcare", "*")] == 1
+    )
+    assert abs(in_top(np.array([1.0, 1, 1, 0]), 2).sum() - 2) < 1e-12
 
 
 if __name__ == "__main__":
@@ -93,7 +120,16 @@ if __name__ == "__main__":
         if pid not in cache:
             cache[pid] = truth_table(pilot_dir, pid)
         df, tg = cache[pid]
-        s = pd.read_parquet(f).set_index("cell_id").reindex(df.index).score.fillna(0).values
+        s = (
+            pd.read_parquet(f)
+            .set_index("cell_id")
+            .reindex(df.index)
+            .score.fillna(0)
+            .values
+        )
         rows += score(df, tg, s, pid, meth)
-    pd.DataFrame(rows, columns=["pilot_id", "method", "metric", "label", "target", "n_rare", "rprec"]).to_csv(out, index=False)
+    pd.DataFrame(
+        rows,
+        columns=["pilot_id", "method", "metric", "label", "target", "n_rare", "rprec"],
+    ).to_csv(out, index=False)
     print(len(rows), "rows")

@@ -7,6 +7,7 @@ with its halo; a whole rare type does not.
     python -m hiddenrare.halo POOL.h5ad PILOTS.parquet OUT_DIR
 writes OUT_DIR/<pool>.halo.parquet, row-aligned with <pool>.groups.parquet
 """
+
 import os
 import sys
 
@@ -31,7 +32,9 @@ def halos(Z, labels, G):
         k = min(len(m), len(out))
         j = np.argpartition(d, k - 1)[:k]
         H.append(out[j])
-        ratio.append(np.median(d[j]) / (np.median(np.linalg.norm(Z[m] - c, axis=1)) + 1e-9))
+        ratio.append(
+            np.median(d[j]) / (np.median(np.linalg.norm(Z[m] - c, axis=1)) + 1e-9)
+        )
     return H, np.array(ratio)
 
 
@@ -41,8 +44,13 @@ def features(X, labels, G, H, ratio):
 
     def indicator(sets):
         lens = list(map(len, sets))
-        return sp.csr_matrix((np.ones(sum(lens), np.float32), (np.repeat(np.arange(len(sets)), lens), np.concatenate(sets))),
-                             shape=(len(sets), n))
+        return sp.csr_matrix(
+            (
+                np.ones(sum(lens), np.float32),
+                (np.repeat(np.arange(len(sets)), lens), np.concatenate(sets)),
+            ),
+            shape=(len(sets), n),
+        )
 
     S = (indicator(list(G.members.values)) @ X).toarray()
     Sh = (indicator(H) @ X).toarray()
@@ -53,8 +61,16 @@ def features(X, labels, G, H, ratio):
         p_out = (lab_sum[l] - S[j]) / max((labels == l).sum() - m, 1)
         dh = np.sort(p_in - p_halo)[::-1]
         top = np.argsort(p_in - p_out)[::-1][:5]
-        out.append(dict(hl_top5=dh[:5].mean(), hl_top20=dh[:20].mean(), hl_n25=int((dh >= 0.25).sum()),
-                        hl_mk5=(p_in - p_halo)[top].mean(), hl_neg5=-dh[::-1][:5].mean(), hl_ratio=ratio[j]))
+        out.append(
+            dict(
+                hl_top5=dh[:5].mean(),
+                hl_top20=dh[:20].mean(),
+                hl_n25=int((dh >= 0.25).sum()),
+                hl_mk5=(p_in - p_halo)[top].mean(),
+                hl_neg5=-dh[::-1][:5].mean(),
+                hl_ratio=ratio[j],
+            )
+        )
     return pd.DataFrame(out)
 
 
@@ -64,7 +80,9 @@ def run(pool, table, out_dir):
     if os.path.exists(out):
         return
     a = load_pool(pool, table, pid)
-    G = pd.read_parquet(f"{out_dir}/{pid}.groups.parquet", columns=["label", "size", "members"])
+    G = pd.read_parquet(
+        f"{out_dir}/{pid}.groups.parquet", columns=["label", "size", "members"]
+    )
     labels = a.obs["label"].astype(str).values
     H, ratio = halos(preprocess_pca(a)[0], labels, G)
     features(detection_matrix(a), labels, G, H, ratio).to_parquet(out, index=False)
@@ -80,7 +98,13 @@ def _check():
     X[:, 10:] = rng.rand(100, 10) < 0.5
     Z = np.r_[rng.randn(40, 2), rng.randn(10, 2) + [6, 0], rng.randn(50, 2) + [0, 6]]
     labels = np.array(["L"] * 100)
-    G = pd.DataFrame({"label": ["L", "L"], "size": [10, 10], "members": [np.arange(10), np.arange(40, 50)]})
+    G = pd.DataFrame(
+        {
+            "label": ["L", "L"],
+            "size": [10, 10],
+            "members": [np.arange(10), np.arange(40, 50)],
+        }
+    )
     H, r = halos(Z, labels, G)
     F = features(sp.csr_matrix(X), labels, G, H, r)
     assert F.hl_mk5[0] < 0.2 < 0.8 < F.hl_mk5[1] and r[1] > r[0], F
