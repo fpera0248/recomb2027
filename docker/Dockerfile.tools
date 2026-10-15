@@ -30,7 +30,7 @@ RUN bash tools/fetch_sources.sh \
     && cd $FIRE_BUILD && BOOST_INC=/usr/include /opt/venv/bin/python setup.py build_ext --inplace
 
 # SCISSORS imports biomaRt and phateR in its NAMESPACE but lists them only under Suggests, so install them here.
-# Seurat 4.4.0 / SeuratObject 4.1.4: GapClust and SCISSORS read the v3/v4 slots. Nothing may upgrade them.
+# Seurat 4.4.0 / SeuratObject 4.1.4: GapClust and SCISSORS read the v3/v4 slots; later installs use upgrade = "never" and the last step checks both versions.
 RUN Rscript -e ' \
       install.packages(c("remotes", "BiocManager", "RcppArmadillo", "phateR")); \
       BiocManager::install(c("SingleCellExperiment", "biomaRt"), ask = FALSE, update = FALSE); \

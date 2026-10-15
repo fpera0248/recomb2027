@@ -3,7 +3,7 @@
     python -m data.build_pools NAME [NAME ...] [--force]
 NAME is the first 8 characters of a dataset id in atlases.csv; the atlas is read from
 $HR_DATA/atlas/<dataset_id>.h5ad (see download_atlases.sh). Only obs, raw counts and the two
-annotation columns are used; no score is read.
+annotation columns are used.
 
 Visible label = the atlas's coarse annotation, truth = its finer annotation. Donors are shuffled
 (seed 0) and packed until a pack holds 20,000 cells; 20,000 cells are sampled from each pack.

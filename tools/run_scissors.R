@@ -14,7 +14,7 @@ if (mode == "label") {
 }
 which <- if (mode == "label") as.integer(levels(s$seurat_clusters)) else as.integer(names(which(ComputeSilhouetteScores(s) < 0.25)))   # = auto = TRUE, cutoff.score .25
 # one ReclusterCells call per cluster (same result as a multi-cluster call, which returns the same list of objects)
-# README ReclusterCells values; called without do.call (do.call inlines the Seurat object into the call and something deparses it: it hangs)
+# README ReclusterCells values; called without do.call (do.call inlines the Seurat object into the call and deparsing that call hangs)
 res <- list()
 for (w in which) {
   res[[length(res) + 1]] <- ReclusterCells(s, which.clust = w, n.HVG = 4000, n.PC = 15, k.vals = c(30, 40, 50),

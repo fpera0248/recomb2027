@@ -2,9 +2,9 @@
 # Download and verify what a reproduction tier needs.
 #
 #   fetch_data.sh paper|rerun|full|all [DEST]
-#     paper  predictions, tool predictions, pools, Part I results   -> extracted under DEST (default ./assets)
-#     rerun  pools, predictions, rerun inputs                       -> extracted under DEST
-#     full   the 10-atlas test files from CELLxGENE (ATLAS_MANIFEST.csv, set test10) -> DEST/atlas/<dataset_id>.h5ad
+#     paper  predictions, tool predictions, pools and Part I results, extracted under DEST (default ./assets)
+#     rerun  pools, predictions and rerun inputs, extracted under DEST
+#     full   the 10-atlas test files from CELLxGENE (ATLAS_MANIFEST.csv, set test10), saved as DEST/atlas/<dataset_id>.h5ad
 #     all    paper, rerun and full
 #
 # Release assets come from $BASE/<asset> with BASE=https://github.com/fpera0248/recomb2027/releases/download/$TAG, and are checked against

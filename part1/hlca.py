@@ -402,7 +402,7 @@ for seed in SEEDS:
     print(f"  seed {seed} scDiffusion done ({_sdiff_sec:.0f}s this seed) {time.time()-t0:.0f}s",flush=True)
     if _sdiff_sec>SDIFF_BUDGET_S:
         sdiff_ok=False
-        print(f"  seed {seed} scDiffusion cost {_sdiff_sec:.0f}s > {SDIFF_BUDGET_S}s budget: DROPPING for remaining seeds",flush=True)
+        print(f"  seed {seed} scDiffusion cost {_sdiff_sec:.0f}s > {SDIFF_BUDGET_S}s budget: dropping it for the remaining seeds",flush=True)
 
     def method(name):
         Z,y=[Ztr],[ytr_l]; GB=[]
@@ -505,7 +505,7 @@ for seed in SEEDS:
 if PREFLIGHT: print('PREFLIGHT OK: every seed splits and every probe fits its size'); sys.exit(0)
 if ONLY_SD3: print('ONLY_SD3 done'); sys.exit(0)
 S3=pd.DataFrame(srows); S3.to_csv(f'{OUT}_sd3status.csv',index=False)
-print('\n=== can scDesign3 run at all on the HLCA donor-disjoint split?')
+print('\n=== scDesign3 status on the HLCA donor-disjoint split')
 for _,r in S3.iterrows():
     print(f"  seed {r.seed}: {r.n_singleton} singleton class(es) [{r.singleton_types}]")
     print(f"    all classes    : {'RAN' if r.all_classes_ok else 'ABORTED'}"
@@ -521,7 +521,7 @@ for r in sorted(P.n.unique()):
     d=P[P.n==r]
     print(f"{r:>6} " + ' '.join(f"{d[d.method==a].rec200.mean():>10.3f}" for a in METHODS))
 from scipy import stats
-print("\n=== does synthesis beat the dose-matched upsampling baseline?")
+print("\n=== synthesis against the dose-matched upsampling baseline")
 piv=P.pivot_table(index=['seed','c','n'],columns='method',values='rec200').reset_index()
 for lo,hi in [(0,8),(8,64),(64,257)]:
     d=piv[(piv.n>lo)&(piv.n<=hi)].dropna()
@@ -531,7 +531,7 @@ for lo,hi in [(0,8),(8,64),(64,257)]:
         if a not in d.columns: continue
         dl=d[a]-d['upsample']; o.append(f"{a} vs upsample {dl.mean():+.3f} (t {stats.ttest_rel(d[a],d['upsample']).statistic:+.2f})")
     print(f"  n_c {lo+1}-{hi}: " + '  '.join(o))
-print("\n=== control classes (never augmented) -- sanity, should not move")
+print("\n=== control classes (never augmented; should not move)")
 C=T[~T.probe]
 print('  ' + '  '.join(f"{a} {C[C.method==a].rec200.mean():.3f}" for a in METHODS))
 
@@ -547,9 +547,9 @@ def clust_t(d, a, b):
 
 piv2=P.pivot_table(index=['seed','c','n','name_'],columns='method',values='rec200').reset_index()
 NPROBE=len(PROBE)
-BANDS=[(f'rare  n_c<=8',0,8),(f'abund n_c>=16',15,10**6),('ALL sizes',0,10**6)]
+BANDS=[(f'rare  n_c<=8',0,8),(f'abund n_c>=16',15,10**6),('all sizes',0,10**6)]
 print('\n'+'='*100)
-print(f'THE CLAIM ON HLCA: upsampling against every generative model ({NPROBE} probe types)')
+print(f'Summary on HLCA: upsampling against every generative model ({NPROBE} probe types)')
 print('='*100)
 for lab,lo,hi in BANDS:
     d=piv2[(piv2.n>lo)&(piv2.n<=hi)]

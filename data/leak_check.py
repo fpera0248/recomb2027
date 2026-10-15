@@ -1,9 +1,9 @@
-"""Exact cell fingerprints of every test pool against every previously used dataset file, run before any method touches a pool.
+"""Checks every test pool for cells that also occur in a previously used dataset file, by exact cell fingerprints. Run before any method runs on a pool.
 
     python -m data.leak_check cells NAME [NAME ...] [--panel DIR] [--out DIR] [--thresh 0.01] [--minexpr 50]
 pools = $HR_DATA/pools/<NAME>_p*.h5ad; panel = DIR/*.h5ad (default $HR_DATA/panel: the datasets of used_datasets.csv,
 downloaded by dataset id). Twin pools are not checked, they are subsets of the same donors. Only the sparsity pattern of X
-and the gene ids are read, never a label or a score.
+and the gene ids are read.
 
 The fingerprint of a cell is the 64-bit sum of fixed per-gene random keys (blake2b of the version-stripped Ensembl id) over
 the genes expressed in the cell, restricted to the intersection U of the gene ids of all pools and panel files. The sum
@@ -63,7 +63,7 @@ def main():
         with h5py.File(f, "r") as h: g = set(gene_ids(h))
         U = g if U is None else U & g
     U = np.array(sorted(U)); print("pools", len(pools), "panel files", len(panel), "|U|", len(U), flush=True)
-    assert len(U) >= 5000, f"universe {len(U)} genes < 5000: cannot fingerprint (report, do not guess)"
+    assert len(U) >= 5000, f"gene intersection U has {len(U)} genes, fewer than the 5000 needed to fingerprint cells"
     P = {}
     for f in pools:
         h_, ok = fingerprints(f, U, a.minexpr); P[os.path.basename(f)[:-5]] = (h_, ok)

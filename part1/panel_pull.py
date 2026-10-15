@@ -12,7 +12,7 @@ with cellxgene_census.open_soma(census_version='2025-11-08') as c:
     rng = np.random.default_rng(12345); vc = o.cell_type.value_counts(); keep = (vc <= 9500) | vc.index.isin(PROBE)   # probes never thinned: split stays as panel_census checked it
     ids = [o[o.cell_type.isin(vc.index[keep])].soma_joinid.values]
     for t in vc.index[~keep]: ids.append(rng.choice(o[o.cell_type == t].soma_joinid.values, 3000, replace=False))
-    ids = np.sort(np.concatenate(ids)); print(ds, len(o), 'filtered cells ->', len(ids), 'pulled', flush=True)
+    ids = np.sort(np.concatenate(ids)); print(ds, len(o), 'filtered cells,', len(ids), 'pulled', flush=True)
     A = cellxgene_census.get_anndata(c, 'Homo sapiens', X_name='raw', obs_coords=ids,
                                      obs_column_names=['soma_joinid', 'donor_id', 'cell_type', 'assay', 'tissue', 'dataset_id'])
 A = A[:, np.asarray(A.X.sum(0)).ravel() > 0].copy(); A.write_h5ad(out, compression='gzip'); print(A.shape, 'written', out, flush=True)

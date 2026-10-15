@@ -55,7 +55,7 @@ def gene_method(name, X, y, probe, n_c, seed, T=TARGET, extra=None):
         if f is None or k <= 0: continue
         Xa, ya, wa = f(X, y, c, k, rng, **(extra or {}))
         assert abs(wa.sum() - k) < 1e-6 and Xa.shape[1] == X.shape[1], (name, c)
-        out[int(c)] = (renorm(Xa), np.asarray(ya, int), np.asarray(wa, float))   # JMO rows can carry another class's soft label
+        out[int(c)] = (renorm(Xa), np.asarray(ya, int), np.asarray(wa, float))
     return out
 
 def readout(k, Z, y, w, Zev, seed):
@@ -156,23 +156,23 @@ if __name__ == '__main__' and sys.argv[1] == 'report':
         if not (S.clf == 'lr').any(): S = pd.concat([pd.read_csv('statistical.csv').assign(clf='lr'), S])
         for k, Sk in S.groupby('clf', sort=False):
             Pk = Sk[Sk.probe]
-            table(Pk.pivot_table(index=idx, columns='method', values='rec200'), f'{k}: RARE rec200', f'{Sk.seed.nunique()} seeds')
-            table(Pk.pivot_table(index=idx, columns='method', values='rec_argmax'), f'{k}: RARE argmax recall', f'{Sk.seed.nunique()} seeds')
+            table(Pk.pivot_table(index=idx, columns='method', values='rec200'), f'{k}: rare rec200', f'{Sk.seed.nunique()} seeds')
+            table(Pk.pivot_table(index=idx, columns='method', values='rec_argmax'), f'{k}: rare argmax recall', f'{Sk.seed.nunique()} seeds')
             ab = Sk[~Sk.probe].groupby(['seed', 'method']).rec200.mean().unstack()
-            print(f'{k}: ABUNDANT rec200 mean d vs upsample:', (ab.sub(ab['upsample'], axis=0)).mean().round(4).to_dict())
+            print(f'{k}: abundant rec200 mean d vs upsample:', (ab.sub(ab['upsample'], axis=0)).mean().round(4).to_dict())
         sys.exit()
     P = S[S.probe]
-    table(P.pivot_table(index=idx, columns='method', values='rec200'), 'RARE probe types, rec200 (matched operating point)', f'{S.seed.nunique()} seeds')
-    table(P.pivot_table(index=idx, columns='method', values='rec_argmax'), 'RARE probe types, argmax recall (threshold moves freely)', f'{S.seed.nunique()} seeds')
+    table(P.pivot_table(index=idx, columns='method', values='rec200'), 'rare probe types, rec200 (matched operating point)', f'{S.seed.nunique()} seeds')
+    table(P.pivot_table(index=idx, columns='method', values='rec_argmax'), 'rare probe types, argmax recall (threshold moves freely)', f'{S.seed.nunique()} seeds')
     ab = S[~S.probe].groupby(['seed', 'method']).rec200.mean().unstack()
-    print('\n### ABUNDANT types, rec200, mean d vs upsample (side effect on the other 23 types)')
+    print('\n### abundant types, rec200, mean d vs upsample (side effect on the other 23 types)')
     print((ab.sub(ab['upsample'], axis=0)).mean().sort_values().round(4).to_string())
     w3 = P[P.seed < 3].pivot_table(index=idx, columns='method', values='rec200')
     g3 = G[G.probe].pivot_table(index=idx, columns='method', values='rec200')
     for a in g3.columns:
         if a not in ('real', 'upsample'): w3[a + '*'] = g3[a]
-    table(w3, "RARE, seeds 0-2 only, with aida's generators (*) on the identical split", 'bit-exact real-method parity')
+    table(w3, "rare, seeds 0-2 only, with aida's generators (*) on the identical split", 'bit-exact real-method parity')
     Dc['band'] = np.where(Dc.n <= 8, 'n<=8', 'n>=16')
-    print('\n### MEMORIZATION: added cell to nearest real cell of its class, / median real-real NN distance (0 = exact copy)')
+    print('\n### memorization: added cell to nearest real cell of its class, / median real-real NN distance (0 = exact copy)')
     print(Dc.pivot_table(index='method', columns='band', values='dcr_ratio', aggfunc='median').round(3).join(
         Dc.groupby('method').gen_sec.median().rename('gen_sec').round(2)).to_string())

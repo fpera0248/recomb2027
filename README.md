@@ -11,7 +11,7 @@ This repository holds our method (`hiddenrare/`), the evaluation (`eval/`), the 
 3. `hiddenrare/scorer.py`: a gradient-boosted regressor (`models/refit_dev_nat.pkl`) predicts how pure each group is. A cell's score is the best group it belongs to, plus a small isolation tie-break.
 4. `hiddenrare/baselines.py`, `blend.py`: the final score is 0.75 * rank(scorer) + 0.25 * rank(Leiden subclustering score).
 
-The saved scores of the 8-atlas test set come from an earlier fit of the same recipe that was not kept; `models/refit_dev_nat.pkl` is a refit. The `paper` tier is therefore exact (it reads the saved scores) and the `rerun` tier is a consistency check (`eval/rerun.py`).
+`models/refit_dev_nat.pkl` is a refit of the same recipe; the fit behind the saved scores of the 8-atlas test set was not kept. The `paper` tier reads the saved scores and is exact; the `rerun` tier applies the refit and is a consistency check (`eval/rerun.py`).
 
 Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables because `hiddenrare/scorer.py` reads them by name in the order the model was fit with.
 
@@ -21,7 +21,7 @@ Pick one.
 
 **Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
-**Container (untested).** Two images, defined in `docker/` and built by `.github/workflows/build-images.yml`, which pushes them to GHCR on every release. They have not been built or run yet. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
+**Container.** Two images, defined in `docker/`. `.github/workflows/build-images.yml` builds them and pushes them to GHCR on every release or manual dispatch; both are published (tags `latest` and `main`) and pull without a login, but neither has been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -46,16 +46,16 @@ Apptainer and details: `CONTAINER.md`.
 | Tier | Input | Exactness | Time and disk |
 |---|---|---|---|
 | paper | saved predictions of every method run on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and the Part I numbers of notebook 04 are asserted; the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
-| rerun | frozen candidate tables and Leiden scores | not exact (the saved scores come from an earlier fit that was not kept): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 minutes, about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
+| rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 minutes, about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
 | full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | 29.3 GB of downloads (sum of the manifest sizes); time and disk for the pools and the run are not measured; untested end to end |
 
-`full` does not rebuild the twin pools, run the leak check or the Part I panel, and does not produce the strata, separability tiers, ablations, CHOIR or figures. `TOOLS=1` also runs the published tools: they need their own Python environment (scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it, see `ENVIRONMENTS.md`) and `SCGPT_CKPT`, a tool with an output is skipped and failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
+`full` does not rebuild the twin pools, run the leak check or the Part I panel, and does not produce the strata, separability tiers, ablations, CHOIR or figures. `TOOLS=1` also runs the published tools. They need their own Python environment (scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it, see `ENVIRONMENTS.md`) and `SCGPT_CKPT`. A tool that already has an output is skipped; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
-At the `paper` tier every value the notebooks print is recomputed from the saved predictions and asserted (see Paper items for what is partial), so a mismatch fails the run; the null-test AUC recomputes to 0.61 against the 0.60 printed. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Container time estimates are not measured. The images have not been built from this checkout (no Docker on the machine that prepared them); the first run of `build-images.yml` (on a release or manual dispatch) is the first test of the Dockerfiles.
+At the `paper` tier every value the notebooks print is recomputed from the saved predictions and asserted (see Paper items for what is partial), so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Container run times are not measured.
 
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
 
-A missing release gives 404 (check `TAG`, default v0.1.0). `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in). Set `ASSET_SRC=DIR` to take the assets from a local directory, for offline use.
+A missing release gives 404 (check `TAG`). `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in). Set `ASSET_SRC=DIR` to take the assets from a local directory, for offline use.
 
 ## Atlases
 
@@ -63,7 +63,9 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 
 ## Notebooks
 
-`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, metrics used in the MARS and scCAD papers), `03_null_test.ipynb` (twin pools with the hidden cells removed: 101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set) and `04_part1_summary.ipynb` (the 88-dataset panel, an extra 31-type check, duplication as sample weighting). The notebooks assert numbers and draw no figures. They only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. The `paper` and `rerun` tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases). The 8-atlas test set (69 pools) and the 10-atlas test set (57 pools) are different sets; the 10-atlas predictions are produced by `full` (untested).
+`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, metrics used in the MARS and scCAD papers), `03_null_test.ipynb` (twin pools with the hidden cells removed: 101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set) and `04_part1_summary.ipynb` (the 88-dataset panel, an extra 31-type check, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`; they assert numbers and draw no figures.
+
+The `paper` tier does not recompute the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, or the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The `rerun` tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Both tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases). The 10-atlas test set (57 pools) is a different set; its predictions are produced by `full` (untested).
 
 ## Paper items
 
@@ -83,7 +85,7 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 | Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced: rates; the AUC recomputes to 0.61 against the 0.60 printed |
 | Supp., published detectors against our method | 02 sections 2 and 3 | paper | reproduced |
 | Supp., metrics for the called cells | 02 sections 3 and 4 | paper | reproduced |
-| 31-type AIDA run: the values asserted here are not printed in the paper; the paper's 31-type statement in the matched-operating-point paragraph is not recomputed | 04 section 3 | paper | recomputed (other readout) |
+| 31-type AIDA run (values not printed in the paper) | 04 section 3 | paper | recomputed with another readout; the paper's 31-type values (matched-operating-point paragraph) are not recomputed |
 | Supp., per-subtype results by tier | none | none | not in repo |
 | Supp., datasets | none | none | partial: `ATLAS_MANIFEST.csv`, `data/used_datasets.csv` hold the sources, not the table |
 | Supp., duplication study conditions, methods compared, methods missing, comparator checks | none | none | not in repo |
@@ -98,20 +100,20 @@ scripts/run_pool.sh POOL.h5ad PILOT.parquet OUT_DIR
 
 ## Rebuild the test sets
 
-`data/build_pools.py` writes the pools and `data/build_twins.py` the null-gate twin pools of the 10-atlas test set (`data/atlases.csv`) from the atlases of the manifest. `data/manifests` and `data/targets` are reference copies of the pool lists and target tables of the original run: diff them against what `build_pools.py` writes to `$HR_DATA`. The 101 twin pools of the paper (12 atlases) ship as predictions in `predictions.tgz` (`ids/twin_manifest.csv`) and no tier rebuilds them; the twin tier is not part of `full`, and twins rebuilt by `build_twins.py` are not claimed to be identical to the shipped ones.
+`data/build_pools.py` writes the pools and `data/build_twins.py` the null-test twin pools of the 10-atlas test set (`data/atlases.csv`) from the atlases of the manifest. `data/manifests` and `data/targets` are reference copies of the pool lists and target tables of the original run: diff them against what `build_pools.py` writes to `$HR_DATA`. The 101 twin pools of the paper (12 atlases) ship only as predictions in `predictions.tgz` (`ids/twin_manifest.csv`). No tier rebuilds them, `full` included, and twins rebuilt by `build_twins.py` may differ from the shipped ones.
 
 ```
 export HR_DATA=work
 data/download_atlases.sh                      # public CELLxGENE files, large
 python -m data.build_pools $(cut -d, -f1 data/atlases.csv | tail -n +2)
-python -m data.build_twins <names>            # null-gate twin pools
+python -m data.build_twins <names>            # null-test twin pools
 python -m data.leak_check cells <names> --panel work/panel    # panel: each dataset of data/used_datasets.csv downloaded from CELLxGENE into work/panel (not scripted)
 ```
 Then run `scripts/run_pool.sh` on every pool, the published tools with `scripts/run_tool.sh` (inputs from `tools/adapt_pool.py`), and `eval/run_eval.sh $HR_DATA RUN_DIR OUT_DIR` to score and analyse. `eval/signflip.py` recomputes the exact sign-flip p-values independently.
 
 ## Hidden-type calls plus duplication
 
-`combination/` tests whether calling hidden types and duplicating the called cells helps a classifier find the hidden cells in new donors: our hidden-type calls plus duplication, against Leiden subclustering calls plus duplication, with matched call counts and with true labels as the upper bound. Each pool is split by donor, both methods scored the whole pool with the test donors unlabelled; only training-donor calls become labels, and the classifier never sees test-donor labels. The held-out donors are scored. `combination/DESIGN.md` is the design, fixed before any full-run result.
+`combination/` tests whether calling hidden types and duplicating the called cells helps a classifier find the hidden cells in new donors: our hidden-type calls plus duplication, against Leiden subclustering calls plus duplication, with matched call counts and with true labels as the upper bound. Each pool is split by donor. Both methods scored the whole pool with the test donors unlabelled; only calls on training donors become labels, so the classifier never sees test-donor labels, and it is scored on the held-out donors. `combination/DESIGN.md` is the design, fixed before any full-run result.
 
 ```
 export HR_DATA=assets HR_POOLS=/path/to/pool_h5ads    # HR_DATA: paper-tier assets (pilots/, manifests/, pools.csv, predictions/)
@@ -143,5 +145,5 @@ Datasets used before the test are listed in `data/used_datasets.csv`; the Human 
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/` and by any rescoring of those pools from counts.
 - The inputs of the Part I runs (source h5ad files, generator checkouts) and the training of the generators.
 - Reproductions of the published tools; only their wrappers and pinned environments are included.
-- The `full` tier and the container images are untested.
+- The `full` tier is untested; the container images are built and published but have not been run end to end.
 - The runtime and memory table of the paper (per-job `/usr/bin/time -l` logs on the run machine).

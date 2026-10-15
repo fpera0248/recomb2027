@@ -12,7 +12,7 @@ PROBE = ['double negative T regulatory cell', 'CD141-positive myeloid dendritic 
 EXPECT = {0: (283, 11755, 75503), 1: (283, 11755, 72739), 2: (290, 11755, 70807)}
 P31 = os.environ.get('P31') == '1'
 
-def die(msg): sys.exit(f'REPLAY MISMATCH, stopping: {msg}')
+def die(msg): sys.exit(f'replay mismatch: {msg}')
 
 if __name__ == '__main__':
     t0 = time.time()
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         if any(n_c[c] != r for c, r in size_of.items()): die(f'seed {seed}: a size did not land')
         if set(dall[tr_idx]) & set(dall[ev_idx]): die(f'seed {seed}: donor overlap')
         if not P31 and seed in EXPECT and (len(ev_d), len(tr_idx), n_del) != EXPECT[seed]:
-            die(f'seed {seed}: {(len(ev_d), len(tr_idx), n_del)} != aida.log {EXPECT[seed]}')
+            die(f'seed {seed}: {(len(ev_d), len(tr_idx), n_del)} != aida.py run {EXPECT[seed]}')
         if not P31 and seed in EXPECT and any(n_c[c] != REF_N[(seed, cts[c])] for c in probe): die(f'seed {seed}: n != aida.csv')
         if TRH:
             g = sc.pp.highly_variable_genes(A[tr_idx].copy(), n_top_genes=HVG, flavor='seurat_v3', inplace=False).highly_variable.values

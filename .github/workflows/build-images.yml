@@ -1,7 +1,6 @@
 name: build-images
 
 # Build one Docker image per component and push to GHCR.
-# Triggers: on a published release (images tagged with the release tag), or manually.
 on:
   release:
     types: [published]

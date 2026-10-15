@@ -8,7 +8,7 @@ root=$(cd "$(dirname "$0")/.." && pwd); py=${PYTHON:-python3}; model=${MODEL:-$r
 pid=$(basename "$table" .parquet)
 export PYTHONPATH=$root PYTHONWARNINGS=ignore
 mkdir -p "$out/cands" "$out/preds"
-# the three feature stages ran with 2 threads, everything else with 3
+# thread counts of the original run: 2 for the three feature stages, 3 for the rest
 for stage in candidates markers halo; do
   OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_NUM_THREADS=2 $py -m hiddenrare.$stage "$pool" "$table" "$out/cands"
 done

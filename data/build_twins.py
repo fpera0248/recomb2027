@@ -1,8 +1,8 @@
-"""Clean-host twins for the null gate: pools drawn from the same donors as a real pool, with the
+"""Twin pools for the null test: pools drawn from the same donors as a real pool, with the
 finer subtypes that could act as targets removed, so a call on a twin is a false call.
 
     python -m data.build_twins NAME [NAME ...]
-The real pools of NAME must exist under $HR_DATA/pilots. Only labels are used, never a score.
+The real pools of NAME must exist under $HR_DATA/pilots. Only labels are used.
 
 Per real pool (donor pack):
   1. drop every cell of a (label L, finer type T) pair with T != L, T not a placeholder, unless it is

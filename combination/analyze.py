@@ -26,7 +26,7 @@ def check(d, plan, clf):
     extra = ok.merge(exp, how="left", indicator=True).query("_merge=='left_only'")
     drop = got[got.status.str.startswith("dropped")]
     print(f"expected {len(exp)} eligible pool-seeds, ok {len(ok)}, missing {len(miss)}, unexpected {len(extra)}, dropped {len(drop)}")
-    if len(drop): print("DROPPED (cell ids differ):", sorted(set(drop.pool)))
+    if len(drop): print("dropped (cell ids differ):", sorted(set(drop.pool)))
     assert len(miss) == 0 and len(extra) == 0, f"incomplete run: missing {miss.values.tolist()[:10]}, unexpected {extra.values.tolist()[:10]}"
     if "hit_iter_cap" in d: print("fits at the lr iteration cap:", int(d[d.clf == clf].hit_iter_cap.fillna(False).astype(bool).sum()))
 def compare(v, man):

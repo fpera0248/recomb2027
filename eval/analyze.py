@@ -321,4 +321,4 @@ if __name__ == "__main__":
         ap.add_argument("--exclude", default="0bf30b02"); ap.add_argument("--out", default="analysis")
         ap.add_argument("--ours", default=OURS); ap.add_argument("--leiden", default=LEIDEN); ap.add_argument("--sccad", default=SCCAD); ap.add_argument("--learned", default=LEARNED)
         a = ap.parse_args(sys.argv[2:]); r = analyze(a); json.dump(r, open(a.out + ".json", "w"), indent=1, default=str); open(a.out + ".md", "w").write(render(r, a))
-        print("VERDICT", r["verdict"], r["failed_part"], f"({r['n_pools']} pools, {r['n_atlases']} atlases)")
+        print("verdict", r["verdict"], r["failed_part"], f"({r['n_pools']} pools, {r['n_atlases']} atlases)")

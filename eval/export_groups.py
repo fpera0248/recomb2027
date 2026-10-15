@@ -1,4 +1,4 @@
-"""Group files for the null gate.
+"""Group files for the null test.
 
     python -m eval.export_groups PRED_ROOT PILOT_DIR MANIFEST_DIR OUT_ROOT [POOL_ID ...]
 

@@ -148,7 +148,7 @@ for seed in SEEDS:
     assert not (set(dall[ev_mask]) & set(dall[tr_mask])), 'donor appears on both sides'
     ev_idx=[]; full_tr=[]; keep=[]
     probe=np.array(sorted(ci[c] for c in PROBE))                       # fixed: the 8 rarest AIDA types
-    size_of=dict(zip(probe.tolist(), rng.permutation(SIZES).tolist())) # size<->type reshuffled per seed
+    size_of=dict(zip(probe.tolist(), rng.permutation(SIZES).tolist())) # size-to-type assignment reshuffled per seed
     for c in range(NC):
         ep=rng.permutation(np.where((yall==c)&ev_mask)[0]); ev_idx.append(ep[:NEV])
         rest=rng.permutation(np.where((yall==c)&tr_mask)[0])
@@ -483,7 +483,7 @@ for seed in SEEDS:
     pd.DataFrame(srows).to_csv('aida_sd3status.csv',index=False)
 
 S3=pd.DataFrame(srows); S3.to_csv('aida_sd3status.csv',index=False)
-print('\n=== can scDesign3 run at all on a donor-disjoint split with a 1-cell class?')
+print('\n=== scDesign3 status on a donor-disjoint split with a 1-cell class')
 for _,r in S3.iterrows():
     print(f"  seed {r.seed}: {r.n_singleton} singleton class(es) [{r.singleton_types}]")
     print(f"    all 31 classes  : {'RAN' if r.all_classes_ok else 'ABORTED'}"
@@ -493,7 +493,7 @@ for _,r in S3.iterrows():
 T=pd.DataFrame(rows); T.to_csv('aida.csv',index=False)
 METHODS=tuple(a for a in ('real','upsample','nb','sd3','sd3_nosingle','synth_w1','synthbal_w1','scvi','scvi_cond','sdiff','lat_boot','lat_gauss') if a in set(T.method))
 P=T[T.probe]
-print("\n=== recall@200 on held-out cells, 8 NATURALLY RARE probe classes, mean over seeds")
+print("\n=== recall@200 on held-out cells, 8 naturally rare probe classes, mean over seeds")
 print(f"{'n_c':>6} " + ' '.join(f'{a:>10}' for a in METHODS))
 for r in sorted(P.n.unique()):
     d=P[P.n==r]
@@ -509,7 +509,7 @@ for lo,hi in [(0,8),(8,64),(64,257)]:
         dl=d[a]-d['real']; t=stats.ttest_rel(d[a],d['real']).statistic
         out.append(f"{a} {dl.mean():+.3f} (t {t:+.2f})")
     print(f"  n_c {lo+1}-{hi} (N={len(d)}): " + '  '.join(out))
-print("\n=== does synthesis beat the dose-matched upsampling baseline?")
+print("\n=== synthesis against the dose-matched upsampling baseline")
 for lo,hi in [(0,8),(8,64),(64,257)]:
     d=piv[(piv.n>lo)&(piv.n<=hi)].dropna()
     if len(d)<3: continue
@@ -517,7 +517,7 @@ for lo,hi in [(0,8),(8,64),(64,257)]:
     for a in METHODS[2:]:
         dl=d[a]-d['upsample']; o.append(f"{a} vs upsample {dl.mean():+.3f} (t {stats.ttest_rel(d[a],d['upsample']).statistic:+.2f})")
     print(f"  n_c {lo+1}-{hi}: " + '  '.join(o))
-print("\n=== control classes (never augmented) -- sanity, should not move")
+print("\n=== control classes (never augmented; should not move)")
 C=T[~T.probe]
 print('  ' + '  '.join(f"{a} {C[C.method==a].rec200.mean():.3f}" for a in METHODS))
 
@@ -551,7 +551,7 @@ LARMS=[a for a in ('upsample','nb','sd3','sd3_nosingle','synth_w1','synthbal_w1'
                    'scvi','scvi_cond','sdiff','lat_boot','lat_gauss') if a in set(L.method)]
 print("\n=== iLISI of synthetic vs real cells (1 = segregated, 2 = perfectly mixed)")
 for scope,note in (('pooled','backdrop = all real cells, so landing anywhere dense scores well'),
-                   ('within','backdrop = held-out real cells OF THAT CLASS')):
+                   ('within','backdrop = held-out real cells of that class')):
     print(f'  {scope}: {note}')
     print('    n_c   '+''.join(f'{a:>11s}' for a in LARMS))
     for lo,hi,nm in BINS:
@@ -571,9 +571,9 @@ def clust_t(d, a, b):
     return float(v.mean()), float(t), float(2*stats.t.sf(abs(t),len(v)-1)), len(v)
 
 piv2=P.pivot_table(index=['seed','c','n','name_'],columns='method',values='rec200').reset_index()
-BANDS=[('rare  n_c<=8',0,8),('abund n_c>=16',15,10**6),('ALL sizes',0,10**6)]
+BANDS=[('rare  n_c<=8',0,8),('abund n_c>=16',15,10**6),('all sizes',0,10**6)]
 print('\n'+'='*100)
-print('THE CLAIM: upsampling (duplicating real cells) against every generative model')
+print('Summary: upsampling (duplicating real cells) against every generative model')
 print('='*100)
 for lab,lo,hi in BANDS:
     d=piv2[(piv2.n>lo)&(piv2.n<=hi)]

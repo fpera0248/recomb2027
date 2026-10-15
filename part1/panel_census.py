@@ -76,7 +76,7 @@ elif sys.argv[1] == 'report':
     def real(ids):
         n = {re.sub(r'[^a-z0-9]', '', d.lower()) for d in ids}
         return {d for d in n if len(d) >= 4 and not d.isdigit() and not re.fullmatch(WORDID, d)}
-    unit = {}   # union-find over collection + shared donors (>= 5 non-generic ids)
+    unit = {}   # union-find over collection + shared donors (>= 3 non-generic ids)
     def root(x):
         while unit.get(x, x) != x: x = unit[x]
         return x
@@ -94,10 +94,10 @@ elif sys.argv[1] == 'report':
     R.to_csv('panel_eligible.csv', index=False); Pn = R[R.panel]
     print(f'{len(R)} datasets, {R.collection_id.nunique()} studies (human, primary cells, Census {VER})')
     print(f'>= {MIN_DON} clean donors: {(R.donors >= MIN_DON).sum()}; >=8 CL-leaf eligible types: {(R.eligible >= 8).sum()}; '
-          f'QUALIFY: {len(Q)} datasets in {Q.collection_id.nunique()} studies')
+          f'qualifying: {len(Q)} datasets in {Q.collection_id.nunique()} studies')
     SYN = {'respiratory system': 'lung', 'large intestine': 'colon', 'central nervous system': 'brain'}
     print(f'tissues after merging near-synonyms: {Pn.tissue.replace(SYN).nunique()}')
-    print(f'PANEL (one per donor-independent unit): {len(Pn)} datasets, {Pn.tissue.nunique()} tissues, median {int(Pn.cells.median())} cells, '
+    print(f'panel (one per donor-independent unit): {len(Pn)} datasets, {Pn.tissue.nunique()} tissues, median {int(Pn.cells.median())} cells, '
           f'median {int(Pn.donors.median())} donors')
     print('panel per tissue:\n' + Pn.tissue.value_counts().to_string())
     print('panel per assay:\n' + Pn.assay.value_counts().to_string())
