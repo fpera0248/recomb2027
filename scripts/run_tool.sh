@@ -1,7 +1,7 @@
 #!/bin/bash
 # One published tool on one adapted pool.
 # usage: scripts/run_tool.sh TOOL POOL_ID TOOLIN_DIR OUT_DIR      TOOLIN_DIR/{py,r}/<pool>.h5ad from tools/adapt_pool.py
-# Results land in OUT_DIR/tool_out/<arm>/<pool>.parquet. Python tools: PYTHON (default python3), TOOLS_SRC, FIRE_BUILD, SCGPT_CKPT;
+# Results land in OUT_DIR/tool_out/<method>/<pool>.parquet. Python tools: PYTHON (default python3), TOOLS_SRC, FIRE_BUILD, SCGPT_CKPT;
 # R tools: RSCRIPT (default Rscript), RETICULATE_PYTHON, R_EXTRA_LIBS, MCL (see tools/io.R).
 set -euo pipefail
 tool=$1; pid=$2; in=$3; out=$4

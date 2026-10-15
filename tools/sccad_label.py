@@ -1,4 +1,4 @@
-"""Label-aware arm for scCAD: a sub-cluster that holds at least 10% of a visible label is not rare for that label."""
+"""Label-aware variant of scCAD: a sub-cluster that holds at least 10% of a visible label is not rare for that label."""
 import numpy as np
 import pandas as pd
 

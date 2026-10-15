@@ -18,7 +18,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . /opt/recomb2027
-RUN chmod +x reproduce.sh fetch_data.sh && ln -sf /opt/recomb2027/reproduce.sh /usr/local/bin/reproduce
+RUN chmod +x reproduce.sh fetch_data.sh && printf '#!/bin/sh\nexec /opt/recomb2027/reproduce.sh "$@"\n' > /usr/local/bin/reproduce && chmod +x /usr/local/bin/reproduce
 
 LABEL org.opencontainers.image.source="https://github.com/fpera0248/recomb2027"
 CMD ["/bin/bash"]

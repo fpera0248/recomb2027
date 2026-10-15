@@ -18,9 +18,9 @@ For the tools, use the container (`CONTAINER.md`) or follow `docker/Dockerfile.t
 
 ## Spec files
 
-- `environment_hiddenrare.yml`, `requirements.txt`: the packages the code imports, pinned to the versions of the interpreter the results were computed with (macOS arm64). `piplist_hiddenrare.txt` is that interpreter's complete `pip list`.
-- `environment_tools.yml`, `tools/requirements.txt`: the Python side of the tools, pinned to the virtual environment they ran in. `piplist_tools.txt` is its complete `pip list` (GiniClust3 was installed from source with `--no-deps` and is not listed). PyTorch comes from the CPU wheel index in the container.
-- `Rpackages_tools.csv`: R package versions (dependency closure of CellSIUS, GapClust, SCISSORS and Seurat) in the R 4.6.1 installation the tools ran in. Seurat 4.4.0 and SeuratObject 4.1.4 sit in a separate library placed first on `.libPaths()`; the default library holds Seurat 5, which GapClust and SCISSORS do not support.
+- `environment_hiddenrare.yml`, `requirements.txt`: the packages the code imports, pinned to the versions of the interpreter the results were computed with (macOS arm64). `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter.
+- `environment_tools.yml`, `tools/requirements.txt`: the Python side of the tools, pinned to the virtual environment they ran in. `piplist_tools.txt` is its complete `pip list` (GiniClust3 and scGPT were installed from source with `--no-deps` and are not listed). PyTorch comes from the CPU wheel index in the container.
+- `Rpackages_tools.csv`: R package versions (dependency closure of CellSIUS, GapClust, SCISSORS and Seurat) in the R 4.6.1 installation the tools ran in. Seurat 4.4.0 and SeuratObject 4.1.4 are required because GapClust and SCISSORS do not support Seurat 5. The image pins only these two and the tool packages (it uses the R 4.6.1 base image's dated CRAN snapshot for the rest); the CSV is the record of the full set. Part I training code (CFGen, scDiffusion, scVI, scDesign3) is not covered by either environment.
 
 There is no fully pinned conda export: neither environment was created with conda, so no build strings exist to record. The tools and their commits are in `tools/sources.txt`.
 
@@ -30,8 +30,10 @@ There is no fully pinned conda export: neither environment was created with cond
 python3 -m venv venv && venv/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu -r tools/requirements.txt
 TOOLS_SRC=tools_src tools/fetch_sources.sh
 venv/bin/pip install --no-deps tools_src/GiniClust3 tools_src/scGPT
-(cd tools_src/FiRE && ../../venv/bin/python setup.py build_ext --inplace)      # Boost headers needed
-Rscript -e 'remotes::install_version("SeuratObject", "4.1.4"); remotes::install_version("Seurat", "4.4.0")'
+export FIRE_BUILD=$PWD/fire_build; mkdir -p $FIRE_BUILD; cp tools_src/FiRE/python/FiRE/* $FIRE_BUILD/; cp tools/fire_setup.py $FIRE_BUILD/setup.py
+(cd $FIRE_BUILD && BOOST_INC=/usr/include ../venv/bin/python setup.py build_ext --inplace)      # Boost headers needed
+Rscript -e 'remotes::install_version("SeuratObject", "4.1.4", upgrade = "never"); remotes::install_version("Seurat", "4.4.0", upgrade = "never")'
+R_MAKEVARS_USER=$PWD/tools/Makevars.rflann R CMD INSTALL tools_src/rflann     # GapClust dependency, needs -std=gnu++14
 for p in CellSIUS GapClust SCISSORS; do R CMD INSTALL tools_src/$p; done
 ```
 Set `PYTHON`, `RETICULATE_PYTHON`, `TOOLS_SRC`, `FIRE_BUILD`, `SCGPT_CKPT` and `MCL` as described in `scripts/run_tool.sh` and `tools/io.R`.

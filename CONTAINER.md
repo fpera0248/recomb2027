@@ -16,6 +16,8 @@ docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:latest
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
     env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
+While the repository is private the image cannot download the assets (no GitHub CLI inside): download them on the host and add `-e ASSET_SRC=/out/release` with the files in `out/release`.
+
 `reproduce rerun` and `reproduce full` work the same way (`full` also wants `HR_DATA=/out/work` and about 50 GB of space). One pool:
 ```
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \

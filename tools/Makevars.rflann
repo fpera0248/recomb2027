@@ -1,0 +1,3 @@
+CXXFLAGS = -g -O2 -std=gnu++14
+CXX20FLAGS = -g -O2 -std=gnu++14
+CXX17FLAGS = -g -O2 -std=gnu++14

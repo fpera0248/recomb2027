@@ -10,29 +10,35 @@
 
 FROM rocker/r-ver:4.6.1
 ENV DEBIAN_FRONTEND=noninteractive PIP_NO_CACHE_DIR=1 PYTHONDONTWRITEBYTECODE=1 \
-    TOOLS_SRC=/opt/tools_src FIRE_BUILD=/opt/tools_src/FiRE \
+    TOOLS_SRC=/opt/tools_src FIRE_BUILD=/opt/fire_build \
     PYTHON=/opt/venv/bin/python RETICULATE_PYTHON=/opt/venv/bin/python
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git curl ca-certificates build-essential python3 python3-venv python3-dev libboost-dev mcl \
         libcurl4-openssl-dev libssl-dev libxml2-dev libhdf5-dev libglpk-dev libgsl-dev \
-        libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev \
+        libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff-dev libjpeg-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/recomb2027
-COPY tools/requirements.txt tools/sources.txt tools/fetch_sources.sh tools/
+COPY tools/requirements.txt tools/sources.txt tools/fetch_sources.sh tools/fire_setup.py tools/Makevars.rflann tools/
+RUN python3 -c 'import sys; assert sys.version_info[:2] == (3, 12), sys.version'
 RUN python3 -m venv /opt/venv \
     && /opt/venv/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu -r tools/requirements.txt
 RUN bash tools/fetch_sources.sh \
     && /opt/venv/bin/pip install --no-deps $TOOLS_SRC/GiniClust3 $TOOLS_SRC/scGPT \
-    && cd $TOOLS_SRC/FiRE && /opt/venv/bin/python setup.py build_ext --inplace
+    && mkdir -p $FIRE_BUILD && cp $TOOLS_SRC/FiRE/python/FiRE/* $FIRE_BUILD/ && cp tools/fire_setup.py $FIRE_BUILD/setup.py \
+    && cd $FIRE_BUILD && BOOST_INC=/usr/include /opt/venv/bin/python setup.py build_ext --inplace
 
-# Seurat 4.4.0 / SeuratObject 4.1.4: GapClust and SCISSORS read the v3/v4 slots.
-RUN Rscript -e 'options(repos = c(CRAN = "https://cloud.r-project.org")); \
+# Seurat 4.4.0 / SeuratObject 4.1.4: GapClust and SCISSORS read the v3/v4 slots. Nothing may upgrade them.
+# rflann (GapClust dependency) needs -std=gnu++14.
+RUN R_MAKEVARS_USER=/opt/recomb2027/tools/Makevars.rflann Rscript -e ' \
       install.packages(c("remotes", "BiocManager")); \
-      remotes::install_version("SeuratObject", "4.1.4"); remotes::install_version("Seurat", "4.4.0"); \
-      BiocManager::install("SingleCellExperiment", ask = FALSE); \
-      for (p in c("CellSIUS", "GapClust", "SCISSORS")) remotes::install_local(file.path("/opt/tools_src", p), dependencies = TRUE, upgrade = "never")'
+      BiocManager::install("SingleCellExperiment", ask = FALSE, update = FALSE); \
+      remotes::install_version("SeuratObject", "4.1.4", upgrade = "never"); \
+      remotes::install_version("Seurat", "4.4.0", upgrade = "never"); \
+      for (p in c("rflann", "CellSIUS", "GapClust", "SCISSORS")) remotes::install_local(file.path("/opt/tools_src", p), dependencies = NA, upgrade = "never"); \
+      stopifnot(packageVersion("Seurat") == "4.4.0", packageVersion("SeuratObject") == "4.1.4", \
+                all(c("CellSIUS", "GapClust", "SCISSORS", "rflann") %in% rownames(installed.packages())))'
 
 COPY . /opt/recomb2027
 LABEL org.opencontainers.image.source="https://github.com/fpera0248/recomb2027"
