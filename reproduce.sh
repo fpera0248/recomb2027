@@ -6,7 +6,9 @@
 #   reproduce.sh full     rebuild the 10-atlas test pools from CELLxGENE and rerun the whole pipeline
 #
 # Env: PYTHON (python3), ASSETS (./assets), OUT (./reproduce_out), TAG and ASSET_SRC (see fetch_data.sh).
-# full also: HR_DATA (./work), TOOLS=1 to run the published tools (needs their environments, see tools/ and README), JOBS (1).
+# full also: HR_DATA (./work); TOOLS=1 runs the published tools. They need their own Python environment (tools/requirements.txt, scikit-learn 1.9.1,
+#   which conflicts with requirements.txt): set TOOLS_PYTHON to it. Also SCGPT_CKPT (scGPT whole-human checkpoint dir), MCL, RSCRIPT, see ENVIRONMENTS.md.
+#   A tool that already has an output is skipped; failures are listed in $OUT/tool_failures.txt and the run goes on.
 #
 # paper    exact. Asserted: Table values, tests, per-atlas differences, null-test rates, Part I figures (see notebooks/). A few minutes, 1.2 GB of downloads.
 #          One comparison has a tolerance: the bootstrap interval of the headline difference (0.005 on each end).
@@ -47,12 +49,16 @@ case $mode in
       [ -s "$run/preds/hiddenrare/$pid.parquet" ] || nice -n 10 "$here/scripts/run_pool.sh" "$HR_DATA/pools/${pid#atl_}.h5ad" "$t" "$run"
     done
     if [ "${TOOLS:-0}" = 1 ]; then
+      tp=${TOOLS_PYTHON:-$PYTHON}; mkdir -p "$run/tool_out"
       for t in "$HR_DATA"/pilots/atl_*.parquet; do
         pid=$(basename "$t" .parquet); a=${pid#atl_}; a=${a%_p*}
-        $PYTHON "$here/tools/adapt_pool.py" "$HR_DATA/pools/${pid#atl_}.h5ad" "$t" "$HR_DATA/genemap/$a.csv" "$OUT/toolin"
-        for tool in giniclust3 fire mars sccad scgpt_if cellsius gapclust scissors; do "$here/scripts/run_tool.sh" $tool "$pid" "$OUT/toolin" "$run"; done
+        $tp "$here/tools/adapt_pool.py" "$HR_DATA/pools/${pid#atl_}.h5ad" "$t" "$HR_DATA/genemap/$a.csv" "$OUT/toolin"
+        for tool in giniclust3 fire mars sccad scgpt_if cellsius gapclust scissors; do
+          dir=$tool; [ $tool = cellsius ] && dir=cellsius_label; [ $tool = scissors ] && dir=scissors_cluster
+          [ -s "$run/tool_out/$dir/$pid.parquet" ] || TOOLS_PYTHON=$tp "$here/scripts/run_tool.sh" $tool "$pid" "$OUT/toolin" "$run" || echo "$tool $pid" >> "$OUT/tool_failures.txt"
+        done
       done
-    else mkdir -p "$run/tool_out"; fi
+    else mkdir -p "$run/tool_out"; echo "TOOLS is not 1: the published tools were not run, T2 (against scCAD) is not evaluated" >&2; fi
     "$here/eval/run_eval.sh" "$HR_DATA" "$run" "$OUT/eval"
     $PYTHON -m eval.full_check "$OUT/eval/result.json" $([ "${TOOLS:-0}" = 1 ] || echo --no-sccad) ;;
   *) echo "unknown mode $mode" >&2; exit 2 ;;
