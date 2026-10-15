@@ -18,7 +18,7 @@ docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
 ```
 To work offline, or for another release tag, put the release files in `out/release` and add `-e ASSET_SRC=/out/release` (or set `TAG`). A missing release gives 404.
 
-`reproduce rerun` and `reproduce full` work the same way (`full` also wants `HR_DATA=/out/work` and about 50 GB of space). One pool:
+`reproduce rerun` and `reproduce full` work the same way (`full` also wants `HR_DATA=/out/work`, disk use not measured; the downloads alone are 29.3 GB). One pool:
 ```
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
     scripts/run_pool.sh /out/POOL.h5ad /out/PILOT.parquet /out/run
@@ -35,7 +35,7 @@ docker run -v "$PWD/out":/out -v /path/to/scGPT_human:/ckpt -e SCGPT_CKPT=/ckpt 
 apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:latest
 apptainer exec -B "$PWD/out":/out recomb2027.sif env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
-`Apptainer.def` builds the same from the published image. 
+`Apptainer.def` builds the same from the published image.
 
 ## Build locally
 

@@ -34,4 +34,4 @@ export FIRE_BUILD=$PWD/fire_build; mkdir -p $FIRE_BUILD; cp tools_src/FiRE/pytho
 (cd $FIRE_BUILD && BOOST_INC=/usr/include ../venv/bin/python setup.py build_ext --inplace)      # Boost headers needed
 # R packages: follow the RUN lines of docker/Dockerfile.tools (Seurat 4.4.0, SeuratObject 4.1.4, rflann with tools/Makevars.rflann, then CellSIUS, GapClust, SCISSORS)
 ```
-Set `PYTHON`, `RETICULATE_PYTHON`, `TOOLS_SRC`, `FIRE_BUILD`, `SCGPT_CKPT` and `MCL` as described in `scripts/run_tool.sh` and `tools/io.R`.
+Set `TOOLS_PYTHON` (`PYTHON` stays the hiddenrare environment), `RETICULATE_PYTHON`, `TOOLS_SRC`, `FIRE_BUILD`, `SCGPT_CKPT` and `MCL` as described in `scripts/run_tool.sh` and `tools/io.R`.
