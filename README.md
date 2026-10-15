@@ -1,4 +1,4 @@
-# Blind recovery of hidden rare subtypes
+# Finding rare cell subtypes hidden inside broad labels
 
 Code for the RECOMB 2027 paper. Given a pool of cells with a coarse visible label (say "T cell"), the method ranks cells by how likely they belong to a finer subtype that is not labelled. It never sees the finer annotation.
 
