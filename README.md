@@ -147,3 +147,14 @@ Datasets used before the test are listed in `data/used_datasets.csv`; the Human 
 - Reproductions of the published tools; only their wrappers and pinned environments are included.
 - The `full` tier is untested; the container images are built and published but have not been run end to end.
 - The runtime and memory table of the paper (per-job `/usr/bin/time -l` logs on the run machine).
+
+## License
+
+The code in this repository is under the MIT license (`LICENSE`). Third-party code keeps its own license:
+
+- The published tools, cloned by `tools/fetch_sources.sh` at the commits in `tools/sources.txt`: scCAD and FiRE (GPL-3), GapClust (GPL-3, per its DESCRIPTION file), rflann (GPL), GiniClust3, SCISSORS, mars and scGPT (MIT), CellSIUS (Apache-2.0).
+- The Python and R packages at the versions in `piplist_hiddenrare.txt`, `piplist_tools.txt` and `Rpackages_tools.csv`, among them leidenalg (GPL-3.0-or-later) and igraph (GPL-2.0-or-later).
+
+The container images contain these programs under their own licenses. The `recomb2027-tools` image keeps the full source of each published tool in `/opt/tools_src`; the source of every Python and R package is available from PyPI, CRAN and Bioconductor at the pinned version, and the source of the operating-system packages from the Debian (`recomb2027-hiddenrare`, based on `python:3.12-slim-bookworm`) and Ubuntu (`recomb2027-tools`, based on `rocker/r-ver:4.6.1`) archives. On request, the authors (see `CITATION.cff`) will provide the complete corresponding source of any GPL-licensed component of the images for three years after each image release.
+
+The release assets are derived from the public CELLxGENE datasets listed in `data/used_datasets.csv` and the CELLxGENE rows of `ATLAS_MANIFEST.csv`, which CELLxGENE distributes under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The assets are under the same license; please cite the original datasets.
