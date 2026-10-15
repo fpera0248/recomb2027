@@ -1,7 +1,17 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-title: "Hidden rare cell types: code to reproduce the paper"
+message: "If you use this code or reproduce our results, please cite the paper."
+title: "Blind recovery of hidden rare subtypes: code to reproduce the paper"
+abstract: "Our method for ranking cells of a pool by how likely they belong to an unlabelled finer subtype, the evaluation on the held-out atlases, the wrappers for the published detectors, pinned environments and container images."
+type: software
 authors:
   - family-names: "Peralta Castro"
     given-names: "Fernando"
+  # TODO: add co-authors
 repository-code: "https://github.com/fpera0248/recomb2027"
+url: "https://github.com/fpera0248/recomb2027"
+keywords:
+  - single-cell RNA sequencing
+  - rare cell types
+  - hidden subtypes
+  - benchmarking
+# TODO: preferred-citation once the paper has a venue and DOI
