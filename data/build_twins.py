@@ -113,7 +113,7 @@ def build_twins(name):
         rows = r.pop("rows", None)
         L.append(r)
         if rows is not None:
-            tp = f"twin_{name}_p{k}"
+            tp = f"twin_{name}_p{k}"  # the pool id seeds the cell ids (hiddenrare.io.opaque_order): another prefix gives other ids
             write_pool(P, tp, f"atl_{tp}", rows)
             man.append((f"atl_{tp}", name, "twin", pid, k, len(rows), o[lab].iloc[rows].nunique()))
             print(f"atl_{tp}", len(rows), flush=True)
