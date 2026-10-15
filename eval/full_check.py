@@ -1,6 +1,6 @@
 """Compare a rebuilt-from-scratch run with the numbers of the paper.
 
-    python -m eval.full_check RESULT.json [--no-sccad]      (--selftest checks the checker)
+    python -m eval.full_check RESULT.json [--no-sccad]     
 
 RESULT.json is written by eval.analyze (eval/run_eval.sh). PAPER holds the atlas-equal means and difference of the 10-atlas test
 (ours minus Leiden subclustering = T1, ours minus scCAD with labels = T2). Tolerance: pool union AP moves by about 0.01 between numerical

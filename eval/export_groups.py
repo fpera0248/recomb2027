@@ -40,7 +40,7 @@ if __name__ == "__main__":
             os.makedirs(f"{out}/{m}", exist_ok=True)
             g.to_parquet(f"{out}/{m}/{pid}.parquet", index=False)
     tm = [pd.read_csv(f)[["pilot_id", "block"]].rename(columns={"pilot_id": "twin_id", "block": "pilot_id"})
-          for f in sorted(glob.glob(f"{man_dir}/atlas_manifest_null5_*.csv"))]
+          for f in sorted(glob.glob(f"{man_dir}/atlas_manifest_twin_*.csv"))]
     if tm:
         pd.concat(tm).to_csv(f"{out}/twin_map.csv", index=False)
     print(len(pids), "pools")

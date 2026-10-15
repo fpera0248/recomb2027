@@ -1,6 +1,6 @@
 """ATLAS_MANIFEST.csv: the public CELLxGENE files behind every number, with versioned download URLs.
 
-    python data/build_manifest.py            re-read url, size, cell count and title of every row from the CELLxGENE curation API
+    python data/build_manifest.py --refresh  re-read url, size, cell count and title of every row from the CELLxGENE curation API
     python data/build_manifest.py --check    HEAD every download_url and compare its size with remote_size (exit 1 on a mismatch)
 
 Rows keep their key, name, set and md5. md5 is filled only where we hashed our own copy; CELLxGENE publishes no checksum.
@@ -57,4 +57,7 @@ def check():
 if __name__ == "__main__":
     if "--check" in sys.argv:
         sys.exit(1 if check() else 0)
-    refresh()
+    if "--refresh" in sys.argv:
+        refresh()
+    else:
+        print(__doc__)
