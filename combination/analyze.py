@@ -39,7 +39,9 @@ def main(pat, out, planf, clf="lr"):
     for A, B, met, fam in CON:
         w = d[d.setting.isin([A, B])].groupby(["pool", "setting"])[met].mean().unstack()   # seed mean within pool
         if A not in w or B not in w: continue
-        w = w.dropna(); w.index.name = "pilot_id"; v = w.rename(columns={A: "ours", B: "leiden"})
+        w = w.dropna()
+        if w.empty: continue
+        w.index.name = "pilot_id"; v = w.rename(columns={A: "ours", B: "leiden"})
         r = pd.DataFrame([compare(v, man)])
         am = (v.ours - v.leiden).groupby(man.loc[v.index, "atlas"].values).mean(); n = len(am)
         r["lower95_one_sided"] = am.mean() - stats.t.ppf(0.95, n - 1) * am.std(ddof=1) / np.sqrt(n) if n > 1 else np.nan

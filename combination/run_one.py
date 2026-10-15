@@ -172,5 +172,5 @@ def selftest():
 if __name__ == "__main__":
     selftest(); ap = argparse.ArgumentParser(); ap.add_argument("pool", nargs="?"); ap.add_argument("seed", nargs="?", type=int); ap.add_argument("--out"); ap.add_argument("--clf", default="lr", choices=CLFS); ap.add_argument("--plan", action="store_true")
     g = ap.parse_args()
-    if g.plan: plan().to_csv(g.out or f"{HERE}/plan.csv", index=False)
+    if g.plan: ap.error("--plan needs --out") if not g.out else plan().to_csv(g.out, index=False)
     else: run(g.pool, g.seed, g.out or f"{HERE}/rows_{g.pool}_{g.seed}_{g.clf}.csv", g.clf)

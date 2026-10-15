@@ -8,3 +8,4 @@ out/
 *.parquet
 assets/
 reproduce_out/
+combination/rows*
