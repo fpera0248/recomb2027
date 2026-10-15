@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Reproduce the numbers of the paper at three depths.
 #
-#   reproduce.sh paper    download the release assets, recompute every Part II number from the saved predictions, assert the match
+#   reproduce.sh paper    download the release assets, recompute the Part II numbers of the 8-atlas test set from the saved predictions, assert the match
 #   reproduce.sh rerun    rescore the 69 held-out pools from the frozen candidate tables with this repository's scorer
 #   reproduce.sh full     rebuild the 10-atlas test pools from CELLxGENE and rerun the whole pipeline
 #
 # Env: PYTHON (python3), ASSETS (./assets), OUT (./reproduce_out), TAG and ASSET_SRC (see fetch_data.sh).
 # full also: HR_DATA (./work), TOOLS=1 to run the published tools (needs their environments, see tools/ and README), JOBS (1).
 #
-# paper    exact. Asserted: Table values, tests, per-atlas differences, null-test rates, Part I figures (see notebooks/). A few minutes, 1.3 GB of downloads.
+# paper    exact. Asserted: Table values, tests, per-atlas differences, null-test rates, Part I figures (see notebooks/). A few minutes, 1.2 GB of downloads.
 #          One comparison has a tolerance: the bootstrap interval of the headline difference (0.005 on each end).
 # rerun    not exact. Applies models/refit_dev_nat.pkl to the frozen Leiden groups and features and blends with the saved Leiden scores; the saved
 #          scores come from a scorer that is not in this repository. Measured on the 69 pools: Spearman of per-cell scores 0.88 on average (0.76 to 0.95),

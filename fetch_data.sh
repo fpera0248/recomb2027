@@ -9,6 +9,7 @@
 #
 # Release assets come from $BASE/<asset> with BASE=https://github.com/fpera0248/recomb2027/releases/download/$TAG, and are checked against
 # ASSETS.md5 (kept in this repository). ASSET_SRC=DIR takes them from a local directory instead of the network.
+# While the repository is private the plain URL fails, and the download falls back to `gh release download` (needs gh and a login with read access).
 # CELLxGENE publishes no checksums: every atlas is checked against its size in ATLAS_MANIFEST.csv, and against its md5 when the manifest has one.
 set -euo pipefail
 TAG=${TAG:-v0.1.0}
@@ -23,12 +24,17 @@ get() {  # URL OUT
   if command -v curl >/dev/null 2>&1; then curl -fL --retry 3 -o "$2" "$1"; else wget -O "$2" "$1"; fi
 }
 
+fetch_gh() {  # private repository: unauthenticated URLs return 404, so use the GitHub CLI login
+  command -v gh >/dev/null 2>&1 || { echo "download failed; for a private repository install gh and log in, or set ASSET_SRC" >&2; return 1; }
+  rm -f "$2"; gh release download "$TAG" -R "${REPO_SLUG:-fpera0248/recomb2027}" -p "$1" -O "$2"
+}
+
 asset() {
   local name=$1 f=$dest/$1 want
   want=$(awk -v n="$name" '$2 == n {print $1}' "$here/ASSETS.md5")
   [ -n "$want" ] || { echo "$name is not in ASSETS.md5" >&2; exit 1; }
   if [ ! -s "$f" ]; then
-    if [ -n "${ASSET_SRC:-}" ]; then cp "$ASSET_SRC/$name" "$f"; else get "$BASE/$name" "$f"; fi
+    if [ -n "${ASSET_SRC:-}" ]; then cp "$ASSET_SRC/$name" "$f"; else get "$BASE/$name" "$f" || fetch_gh "$name" "$f"; fi
   fi
   [ "$(md5of "$f")" = "$want" ] || { echo "md5 mismatch: $f (delete it and retry)" >&2; exit 1; }
   echo "ok  $name"
@@ -38,7 +44,7 @@ asset() {
 atlases() {  # source files of one manifest set
   local set=$1 a=$dest/atlas
   mkdir -p "$a"
-  python3 - "$here/ATLAS_MANIFEST.csv" "$set" <<'PY' | while IFS=$'\t' read -r id url size md5; do
+  ${PYTHON:-python3} - "$here/ATLAS_MANIFEST.csv" "$set" <<'PY' | while IFS=$'\t' read -r id url size md5; do
 import csv, sys
 for r in csv.DictReader(open(sys.argv[1])):
     if r["set"] == sys.argv[2] and r["download_url"]:
