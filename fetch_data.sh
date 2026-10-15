@@ -22,7 +22,7 @@ mkdir -p "$dest"
 md5of() { if command -v md5sum >/dev/null 2>&1; then md5sum "$1" | cut -d' ' -f1; else md5 -q "$1"; fi; }
 sizeof() { wc -c < "$1" | tr -d ' '; }
 get() {  # URL OUT
-  if command -v curl >/dev/null 2>&1; then curl -fL --retry 3 -o "$2" "$1"; else wget -O "$2" "$1"; fi
+  if command -v curl >/dev/null 2>&1; then curl -fL --retry 3 -C - -o "$2" "$1"; else wget -c -O "$2" "$1"; fi
 }
 
 fetch_gh() {  # private repository: unauthenticated URLs return 404, so use the GitHub CLI login
@@ -52,8 +52,8 @@ for r in csv.DictReader(open(sys.argv[1])):
         print("\t".join([r["dataset_id"], r["download_url"], r["remote_size"], r["md5"]]))
 PY
     f=$a/$id.h5ad
-    [ -s "$f" ] || get "$url" "$f"
-    [ "$(sizeof "$f")" = "$size" ] || { echo "size mismatch: $f" >&2; exit 1; }
+    [ -s "$f" ] || { get "$url" "$f.part" && mv "$f.part" "$f"; }
+    [ "$(sizeof "$f")" = "$size" ] || { echo "size mismatch: $f (delete the partial file and rerun)" >&2; exit 1; }
     [ -z "$md5" ] || [ "$(md5of "$f")" = "$md5" ] || { echo "md5 mismatch: $f" >&2; exit 1; }
     echo "ok  $id${md5:+ (md5 checked)}"
   done
