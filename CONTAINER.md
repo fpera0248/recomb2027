@@ -16,7 +16,7 @@ docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:latest
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
     env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
-While the repository is private the image cannot download the assets (no GitHub CLI inside): download them on the host and add `-e ASSET_SRC=/out/release` with the files in `out/release`.
+To work offline, or for another release tag, put the release files in `out/release` and add `-e ASSET_SRC=/out/release` (or set `TAG`). A missing release gives 404.
 
 `reproduce rerun` and `reproduce full` work the same way (`full` also wants `HR_DATA=/out/work` and about 50 GB of space). One pool:
 ```
@@ -35,7 +35,7 @@ docker run -v "$PWD/out":/out -v /path/to/scGPT_human:/ckpt -e SCGPT_CKPT=/ckpt 
 apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:latest
 apptainer exec -B "$PWD/out":/out recomb2027.sif env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
-`Apptainer.def` builds the same from the published image. Private images need `apptainer remote login` or `APPTAINER_DOCKER_USERNAME` and `APPTAINER_DOCKER_PASSWORD` with a token that can read packages.
+`Apptainer.def` builds the same from the published image. 
 
 ## Build locally
 

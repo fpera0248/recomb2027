@@ -29,7 +29,7 @@ docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:latest
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
     env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
-Apptainer and details: `CONTAINER.md`. While the repository is private the images are private too; log in to `ghcr.io` with a token that can read packages.
+Apptainer and details: `CONTAINER.md`.
 
 **Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is its full `pip list`. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ (Spearman about 0.8 to 0.9 on one test pool) and pool union AP moves by about 0.01. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
@@ -51,7 +51,7 @@ At the `paper` tier the results match the paper exactly: every table value, test
 
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
 
-While the repository is private, the plain release URLs return 404. `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in with read access), or set `ASSET_SRC=DIR` to take the assets from a local directory. Set `TAG` for another release.
+A missing release gives 404 (check `TAG`, default v0.1.0). `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in). Set `ASSET_SRC=DIR` to take the assets from a local directory, for offline use.
 
 ## Atlases
 

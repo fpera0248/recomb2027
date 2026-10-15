@@ -9,7 +9,7 @@
 #
 # Release assets come from $BASE/<asset> with BASE=https://github.com/fpera0248/recomb2027/releases/download/$TAG, and are checked against
 # ASSETS.md5 (kept in this repository). ASSET_SRC=DIR takes them from a local directory instead of the network.
-# While the repository is private the plain URL fails, and the download falls back to `gh release download` (needs gh and a login with read access).
+# A missing release gives 404 (check TAG). The download then falls back to `gh release download` (needs gh and a login).
 # CELLxGENE publishes no checksums: every atlas is checked against its size in ATLAS_MANIFEST.csv, and against its md5 when the manifest has one.
 set -euo pipefail
 case ${1:-} in -h|--help) awk 'NR > 1 && /^#/ {sub(/^# ?/, ""); print; next} NR > 1 {exit}' "$0"; exit 0;; esac
@@ -25,8 +25,8 @@ get() {  # URL OUT
   if command -v curl >/dev/null 2>&1; then curl -fL --retry 3 -C - -o "$2" "$1"; else wget -c -O "$2" "$1"; fi
 }
 
-fetch_gh() {  # private repository: unauthenticated URLs return 404, so use the GitHub CLI login
-  command -v gh >/dev/null 2>&1 || { echo "download failed; for a private repository install gh and log in, or set ASSET_SRC" >&2; return 1; }
+fetch_gh() {  # fallback when the plain URL fails
+  command -v gh >/dev/null 2>&1 || { echo "download failed (404 means the release $TAG is missing: check TAG); install gh and log in, or set ASSET_SRC" >&2; return 1; }
   rm -f "$2"; gh release download "$TAG" -R "${REPO_SLUG:-fpera0248/recomb2027}" -p "$1" -O "$2"
 }
 
