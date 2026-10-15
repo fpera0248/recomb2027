@@ -115,6 +115,7 @@ def fit_predict(Z, y, tr, te, cls, seed, dup, clf="lr"):
 
 
 def run(pid, seed, out, clf="lr"):
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     t0 = time.time(); df = load_meta(pid); el, why = eligibility(pid, seed, df)
     if el is None:
         row = dict(pool=pid, seed=seed, clf=clf, setting="*", status="ineligible: " + why); pd.DataFrame([row]).to_csv(out, mode="a", header=not os.path.exists(out), index=False); return
