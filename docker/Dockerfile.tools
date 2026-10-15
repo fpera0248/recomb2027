@@ -31,7 +31,7 @@ RUN bash tools/fetch_sources.sh \
 
 # Seurat 4.4.0 / SeuratObject 4.1.4: GapClust and SCISSORS read the v3/v4 slots. Nothing may upgrade them.
 RUN Rscript -e ' \
-      install.packages(c("remotes", "BiocManager")); \
+      install.packages(c("remotes", "BiocManager", "RcppArmadillo")); \
       BiocManager::install("SingleCellExperiment", ask = FALSE, update = FALSE); \
       remotes::install_version("SeuratObject", "4.1.4", upgrade = "never"); \
       remotes::install_version("Seurat", "4.4.0", upgrade = "never")'
