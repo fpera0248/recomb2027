@@ -11,13 +11,15 @@ This repository holds our method (`hiddenrare/`), the evaluation (`eval/`), the 
 3. `hiddenrare/scorer.py`: a gradient-boosted regressor (`models/refit_dev_nat.pkl`) predicts how pure each group is. A cell's score is the best group it belongs to, plus a small isolation tie-break.
 4. `hiddenrare/baselines.py`, `blend.py`: the final score is 0.75 * rank(scorer) + 0.25 * rank(Leiden subclustering score).
 
+The saved scores of the 8-atlas test set come from an earlier fit of the same recipe that was not kept; `models/refit_dev_nat.pkl` is a refit. The `paper` tier is therefore exact (it reads the saved scores) and the `rerun` tier is a consistency check (`eval/rerun.py`).
+
 Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables because `hiddenrare/scorer.py` reads them by name in the order the model was fit with.
 
 ## Install
 
 Pick one.
 
-**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is its full `pip list`. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ (Spearman about 0.8 to 0.9 on one test pool) and pool union AP moves by about 0.01. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
+**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is its full `pip list`. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
 **Container (untested).** Two images, defined in `docker/` and built by `.github/workflows/build-images.yml`, which pushes them to GHCR on every release. They have not been built or run yet. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
@@ -36,15 +38,15 @@ Apptainer and details: `CONTAINER.md`.
 ## Reproduce the numbers
 
 ```
-./reproduce.sh paper     # download the release assets, recompute the Part II numbers of the 8-atlas test set, assert the match
+./reproduce.sh paper     # download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type tables, assert the match
 ./reproduce.sh rerun     # rescore the 69 held-out pools with this repository's scorer
 ./reproduce.sh full      # rebuild the 10-atlas test pools from CELLxGENE and rerun everything
 ```
 
 | Tier | Input | Exactness | Time and disk |
 |---|---|---|---|
-| paper | saved predictions of every method on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and Part I figures are asserted; the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
-| rerun | frozen candidate tables and Leiden scores | not exact: mean Spearman of per-cell scores 0.88 against the saved ones, atlas-equal union AP 0.3195 against 0.3213; asserted within 0.01 | about 2 minutes, about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
+| paper | saved predictions of every method run on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and the Part I numbers of notebook 04 are asserted; the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
+| rerun | frozen candidate tables and Leiden scores | not exact (the saved scores come from an earlier fit that was not kept): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 minutes, about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
 | full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | about 30 GB of downloads and 20 GB of pool files, hours to days on 12 cores (estimated from the run machine; not re-timed) |
 
 At the `paper` tier the results match the paper exactly: every table value, test and null-test rate is recomputed from the saved predictions and asserted, so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Time estimates for the containers have not been measured, and the images have not been built from this checkout (no Docker on the machine that prepared them); the first CI build is the first test of the Dockerfiles.
@@ -59,7 +61,7 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 
 ## Notebooks
 
-`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, MARS and scCAD style metrics), `03_null_test.ipynb` (twin pools with the hidden cells removed) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. The `paper` and `rerun` tiers use only the 69 pools of the 8-atlas test set; the 10-atlas predictions are produced by `full`.
+`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, metrics used in the MARS and scCAD papers), `03_null_test.ipynb` (twin pools with the hidden cells removed: 101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks assert numbers and draw no figures. They only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. The `paper` and `rerun` tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases). The 8-atlas test set (69 pools) and the 10-atlas test set (57 pools) are different sets; the 10-atlas predictions are produced by `full`.
 
 ## One pool
 

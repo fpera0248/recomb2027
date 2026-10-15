@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Reproduce the numbers of the paper at three depths.
 #
-#   reproduce.sh paper    download the release assets, recompute the Part II numbers of the 8-atlas test set from the saved predictions, assert the match
+#   reproduce.sh paper    download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type tables, assert the match
 #   reproduce.sh rerun    rescore the 69 held-out pools from the frozen candidate tables with this repository's scorer
 #   reproduce.sh full     rebuild the 10-atlas test pools from CELLxGENE and rerun the whole pipeline
 #
@@ -10,10 +10,10 @@
 #   which conflicts with requirements.txt): set TOOLS_PYTHON to it. Also SCGPT_CKPT (scGPT whole-human checkpoint dir), MCL, RSCRIPT, see ENVIRONMENTS.md.
 #   A tool that already has an output is skipped; failures are listed in $OUT/tool_failures.txt and the run goes on.
 #
-# paper    exact. Asserted: Table values, tests, per-atlas differences, null-test rates, Part I figures (see notebooks/). A few minutes, 1.2 GB of downloads.
+# paper    exact. Asserted: Table values, tests, per-atlas differences, null-test rates, the Part I numbers of notebook 04 (see notebooks/; they draw no figures). A few minutes, 1.2 GB of downloads.
 #          One comparison has a tolerance: the bootstrap interval of the headline difference (0.005 on each end).
 # rerun    not exact. Applies models/refit_dev_nat.pkl to the frozen Leiden groups and features and blends with the saved Leiden scores; the saved
-#          scores come from a scorer that is not in this repository. Measured on the 69 pools: Spearman of per-cell scores 0.88 on average (0.76 to 0.95),
+#          scores come from an earlier fit that was not kept (the pkl is a refit). Measured on the 69 pools: Spearman of per-cell scores 0.878 on average (0.76 to 0.95),
 #          atlas-equal union AP 0.3195 against 0.3213, single pools move by up to 0.2. Asserted: atlas-equal union AP within 0.01, mean Spearman above 0.8.
 #          About 2 minutes.
 # full     approximate. The cell-level leak check against the earlier datasets (data/leak_check.py, needs the 90 panel files) is not run here.
