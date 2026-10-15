@@ -3,7 +3,7 @@
     python data/build_manifest.py --refresh  re-read url, size, cell count and title of every row from the CELLxGENE curation API
     python data/build_manifest.py --check    HEAD every download_url and compare its size with remote_size (exit 1 on a mismatch)
 
-Rows keep their key, name, set and md5. md5 is filled only where we hashed our own copy; CELLxGENE publishes no checksum.
+Rows keep their key, name and set. md5 is filled only where we hashed our own copy (CELLxGENE publishes no checksum); a refresh that changes the URL clears it.
 The URL names a dataset version, so it keeps working after the dataset is updated; a refresh would point to the new version.
 """
 import csv
@@ -31,6 +31,8 @@ def refresh():
             d = json.load(u)
         a = [x for x in d["assets"] if x["filetype"] == "H5AD"][0]
         assert a["url"].endswith(".h5ad"), a
+        if a["url"] != r["download_url"]:
+            r["md5"] = ""  # the md5 belongs to the old version
         r.update(download_url=a["url"], remote_size=a["filesize"], n_cells=d["cell_count"], title=d["title"][:120].replace(",", ";"))
     with open(M, "w", newline="") as f:
         w = csv.DictWriter(f, cols, lineterminator="\n")
