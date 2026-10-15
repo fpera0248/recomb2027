@@ -1,0 +1,12 @@
+.git
+.DS_Store
+assets/
+work/
+reproduce_out/
+tools_src/
+out/
+*.h5ad
+*.parquet
+*.log
+__pycache__/
+*.pyc

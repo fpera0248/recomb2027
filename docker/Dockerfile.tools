@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+# Published tools that run on a pool: the Python tools (scCAD, GiniClust3, FiRE, MARS, scGPT
+# isolation forest) and the R tools (CellSIUS, GapClust, SCISSORS). The wrappers in tools/ only
+# adapt input and output; the tools are the official repositories at the commits in tools/sources.txt.
+# CPU only. The scGPT whole-human checkpoint is not baked; mount it and set SCGPT_CKPT.
+#
+#   docker build -f docker/Dockerfile.tools -t ghcr.io/fpera0248/recomb2027-tools:latest .
+#   docker run -v "$PWD/out":/out -v /path/to/scGPT_human:/ckpt -e SCGPT_CKPT=/ckpt \
+#       ghcr.io/fpera0248/recomb2027-tools:latest scripts/run_tool.sh sccad POOL /out/toolin /out/run
+
+FROM rocker/r-ver:4.6.1
+ENV DEBIAN_FRONTEND=noninteractive PIP_NO_CACHE_DIR=1 PYTHONDONTWRITEBYTECODE=1 \
+    TOOLS_SRC=/opt/tools_src FIRE_BUILD=/opt/tools_src/FiRE \
+    PYTHON=/opt/venv/bin/python RETICULATE_PYTHON=/opt/venv/bin/python
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git curl ca-certificates build-essential python3 python3-venv python3-dev libboost-dev mcl \
+        libcurl4-openssl-dev libssl-dev libxml2-dev libhdf5-dev libglpk-dev libgsl-dev \
+        libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/recomb2027
+COPY tools/requirements.txt tools/sources.txt tools/fetch_sources.sh tools/
+RUN python3 -m venv /opt/venv \
+    && /opt/venv/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu -r tools/requirements.txt
+RUN bash tools/fetch_sources.sh \
+    && /opt/venv/bin/pip install --no-deps $TOOLS_SRC/GiniClust3 $TOOLS_SRC/scGPT \
+    && cd $TOOLS_SRC/FiRE && /opt/venv/bin/python setup.py build_ext --inplace
+
+# Seurat 4.4.0 / SeuratObject 4.1.4: GapClust and SCISSORS read the v3/v4 slots.
+RUN Rscript -e 'options(repos = c(CRAN = "https://cloud.r-project.org")); \
+      install.packages(c("remotes", "BiocManager")); \
+      remotes::install_version("SeuratObject", "4.1.4"); remotes::install_version("Seurat", "4.4.0"); \
+      BiocManager::install("SingleCellExperiment", ask = FALSE); \
+      for (p in c("CellSIUS", "GapClust", "SCISSORS")) remotes::install_local(file.path("/opt/tools_src", p), dependencies = TRUE, upgrade = "never")'
+
+COPY . /opt/recomb2027
+LABEL org.opencontainers.image.source="https://github.com/fpera0248/recomb2027"
+CMD ["/bin/bash"]
