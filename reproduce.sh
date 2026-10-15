@@ -21,9 +21,10 @@
 #          union AP and the difference to Leiden and to scCAD within 0.03 of the paper, same sign, exact atlas-level p below 0.05. About 30 GB of downloads
 #          and 20 GB of pool files; the pipeline ran on a 12-core machine. Without TOOLS=1 only the Leiden comparison (T1) is checked.
 set -euo pipefail
+case ${1:-} in -h|--help) awk 'NR > 1 && /^#/ {sub(/^# ?/, ""); print; next} NR > 1 {exit}' "$0"; exit 0;; esac
 mode=${1:?usage: reproduce.sh paper|rerun|full}
 here=$(cd "$(dirname "$0")" && pwd)
-PYTHON=${PYTHON:-python3}; export ASSETS=$(mkdir -p "${ASSETS:-assets}" && cd "${ASSETS:-assets}" && pwd); OUT=${OUT:-reproduce_out}; mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
+PYTHON=${PYTHON:-python3}; ASSETS=$(mkdir -p "${ASSETS:-assets}" && cd "${ASSETS:-assets}" && pwd); export ASSETS; OUT=${OUT:-reproduce_out}; mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
 export REPO=$here PYTHONPATH=$here PYTHONWARNINGS=ignore PYTHONDONTWRITEBYTECODE=1
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-4} MKL_NUM_THREADS=${OMP_NUM_THREADS:-4} OPENBLAS_NUM_THREADS=${OMP_NUM_THREADS:-4}
 
@@ -39,7 +40,7 @@ case $mode in
     "$here/fetch_data.sh" rerun "$ASSETS"
     $PYTHON -m eval.rerun "$ASSETS" "$OUT/rerun" "${@:2}" ;;
   full)
-    export HR_DATA=$(mkdir -p "${HR_DATA:-work}" && cd "${HR_DATA:-work}" && pwd)
+    HR_DATA=$(mkdir -p "${HR_DATA:-work}" && cd "${HR_DATA:-work}" && pwd); export HR_DATA
     "$here/fetch_data.sh" full "$HR_DATA"
     names=$(cut -d, -f1 "$here/data/atlases.csv" | tail -n +2)
     (cd "$here" && $PYTHON -m data.build_pools $names)

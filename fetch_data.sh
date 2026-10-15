@@ -12,6 +12,7 @@
 # While the repository is private the plain URL fails, and the download falls back to `gh release download` (needs gh and a login with read access).
 # CELLxGENE publishes no checksums: every atlas is checked against its size in ATLAS_MANIFEST.csv, and against its md5 when the manifest has one.
 set -euo pipefail
+case ${1:-} in -h|--help) awk 'NR > 1 && /^#/ {sub(/^# ?/, ""); print; next} NR > 1 {exit}' "$0"; exit 0;; esac
 TAG=${TAG:-v0.1.0}
 BASE=${BASE:-https://github.com/fpera0248/recomb2027/releases/download/$TAG}
 here=$(cd "$(dirname "$0")" && pwd)
