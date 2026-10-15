@@ -5,7 +5,8 @@
 RESULT.json is written by eval.analyze (eval/run_eval.sh). PAPER holds the atlas-equal means and difference of the 10-atlas test
 (ours minus Leiden subclustering = T1, ours minus scCAD with labels = T2). Tolerance: pool union AP moves by about 0.01 between numerical
 stacks (the Leiden partitions change), so means and differences must be within 0.03, the sign must agree and the atlas-level exact test must
-stay below 0.05. A rebuild cannot match the paper to the digit. Exit status 1 when a check fails. T2 needs the scCAD run (--no-sccad skips it).
+stay below 0.05. A rebuild cannot match the paper to the digit. The E1_union differences (0.087, 0.111) are from the 10-atlas analysis, not printed in the paper. The run must have 57 pools in 10 atlases.
+Exit status 1 when a check fails. T2 needs the scCAD run (--no-sccad skips it).
 """
 import json
 import sys
@@ -20,6 +21,7 @@ def check(res, tests=("T1", "T2")):
         for t in tests:
             ours, other, diff = per[t]
             r = res[met][t]
+            assert r["n_pools"] == 57 and r["n_atlases"] == 10, (met, t, r["n_pools"], r["n_atlases"])
             ok = abs(r["diff"] - diff) <= TOL and r["diff"] > 0 and r["p"] < 0.05
             for got, want in ((r["a_mean"], ours), (r["b_mean"], other)):
                 ok &= want is None or abs(got - want) <= TOL
@@ -29,7 +31,7 @@ def check(res, tests=("T1", "T2")):
 
 
 def selftest():
-    fake = {m: {t: dict(a_mean=v[0] or 0.5, b_mean=v[1] or 0.4, diff=v[2], p=0.002, atlas_ahead=10, n_atlases=10) for t, v in per.items()} for m, per in PAPER.items()}
+    fake = {m: {t: dict(a_mean=v[0] or 0.5, b_mean=v[1] or 0.4, diff=v[2], p=0.002, atlas_ahead=10, n_atlases=10, n_pools=57) for t, v in per.items()} for m, per in PAPER.items()}
     assert check(fake) == 0
     fake["union_AP"]["T1"]["diff"] = 0.2
     assert check(fake) == 1
