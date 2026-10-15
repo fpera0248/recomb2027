@@ -150,7 +150,7 @@ if __name__ == '__main__' and sys.argv[1] == 'report':
             print(f"{a:22s}{w[a].mean():7.4f}{d.mean():+9.4f}{d[nn <= 8].mean():+8.4f}{d[nn >= 16].mean():+8.4f}"
                   f"{int((dt > 0).sum()):>5d}/8{pt:8.4f}{int((ds > 0).sum()):>5d}/{len(ds)}{ps:8.4f}")
     idx = ['seed', 'name_', 'n']
-    if 'clf' in S:   # classifier-robustness run: same augmented cells (DCR parity proves it), four readouts side by side
+    if 'clf' in S:   # four-classifier run: same augmented cells (identical DCR shows it), four readouts side by side
         x = Dc.merge(pd.read_csv('statistical_dcr.csv'), on=['seed', 'method', 'c'])
         print(f"augmentation parity with statistical.csv: {len(x)} rows, max |d dcr_med| = {(x.dcr_med_x - x.dcr_med_y).abs().max()}")
         if not (S.clf == 'lr').any(): S = pd.concat([pd.read_csv('statistical.csv').assign(clf='lr'), S])

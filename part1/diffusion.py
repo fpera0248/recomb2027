@@ -12,8 +12,9 @@ def build_sdiff(Xn_tr, ytr, ncat, seed, ep_vae=40, ep_dif=60, ep_clf=30, bs=256,
 
     vae=VAE(num_genes=G, device='cpu', seed=seed, loss_ae='gauss',
             decoder_activation='linear', hidden_dim=hid)
-    # vae_ckpt reuses a converged autoencoder; vae_steps trains to a step budget with THEIR
-    # own optimizer (AdamW, lr 5e-4, wd 0.01) at their batch size, because the 40-epoch budget
+    # vae_ckpt reuses a converged autoencoder; vae_steps trains to a step budget with the
+    # authors' optimizer (AdamW, lr 5e-4, wd 0.01) at their batch size, because the 40-epoch budget
+    # left the autoencoder round trip unusable.
     import os
     if vae_ckpt and os.path.exists(vae_ckpt):
         vae.load_state_dict(torch.load(vae_ckpt, map_location='cpu'))

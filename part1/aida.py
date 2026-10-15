@@ -41,7 +41,7 @@ if '--smoke' in sys.argv: PROBE=PROBE[:4]
 D=os.environ['AIDA_DIR'].rstrip('/')+'/'
 t0=time.time()
 
-# ---- data: union of the two pools, counts, HVG ----
+# data: union of the two pools, counts, HVG
 A=ad.concat([ad.read_h5ad(D+'AIDA_AbundantPool_120k.h5ad'), ad.read_h5ad(D+'AIDA_RarePool.h5ad')],
             join='inner', index_unique='-')
 A.obs['ct']=A.obs.cell_type.astype(str)
@@ -60,7 +60,7 @@ print(f"{Xc.shape[0]:,} cells x {Xc.shape[1]} HVGs, {NC} types, sizes "
 from scvi.distributions import NegativeBinomial
 
 def decode_latents(ae,Z,L):
-    """Push latents through the SHARED AE decoder and its NB noise."""
+    """Push latents through the shared AE decoder and its NB noise."""
     with torch.no_grad():
         mu=ae.decode({"rna":Z},{"rna":L})["rna"]
         return NegativeBinomial(mu=mu,theta=torch.exp(ae.theta)).sample().numpy().astype(np.float32)
@@ -246,7 +246,7 @@ for seed in SEEDS:
     cost(seed,'synth_w1',time.time()-_tc)   # FM fit + sampling
     print(f"  seed {seed} generated {time.time()-t0:.0f}s",flush=True)
 
-    # ---- the graft methods: bypass the flow, keep the decoder ----------------------------
+    # the graft methods: bypass the flow, keep the decoder
     def flow_sample(model,c,k,w=1.0):
         out=[]
         for i in range(0,k,128):
@@ -261,7 +261,7 @@ for seed in SEEDS:
         return pca.transform(np.log1p(S/np.maximum(S.sum(1,keepdims=True),1)*1e4).astype(np.float32))
 
     lb={}; lg={}
-    # Both bypass the flow entirely: real latents, then the SHARED decoder.
+    # Both bypass the flow: real latents, then the shared decoder.
     # lat_boot puts the latents exactly where the real cells are, so it isolates the decoder.
     # lat_gauss estimates mean and diagonal sd from that class's own n_c cells and nothing else,
     # which is scDesign3's per-class marginal moved into the deep model's latent space.
@@ -284,13 +284,12 @@ for seed in SEEDS:
     print(f"  seed {seed} latent methods done {time.time()-t0:.0f}s",flush=True)
 
     def _lib(c,k):
-        """Per-class lognormal library draw, shared by every method so dose AND depth match."""
+        """Per-class lognormal library draw, shared by every method so dose and depth match."""
         ic=tr_idx[ytr==c]; ll=np.log(Xc[ic].sum(1))
         return np.exp(rng.normal(ll.mean(), max(ll.std(),1e-2) if len(ll)>1 else 0.1,
                                  k)).astype(np.float32)
 
-    # ---- CFGen at its best configuration: class-balanced minibatches --------------
-    # knob on CFGen that moves the rare classes, so the comparison has to include it.
+    # CFGen at its best configuration: class-balanced minibatches, the CFGen knob that moves the rare classes, so the comparison includes it.
     _tc=time.time()
     fmb=build_fm(ae,'rand',tr_idx,ytr,seed,sfs,bal=True)
     genb={}
@@ -302,7 +301,7 @@ for seed in SEEDS:
     cost(seed,'synthbal_w1',time.time()-_tc)
     print(f"  seed {seed} CFGen balanced done {time.time()-t0:.0f}s",flush=True)
 
-    # ---- scVI: cell type through batch_key ----------------------------------------
+    # scVI: cell type through batch_key
     _tc=time.time()
     scvi.settings.seed=seed
     Atr=ad.AnnData(Xc[tr_idx].copy(),
@@ -320,7 +319,7 @@ for seed in SEEDS:
         bi=bmap.index(cts[c]); L=_lib(c,k)
         torch.manual_seed(seed+31+int(c))
         with torch.no_grad():
-            # SCVI's generative exponentiates: it wants the LOG library.
+            # SCVI's generative exponentiates: it wants the log library.
             out=vae.module.generative(z=torch.randn(k,LAT),
                                       library=torch.from_numpy(np.log(L))[:,None],
                                       batch_index=torch.full((k,1),bi,dtype=torch.long))
@@ -329,7 +328,7 @@ for seed in SEEDS:
     cost(seed,'scvi',time.time()-_tc)
     print(f"  seed {seed} scVI done {time.time()-t0:.0f}s",flush=True)
 
-    # ---- CondSCVI: cell type as a first-class label, per-class bias and prior -----
+    # CondSCVI: cell type as a first-class label, per-class bias and prior
     _tc=time.time()
     scvi.settings.seed=seed
     Ac=Atr.copy(); scvi.model.CondSCVI.setup_anndata(Ac, labels_key='cell_type')
@@ -345,7 +344,7 @@ for seed in SEEDS:
         li=lmap.index(cts[c]); L=_lib(c,k)
         torch.manual_seed(seed+61+int(c))
         with torch.no_grad():
-            # CondSCVI multiplies: px_rate = library * px_scale, so it wants the RAW library.
+            # CondSCVI multiplies: px_rate = library * px_scale, so it wants the raw library.
             out=cvae.module.generative(z=torch.randn(k,LAT),
                                        library=torch.from_numpy(L)[:,None],
                                        y=torch.full((k,1),li,dtype=torch.long),
@@ -355,7 +354,7 @@ for seed in SEEDS:
     cost(seed,'scvi_cond',time.time()-_tc)
     print(f"  seed {seed} CondSCVI done {time.time()-t0:.0f}s",flush=True)
 
-    # ---- per-class NB: no decoder, no latent space, no gene-gene dependence -------
+    # per-class NB: no decoder, no latent space, no gene-gene dependence
     # Per-gene rate from that class's n_c cells only; dispersion pooled across all training
     # cells because theta is unestimable from 2 cells. scDesign3 with the copula removed.
     _tc=time.time()
@@ -376,7 +375,7 @@ for seed in SEEDS:
     cost(seed,'nb',time.time()-_tc)
     print(f"  seed {seed} per-class NB done {time.time()-t0:.0f}s",flush=True)
 
-    # ---- scDiffusion: a third family, and a third conditioning mechanism ----------
+    # scDiffusion: a third family, and a third conditioning mechanism
     # CFGen conditions by label embedding in the flow, scVI by a decoder covariate,
     # scDiffusion by classifier gradient on noisy latents; its VAE needs decoupled weight decay
     _tc=time.time()
@@ -440,7 +439,7 @@ for seed in SEEDS:
     cost(seed,'lat_boot',_ae_sec); cost(seed,'lat_gauss',_ae_sec)
     cost(seed,'ae_shared',_ae_sec)   # CFGen and both lat methods all pay this once
     pd.DataFrame(crows).to_csv('aida_cost.csv',index=False)
-    # ---- displacement geometry + iLISI, PCA-50, the space the probe sees ---------------
+    # displacement geometry + iLISI, PCA-50, the space the probe sees
     pset=set(probe.tolist()); ab=np.array([c for c in range(NC) if c not in pset])
     CEV=np.stack([Zev[yev==c].mean(0) for c in range(NC)])
     c_glob=Zev[np.isin(yev,ab)].mean(0)
@@ -465,8 +464,8 @@ for seed in SEEDS:
                 pull_glob=float(delta@(c_glob-c_true)/np.linalg.norm(c_glob-c_true)**2),
                 pull_near=float(delta@(c_near -c_true)/np.linalg.norm(c_near -c_true)**2)))
         # iLISI of synthetic-vs-real, two scopings. 1 = fully segregated, 2 = perfectly mixed.
-        #   pooled  backdrop is ALL real cells, so landing anywhere dense scores well
-        #   within   backdrop is the held-out real cells OF THAT CLASS, so only the right place scores
+        #   pooled  backdrop is all real cells, so landing anywhere dense scores well
+        #   within   backdrop is the held-out real cells of that class, so only the right place scores
         for nm in ('upsample','nb','sd3','sd3_nosingle','synth_w1','synthbal_w1',
                    'scvi','scvi_cond','sdiff','lat_boot','lat_gauss'):
             if nm not in sets: continue

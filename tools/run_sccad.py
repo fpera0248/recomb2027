@@ -1,5 +1,5 @@
 """scCAD, https://github.com/xuyp-csu/scCAD commit ee59678e29b0f04eba04f033264691b8d0657c6c (scCAD.py unmodified).
-usage: python run_sccad.py pool.h5ad out.parquet   -> out.parquet (as published, label-blind) and out_lab.parquet (label-aware)
+usage: python run_sccad.py pool.h5ad out.parquet; writes out.parquet (as published, label-blind) and out_lab.parquet (label-aware)
 Settings: scCAD(data=dense float32 raw counts, normalization=True, seed=2023, merge_h=50, overlap_h=0.7, rare_h=0.01, save_full=False),
 rows ordered by sha1(pool id NUL barcode). As published: score = overlap of the cell's sub-cluster, call = score >= 0.7.
 Label-aware: sccad_label.convert. Needs PYTHONHASHSEED=2023 (scCAD builds its gene list from a set)."""

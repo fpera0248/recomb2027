@@ -68,7 +68,7 @@ def dprime(Z, idx):
 
 
 def candidate_groups(a):
-    """-> (groups table, per-cell isolation rank). Members are positions in a."""
+    """Returns (groups table, per-cell isolation rank). Members are positions in a."""
     labels = a.obs["label"].astype(str).values
     n = a.n_obs
     donor = a.obs["donor"].astype(str).values if "donor" in a.obs else np.array(["d"] * n)

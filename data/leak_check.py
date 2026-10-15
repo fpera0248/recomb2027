@@ -36,7 +36,7 @@ def csr_parts(h):
 
 
 def fingerprints(path, U, minexpr, chunk=50000):
-    """-> (hash uint64 per cell, fingerprinted mask) for the file's cells over universe U (array of gene ids)."""
+    """Returns (hash uint64 per cell, fingerprinted mask) for the file's cells over universe U (array of gene ids)."""
     with h5py.File(path, "r") as h:
         ids = gene_ids(h); data, ind, ptr = csr_parts(h); n = len(ptr) - 1
         kv = np.zeros(len(ids), np.uint64); inU = np.isin(ids, U)

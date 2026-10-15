@@ -83,7 +83,7 @@ def across(T):
 
 
 def run(panel_dir, eligible, metrics=("rec200",), subs=("all",)):
-    """-> per-dataset table, max-T table (one row per dataset), across-dataset table."""
+    """Returns the per-dataset table, the max-T table (one row per dataset) and the across-dataset table."""
     S = load(panel_dir, eligible)
     W = [within(S, m, sb) for m in metrics for sb in subs]
     T = pd.concat([w[0] for w in W])

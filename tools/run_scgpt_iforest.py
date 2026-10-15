@@ -5,7 +5,7 @@ score = -IsolationForest.score_samples (high = isolated); call = IsolationForest
 Gene symbols: var['feature_name'] if present (CELLxGENE h5ad), else var_names."""
 import os, argparse, warnings
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-if not hasattr(os, "sched_getaffinity"):        # Linux-only call inside scGPT; empty set -> num_workers=0 (spawn can't pickle its local Dataset on macOS)
+if not hasattr(os, "sched_getaffinity"):        # Linux-only call inside scGPT; an empty set gives num_workers=0 (spawn can't pickle its local Dataset on macOS)
     os.sched_getaffinity = lambda pid: set()
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd, anndata as ad, torch

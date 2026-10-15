@@ -10,7 +10,7 @@ BAD = {"None", "nan", "Unknown"}
 
 
 def targets(df):
-    """df has label and true_type per cell -> [(label, type, n_cells)]."""
+    """df has label and true_type per cell. Returns [(label, type, n_cells)]."""
     nl = df.label.value_counts()
     out = []
     for (lab, typ), n in df.groupby(["label", "true_type"]).size().items():
