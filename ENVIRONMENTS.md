@@ -32,8 +32,6 @@ TOOLS_SRC=tools_src tools/fetch_sources.sh
 venv/bin/pip install --no-deps tools_src/GiniClust3 tools_src/scGPT
 export FIRE_BUILD=$PWD/fire_build; mkdir -p $FIRE_BUILD; cp tools_src/FiRE/python/FiRE/* $FIRE_BUILD/; cp tools/fire_setup.py $FIRE_BUILD/setup.py
 (cd $FIRE_BUILD && BOOST_INC=/usr/include ../venv/bin/python setup.py build_ext --inplace)      # Boost headers needed
-Rscript -e 'remotes::install_version("SeuratObject", "4.1.4", upgrade = "never"); remotes::install_version("Seurat", "4.4.0", upgrade = "never")'
-R_MAKEVARS_USER=$PWD/tools/Makevars.rflann R CMD INSTALL tools_src/rflann     # GapClust dependency, needs -std=gnu++14
-for p in CellSIUS GapClust SCISSORS; do R CMD INSTALL tools_src/$p; done
+# R packages: follow the RUN lines of docker/Dockerfile.tools (Seurat 4.4.0, SeuratObject 4.1.4, rflann with tools/Makevars.rflann, then CellSIUS, GapClust, SCISSORS)
 ```
 Set `PYTHON`, `RETICULATE_PYTHON`, `TOOLS_SRC`, `FIRE_BUILD`, `SCGPT_CKPT` and `MCL` as described in `scripts/run_tool.sh` and `tools/io.R`.
