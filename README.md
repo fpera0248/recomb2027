@@ -47,7 +47,9 @@ Apptainer and details: `CONTAINER.md`.
 |---|---|---|---|
 | paper | saved predictions of every method run on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and the Part I numbers of notebook 04 are asserted; the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
 | rerun | frozen candidate tables and Leiden scores | not exact (the saved scores come from an earlier fit that was not kept): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 minutes, about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
-| full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | about 30 GB of downloads and 20 GB of pool files, hours to days on 12 cores (estimated from the run machine; not re-timed) |
+| full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | 29.3 GB of downloads (sum of the manifest sizes); time and disk for the pools and the run are not measured; untested end to end |
+
+`full` does not rebuild the twin pools, run the leak check or the Part I panel, and does not produce the strata, separability tiers, ablations, CHOIR or figures. `TOOLS=1` also runs the published tools: they need their own Python environment (scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it, see `ENVIRONMENTS.md`) and `SCGPT_CKPT`, a tool with an output is skipped and failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
 At the `paper` tier the results match the paper exactly: every table value, test and null-test rate is recomputed from the saved predictions and asserted, so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Time estimates for the containers have not been measured, and the images have not been built from this checkout (no Docker on the machine that prepared them); the first CI build is the first test of the Dockerfiles.
 
@@ -72,7 +74,7 @@ scripts/run_pool.sh POOL.h5ad PILOT.parquet OUT_DIR
 
 ## Rebuild the test sets
 
-`data/build_pools.py` writes the pools and `data/build_twins.py` the null-gate twin pools from the atlases of the manifest; `data/manifests` and `data/targets` are the pool lists and target tables of the original run.
+`data/build_pools.py` writes the pools and `data/build_twins.py` the null-gate twin pools of the 10-atlas test set (`data/atlases.csv`) from the atlases of the manifest. `data/manifests` and `data/targets` are reference copies of the pool lists and target tables of the original run: diff them against what `build_pools.py` writes to `$HR_DATA`. The 101 twin pools of the paper (12 atlases) ship as predictions in `predictions.tgz` (`ids/twin_manifest.csv`) and no tier rebuilds them; the twin tier is not part of `full`, and twins rebuilt by `build_twins.py` are not claimed to be identical to the shipped ones.
 
 ```
 export HR_DATA=work
@@ -81,7 +83,7 @@ python -m data.build_pools $(cut -d, -f1 data/atlases.csv | tail -n +2)
 python -m data.build_twins <names>            # null-gate twin pools
 python -m data.leak_check cells <names> --panel work/panel    # panel: each dataset of data/used_datasets.csv downloaded from CELLxGENE into work/panel (not scripted)
 ```
-Then run `scripts/run_pool.sh` on every pool, the published tools with `scripts/run_tool.sh` (inputs from `tools/adapt_pool.py`), and `eval/run_eval.sh $HR_DATA RUN_DIR OUT_DIR` to score and analyse. `eval/signflip.py` recomputes the exact sign-flip p-values independently. `data/manifests` and `data/targets` are the pool lists and target tables of the original run; they are what `build_pools.py` writes.
+Then run `scripts/run_pool.sh` on every pool, the published tools with `scripts/run_tool.sh` (inputs from `tools/adapt_pool.py`), and `eval/run_eval.sh $HR_DATA RUN_DIR OUT_DIR` to score and analyse. `eval/signflip.py` recomputes the exact sign-flip p-values independently.
 
 ## Hidden-type calls plus duplication
 
@@ -99,7 +101,7 @@ combination/run_all.sh lr                                    # all eligible pool
 
 `tools/sources.txt` lists the official repositories and commits; `tools/fetch_sources.sh` clones them into `$TOOLS_SRC`. The wrappers in `tools/` only adapt input and output. R tools need Seurat 4.4.0 / SeuratObject 4.1.4. The `recomb2027-tools` image (`docker/Dockerfile.tools`) installs all of this; `Rpackages_tools.csv` and `piplist_tools.txt` are the exact package sets of the environment the tools ran in.
 
-Python tools run in their own environment: `pip install -r tools/requirements.txt; pip install --no-deps $TOOLS_SRC/GiniClust3 $TOOLS_SRC/scGPT`; build FiRE by copying `python/FiRE` of its checkout and `tools/fire_setup.py` (as `setup.py`) into `FIRE_BUILD` and running `python setup.py build_ext --inplace` there (Boost headers needed); set `SCGPT_CKPT` to the scGPT whole-human checkpoint dir and `MCL` to the mcl binary. `$TOOLS_SRC/scCAD/scCAD.py` must have md5 a0865c37513aaee5eae13551e48da6f2. The reported scGPT run used `DEVICE=mps`.
+Python tools run in their own environment (set `TOOLS_PYTHON` for `scripts/run_tool.sh` and `reproduce.sh full`): `pip install -r tools/requirements.txt; pip install --no-deps $TOOLS_SRC/GiniClust3 $TOOLS_SRC/scGPT`; build FiRE by copying `python/FiRE` of its checkout and `tools/fire_setup.py` (as `setup.py`) into `FIRE_BUILD` and running `python setup.py build_ext --inplace` there (Boost headers needed); set `SCGPT_CKPT` to the scGPT whole-human checkpoint dir and `MCL` to the mcl binary. `$TOOLS_SRC/scCAD/scCAD.py` must have md5 a0865c37513aaee5eae13551e48da6f2. The reported scGPT run used `DEVICE=mps`.
 
 ## Datasets used before the test
 
@@ -109,6 +111,13 @@ Datasets used before the test are listed in `data/used_datasets.csv`; the Human 
 
 `part1/` holds the code behind the duplication-versus-generators study of known rare types. `part1/run.sh` lists the commands: `aida.py` (all generators and duplication on AIDA), `split_cache.py`, `statistical.py` and `dup_weight.py` (statistical augmentation conditions and sample weighting on the same split), `hlca.py` and `lupus.py` (the same protocol on two more datasets), and `panel_run.sh`, `panel_pull.py`, `panel_readout.py`, `noaug.py` and `panel_analysis.py` (the 88-dataset CELLxGENE panel). `scdesign3.R` is the scDesign3 driver and `diffusion.py` wraps scDiffusion. These runs need the source h5ad files, CFGen and scDiffusion checkouts, mem_patch.R for scDesign3, and days of CPU compute; the `paper` tier only reads their result tables through `part1/panel.py` and `part1/probe31.py`.
 
-## Not included
+## Not included and known gaps
 
-CELLxGENE data (downloaded by the builders), the training pools, and the tool checkouts. `hiddenrare/scorer.py fit` is the training script; it needs the training pools. Run it from the repository root (it imports eval/targets.py). Also not included: the runtime and memory table of the paper (per-job `/usr/bin/time -l` logs on the run machine).
+- CELLxGENE data (downloaded by the builders), the training pools and the tool checkouts. `hiddenrare/scorer.py fit` is the training script; it needs the training pools. Run it from the repository root (it imports eval/targets.py).
+- The 10-atlas predictions: the 10-atlas results (strata, separability tiers, ablations, CHOIR) cannot be rerun from the release.
+- Figure scripts; the notebooks assert numbers and draw nothing.
+- The 69 pool h5ads of the 8-atlas test set, needed by `combination/` and by any rescoring of those pools from counts.
+- The inputs of the Part I runs (source h5ad files, generator checkouts) and the training of the generators.
+- Reproductions of the published tools; only their wrappers and pinned environments are included.
+- The `full` tier and the container images are untested.
+- The runtime and memory table of the paper (per-job `/usr/bin/time -l` logs on the run machine).

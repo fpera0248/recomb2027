@@ -18,8 +18,8 @@
 #          About 2 minutes.
 # full     approximate. The cell-level leak check against the earlier datasets (data/leak_check.py, needs the 90 panel files) is not run here.
 #           Leiden partitions depend on the numerical stack, so scores differ pool by pool. Tolerance (eval/full_check.py): atlas-equal
-#          union AP and the difference to Leiden and to scCAD within 0.03 of the paper, same sign, exact atlas-level p below 0.05. About 30 GB of downloads
-#          and 20 GB of pool files; the pipeline ran on a 12-core machine. Without TOOLS=1 only the Leiden comparison (T1) is checked.
+#          union AP and the difference to Leiden and to scCAD within 0.03 of the paper, same sign, exact atlas-level p below 0.05. 29.3 GB of downloads;
+#          untested end to end, time and disk for the run are not measured. Without TOOLS=1 only the Leiden comparison (T1) is checked.
 set -euo pipefail
 case ${1:-} in -h|--help) awk 'NR > 1 && /^#/ {sub(/^# ?/, ""); print; next} NR > 1 {exit}' "$0"; exit 0;; esac
 mode=${1:?usage: reproduce.sh paper|rerun|full}
