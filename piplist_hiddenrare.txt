@@ -74,6 +74,7 @@ referencing==0.36.2
 rpds-py==0.22.3
 scanpy==1.11.1
 scikit-learn==1.5.2
+scikit-misc==0.5.1
 scipy==1.15.1
 scverse-misc==0.1.6
 seaborn==0.13.2
