@@ -13,6 +13,7 @@ NON_PRIMARY, cells flagged is_primary_data = False.
 Writes under $HR_DATA: pools/<name>_p<k>.h5ad, pilots/atl_<name>_p<k>.parquet,
 manifests/atlas_manifest_<name>.csv, targets/targets_<name>.csv, genemap/<name>.csv.
 """
+
 import json
 import os
 import re
@@ -35,10 +36,13 @@ ATLASES = pd.read_csv(f"{HERE}/atlases.csv", dtype=str).set_index("name")
 # donors that also appear in a previously used dataset (data/used_datasets.csv)
 DROP_DONORS = {
     "fe067858": "CV0902 CV0904 CV0911 CV0915 CV0917 CV0926 CV0929 CV0934 CV0939 CV0940 CV0944 "
-                "MH8919176 MH8919177 MH8919178 MH8919179 MH8919226 MH8919227 MH8919282 MH8919283 MH8919332 MH8919333 newcastle65 newcastle74 A35 A36".split()}
+    "MH8919176 MH8919177 MH8919178 MH8919179 MH8919226 MH8919227 MH8919282 MH8919283 MH8919332 MH8919333 newcastle65 newcastle74 A35 A36".split()
+}
 # meta-atlas whose generic donor ids cannot be traced: keep primary-data cells only
 NON_PRIMARY = {"fe067858"}
-PLACEHOLDER = re.compile(r"^(doublets?|unassigned|unclassified|unknown|undefined|low[ _]?quality|removed|nan|none|na|-)$")
+PLACEHOLDER = re.compile(
+    r"^(doublets?|unassigned|unclassified|unknown|undefined|low[ _]?quality|removed|nan|none|na|-)$"
+)
 
 
 def pools(o, col, rng):
@@ -49,7 +53,9 @@ def pools(o, col, rng):
         names.append(str(d))
         if sum(map(len, cur)) >= N:
             ix = np.concatenate(cur)
-            out.append(("+".join(names)[:200], np.sort(rng.choice(ix, N, replace=False))))
+            out.append(
+                ("+".join(names)[:200], np.sort(rng.choice(ix, N, replace=False)))
+            )
             cur, names = [], []
     return out
 
@@ -72,7 +78,10 @@ def packs(P):
 def raw_ok(f, xk):
     with h5py.File(f, "r") as h:
         g = h[xk]
-        v = np.asarray(g["data"][:200000] if "data" in g else g[:200].ravel()[:200000], dtype=np.float64)
+        v = np.asarray(
+            g["data"][:200000] if "data" in g else g[:200].ravel()[:200000],
+            dtype=np.float64,
+        )
     return bool(len(v) and np.allclose(v, np.round(v)) and v.min() >= 0)
 
 
@@ -90,20 +99,48 @@ def prep(name):
     assert a.obs_names.is_unique, "obs_names not unique"
     keep = np.ones(len(o), bool)
     if "assay" in a.obs.columns:
-        keep &= pd.Series(a.obs["assay"].astype(str).values).str.startswith("10x").values
+        keep &= (
+            pd.Series(a.obs["assay"].astype(str).values).str.startswith("10x").values
+        )
     keep &= ~o.donor_id.isin(DROP_DONORS.get(name, [])).values
     if name in NON_PRIMARY and "is_primary_data" in a.obs.columns:
         keep &= (a.obs["is_primary_data"].astype(str) == "True").values
     for x in (lab, fine):
-        keep &= ~o[x].astype(object).fillna("nan").astype(str).str.strip().str.lower().map(lambda s: bool(PLACEHOLDER.match(s))).values
+        keep &= (
+            ~o[x]
+            .astype(object)
+            .fillna("nan")
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .map(lambda s: bool(PLACEHOLDER.match(s)))
+            .values
+        )
     vv = a.raw.var if a.raw is not None else a.var
     xk = "raw/X" if a.raw is not None else "X"
-    names = vv["feature_name"].astype(str).values if "feature_name" in vv else (
-        a.var["feature_name"].reindex(vv.index).astype(str).values if "feature_name" in a.var else vv.index.astype(str))
+    names = (
+        vv["feature_name"].astype(str).values
+        if "feature_name" in vv
+        else (
+            a.var["feature_name"].reindex(vv.index).astype(str).values
+            if "feature_name" in a.var
+            else vv.index.astype(str)
+        )
+    )
     genemap = pd.DataFrame({"gene_id": vv.index.astype(str), "feature_name": names})
     var = vv.index.copy()
     a.file.close()
-    return dict(name=name, f=f, xk=xk, var=var, genemap=genemap, lab=lab, fine=fine, o=o[keep], pos=np.where(keep)[0])
+    return dict(
+        name=name,
+        f=f,
+        xk=xk,
+        var=var,
+        genemap=genemap,
+        lab=lab,
+        fine=fine,
+        o=o[keep],
+        pos=np.where(keep)[0],
+    )
 
 
 def write_pool(P, pn, pid, r):
@@ -112,13 +149,25 @@ def write_pool(P, pn, pid, r):
     with h5py.File(P["f"], "r") as h:
         X = sparse_dataset(h[P["xk"]])[rows]
     X = sp.csr_matrix(X).astype(np.float32)
-    assert X.shape[0] == len(rows) and np.allclose(X.data, np.round(X.data)), "non-integer counts in pool"
+    assert X.shape[0] == len(rows) and np.allclose(
+        X.data, np.round(X.data)
+    ), "non-integer counts in pool"
     pp = P["o"].iloc[r]
     os.makedirs(f"{ROOT}/pools", exist_ok=True)
     os.makedirs(f"{ROOT}/pilots", exist_ok=True)
-    ad.AnnData(X=X, obs=pd.DataFrame(index=pp.index), var=pd.DataFrame(index=P["var"])).write_h5ad(f"{ROOT}/pools/{pn}.h5ad")
-    pd.DataFrame({"obs_name": pp.index.values, "label": pp[P["lab"]].values, "true_type": pp[P["fine"]].values, "is_rare": 0,
-                  "donor": pp.donor_id.values, "source_path": f"{pn}.h5ad"}).to_parquet(f"{ROOT}/pilots/{pid}.parquet", index=False)
+    ad.AnnData(
+        X=X, obs=pd.DataFrame(index=pp.index), var=pd.DataFrame(index=P["var"])
+    ).write_h5ad(f"{ROOT}/pools/{pn}.h5ad")
+    pd.DataFrame(
+        {
+            "obs_name": pp.index.values,
+            "label": pp[P["lab"]].values,
+            "true_type": pp[P["fine"]].values,
+            "is_rare": 0,
+            "donor": pp.donor_id.values,
+            "source_path": f"{pn}.h5ad",
+        }
+    ).to_parquet(f"{ROOT}/pilots/{pid}.parquet", index=False)
     return pp
 
 
@@ -137,15 +186,23 @@ def build(name, force=False):
     if o.donor_id.nunique() < MIN_DONORS:
         problems.append(f"{o.donor_id.nunique()} donors after drops (< {MIN_DONORS})")
     sel = pools(o, "donor_id", np.random.RandomState(0))
-    assert [x[0] for x in sel] == [("+".join(n))[:200] for n, _ in packs(P)[0]], "pack bookkeeping differs from pools()"
+    assert [x[0] for x in sel] == [
+        ("+".join(n))[:200] for n, _ in packs(P)[0]
+    ], "pack bookkeeping differs from pools()"
     if len(sel) < 2 or len(o) < MIN_CELLS:
-        problems.append(f"{len(sel)} packs, {len(o)} cells (need >= 2 pools and >= {MIN_CELLS} cells)")
+        problems.append(
+            f"{len(sel)} packs, {len(o)} cells (need >= 2 pools and >= {MIN_CELLS} cells)"
+        )
     sel = sel[:MAX_POOLS]
     man, rows = [], []
     for k, (blk, r) in enumerate(sel):
         pp = o.iloc[r]
-        t = targets(pd.DataFrame({"label": pp[lab].values, "true_type": pp[fine].values}))
-        man.append((f"atl_{name}_p{k}", name, "test", blk, k, len(r), pp[lab].nunique()))
+        t = targets(
+            pd.DataFrame({"label": pp[lab].values, "true_type": pp[fine].values})
+        )
+        man.append(
+            (f"atl_{name}_p{k}", name, "test", blk, k, len(r), pp[lab].nunique())
+        )
         rows += [(f"atl_{name}_p{k}", L, T, n) for L, T, n in t]
     if sum(1 for m in man if any(x[0] == m[0] for x in rows)) < 2:
         problems.append("fewer than 2 pools with a target")
@@ -155,12 +212,27 @@ def build(name, force=False):
     for d in ("manifests", "targets", "genemap"):
         os.makedirs(f"{ROOT}/{d}", exist_ok=True)
     P["genemap"].to_csv(f"{ROOT}/genemap/{name}.csv", index=False)
-    pd.DataFrame(rows, columns=["pilot_id", "label", "target", "n"]).to_csv(f"{ROOT}/targets/targets_{name}.csv", index=False)
+    pd.DataFrame(rows, columns=["pilot_id", "label", "target", "n"]).to_csv(
+        f"{ROOT}/targets/targets_{name}.csv", index=False
+    )
     for k, (blk, r) in enumerate(sel):
         write_pool(P, f"{name}_p{k}", f"atl_{name}_p{k}", r)
         print(f"atl_{name}_p{k}", len(r), flush=True)
-    pd.DataFrame(man, columns=["pilot_id", "atlas", "split", "block", "pool", "n_cells", "n_labels"]).to_csv(f"{ROOT}/manifests/atlas_manifest_{name}.csv", index=False)
-    print(json.dumps(dict(atlas=name, cells=len(o), donors=int(o.donor_id.nunique()), pools=len(sel), problems=problems)))
+    pd.DataFrame(
+        man,
+        columns=["pilot_id", "atlas", "split", "block", "pool", "n_cells", "n_labels"],
+    ).to_csv(f"{ROOT}/manifests/atlas_manifest_{name}.csv", index=False)
+    print(
+        json.dumps(
+            dict(
+                atlas=name,
+                cells=len(o),
+                donors=int(o.donor_id.nunique()),
+                pools=len(sel),
+                problems=problems,
+            )
+        )
+    )
     return True
 
 
@@ -175,5 +247,7 @@ if __name__ == "__main__":
     if not sys.argv[1:] or {"-h", "--help"} & set(sys.argv):
         sys.exit(print(__doc__))
     _check()
-    ok = [build(n, "--force" in sys.argv) for n in sys.argv[1:] if not n.startswith("--")]
+    ok = [
+        build(n, "--force" in sys.argv) for n in sys.argv[1:] if not n.startswith("--")
+    ]
     sys.exit(0 if all(ok) else 1)

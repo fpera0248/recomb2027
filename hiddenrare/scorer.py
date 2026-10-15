@@ -8,6 +8,7 @@ type. A cell's score is the maximum over its groups of P^4 / size, where P is th
 fit needs the candidate tables of each training pool (candidates, markers and halo stages) and
 its pilot table with the truth (is_rare for benchmark pools, label and true_type for natural pools).
 """
+
 import os
 import pickle
 import sys
@@ -19,9 +20,23 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from .candidates import K
 from .io import opaque_order
 
-POWER, SIZE_EXP = 4, 1.0                       # cell score = P**POWER / size**SIZE_EXP
-GEOMETRY = ["lsize", "lshare", "dprime", "cohesion", "coh_corr", "stab", "lres", "space_l", "ldonor", "donor_excess",
-            "dp_pct", "coh_pct", "dp_z", "coh_z"]
+POWER, SIZE_EXP = 4, 1.0  # cell score = P**POWER / size**SIZE_EXP
+GEOMETRY = [
+    "lsize",
+    "lshare",
+    "dprime",
+    "cohesion",
+    "coh_corr",
+    "stab",
+    "lres",
+    "space_l",
+    "ldonor",
+    "donor_excess",
+    "dp_pct",
+    "coh_pct",
+    "dp_z",
+    "coh_z",
+]
 MARKER = ["mk_top1", "mk_top5", "mk_top20", "mk_n40", "mk_n25", "mk_lr5", "mk_neg5"]
 HALO = ["hl_top5", "hl_top20", "hl_n25", "hl_mk5", "hl_neg5", "hl_ratio"]
 
@@ -33,7 +48,12 @@ def stability(G):
         sets = [set(m) for m in g.members]
         res, ix = g.res.values, g.index.values
         for a in range(len(ix)):
-            hit = {res[b] for b in range(len(ix)) if res[b] != res[a] and len(sets[a] & sets[b]) >= 0.5 * len(sets[a] | sets[b])}
+            hit = {
+                res[b]
+                for b in range(len(ix))
+                if res[b] != res[a]
+                and len(sets[a] & sets[b]) >= 0.5 * len(sets[a] | sets[b])
+            }
             st[ix[a]] = len(hit)
     return st
 
@@ -55,12 +75,21 @@ def featurize(G):
     X["donor_excess"] = G.top_donor - G.parent_top_donor
     for c, s in (("dprime", "dp"), ("cohesion", "coh")):
         X[f"{s}_pct"] = G[c].rank(pct=True)
-        X[f"{s}_z"] = (G[c] - G[c].median()) / (G[c].quantile(0.75) - G[c].quantile(0.25) + 1e-9)
+        X[f"{s}_z"] = (G[c] - G[c].median()) / (
+            G[c].quantile(0.75) - G[c].quantile(0.25) + 1e-9
+        )
     for c in MARKER + HALO:
         X[c] = G[c]
         X[c + "_pct"] = G[c].rank(pct=True)
     X["hl_keep"] = G.hl_mk5 / np.maximum(G.mk_top5, 1e-3)
-    cols = GEOMETRY + MARKER + [c + "_pct" for c in MARKER] + HALO + [c + "_pct" for c in HALO] + ["hl_keep"]
+    cols = (
+        GEOMETRY
+        + MARKER
+        + [c + "_pct" for c in MARKER]
+        + HALO
+        + [c + "_pct" for c in HALO]
+        + ["hl_keep"]
+    )
     return X[cols].values
 
 
@@ -71,7 +100,9 @@ def load_groups(cand_dir, pid):
         return None
     G = pd.read_parquet(f"{cand_dir}/{pid}.groups.parquet")
     G["stab"] = stability(G)
-    return pd.concat([G] + [pd.read_parquet(f"{cand_dir}/{pid}.{p}.parquet") for p in parts], axis=1)
+    return pd.concat(
+        [G] + [pd.read_parquet(f"{cand_dir}/{pid}.{p}.parquet") for p in parts], axis=1
+    )
 
 
 def cell_score(G, group_scores, C):
@@ -90,7 +121,7 @@ def predict(model_path, cand_dir, pid, out):
     G = load_groups(cand_dir, pid)
     C = pd.read_parquet(f"{cand_dir}/{pid}.cells.parquet")
     P = np.clip(m.predict(featurize(G)), 0, 1)
-    s = cell_score(G, P ** POWER / G["size"].values ** SIZE_EXP, C)
+    s = cell_score(G, P**POWER / G["size"].values ** SIZE_EXP, C)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     pd.DataFrame({"cell_id": C.cell_id.values, "score": s}).to_parquet(out, index=False)
 
@@ -98,6 +129,7 @@ def predict(model_path, cand_dir, pid, out):
 def purity_targets(pid, cell_ids, pilot_dir):
     """Per-cell target index (-1 none) and target sizes. Benchmark pools: the hidden type. Natural pools: every target of eval.targets."""
     from eval.targets import targets
+
     df = pd.read_parquet(f"{pilot_dir}/{pid}.parquet")
     order, ids = opaque_order(pid, df.obs_name.values)
     df = df.iloc[order].set_index(ids).reindex(cell_ids)
@@ -129,7 +161,13 @@ def fit(model_path, cand_dir, pilot_dir, pool_ids):
             pur[j] = np.bincount(t[m][t[m] >= 0], minlength=len(nt)).sum() / len(m)
         X.append(featurize(G))
         y.append(pur)
-    m = HistGradientBoostingRegressor(max_depth=4, learning_rate=0.05, max_iter=300, l2_regularization=1.0, random_state=0)
+    m = HistGradientBoostingRegressor(
+        max_depth=4,
+        learning_rate=0.05,
+        max_iter=300,
+        l2_regularization=1.0,
+        random_state=0,
+    )
     m.fit(np.vstack(X), np.concatenate(y))
     pickle.dump(m, open(model_path, "wb"))
     print("fit on", len(X), "pools,", sum(map(len, y)), "groups")

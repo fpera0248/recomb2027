@@ -8,6 +8,7 @@ fraction detected in the rest of the label.
     python -m hiddenrare.markers POOL.h5ad PILOTS.parquet OUT_DIR
 writes OUT_DIR/<pool>.markers.parquet, row-aligned with <pool>.groups.parquet
 """
+
 import os
 import sys
 
@@ -31,16 +32,30 @@ def markers(a, G):
     n = a.n_obs
     lab_ix = {l: np.where(labels == l)[0] for l in pd.unique(labels)}
     lab_sum = {l: np.asarray(X[ix].sum(0)).ravel() for l, ix in lab_ix.items()}
-    rows, cols = np.concatenate(G.members.values), np.repeat(np.arange(len(G)), G["size"].values)
-    S = (sp.csr_matrix((np.ones(len(rows), np.float32), (cols, rows)), shape=(len(G), n)) @ X).toarray()
+    rows, cols = np.concatenate(G.members.values), np.repeat(
+        np.arange(len(G)), G["size"].values
+    )
+    S = (
+        sp.csr_matrix((np.ones(len(rows), np.float32), (cols, rows)), shape=(len(G), n))
+        @ X
+    ).toarray()
     out = []
     for j, (l, m) in enumerate(zip(G.label.values, G["size"].values)):
         p_in = S[j] / m
         p_out = (lab_sum[l] - S[j]) / max(len(lab_ix[l]) - m, 1)
         d = np.sort(p_in - p_out)[::-1]
         lr = np.sort(np.log((p_in + 0.01) / (p_out + 0.01)))[::-1]
-        out.append(dict(mk_top1=d[0], mk_top5=d[:5].mean(), mk_top20=d[:20].mean(), mk_n40=int((d >= 0.4).sum()),
-                        mk_n25=int((d >= 0.25).sum()), mk_lr5=lr[:5].mean(), mk_neg5=-np.sort(p_in - p_out)[:5].mean()))
+        out.append(
+            dict(
+                mk_top1=d[0],
+                mk_top5=d[:5].mean(),
+                mk_top20=d[:20].mean(),
+                mk_n40=int((d >= 0.4).sum()),
+                mk_n25=int((d >= 0.25).sum()),
+                mk_lr5=lr[:5].mean(),
+                mk_neg5=-np.sort(p_in - p_out)[:5].mean(),
+            )
+        )
     return pd.DataFrame(out)
 
 
@@ -50,7 +65,9 @@ def run(pool, table, out_dir):
     if os.path.exists(out):
         return
     a = load_pool(pool, table, pid)
-    G = pd.read_parquet(f"{out_dir}/{pid}.groups.parquet", columns=["label", "size", "members"])
+    G = pd.read_parquet(
+        f"{out_dir}/{pid}.groups.parquet", columns=["label", "size", "members"]
+    )
     markers(a, G).to_parquet(out, index=False)
     print(pid, len(G), flush=True)
 

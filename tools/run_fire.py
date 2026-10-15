@@ -3,7 +3,9 @@ usage: python run_fire.py pool.h5ad out.parquet; writes out.parquet (as publishe
 Published pipeline (example/jurkat_simulation.py): utils/preprocess.ranger_preprocess(ngenes_keep=1000), FiRE(L=100, M=50), score,
 call = score >= Q3 + 1.5 IQR. Label-aware variant: the same preprocess, FiRE and IQR rule within each label with at least 20 cells; other labels
 score 0 and are not called; score = average-tie rank percentile of the raw score within the label.
-Needs TOOLS_SRC (the FiRE checkout) and FIRE_BUILD (directory holding the compiled FiRE module)."""
+Needs TOOLS_SRC (the FiRE checkout) and FIRE_BUILD (directory holding the compiled FiRE module).
+"""
+
 import os
 import sys
 import warnings
@@ -11,14 +13,20 @@ import warnings
 for k in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
     os.environ.setdefault(k, "4")
 warnings.filterwarnings("ignore")
-sys.path[:0] = [os.path.dirname(os.path.abspath(__file__)), os.environ["FIRE_BUILD"], os.path.join(os.environ["TOOLS_SRC"], "FiRE", "utils")]
+sys.path[:0] = [
+    os.path.dirname(os.path.abspath(__file__)),
+    os.environ["FIRE_BUILD"],
+    os.path.join(os.environ["TOOLS_SRC"], "FiRE", "utils"),
+]
 
 import numpy as np
 import scipy.sparse as sp
 from scipy import stats
 
 np.int = int
-np.float = float          # utils/preprocess.py still uses np.int and np.float, removed in numpy 1.24
+np.float = (
+    float  # utils/preprocess.py still uses np.int and np.float, removed in numpy 1.24
+)
 import FiRE
 import preprocess as pp
 

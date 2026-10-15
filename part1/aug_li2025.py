@@ -1,6 +1,8 @@
 """ISMOTE augmentation"""
+
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+
 
 def _ismote_point(Xq, Xj, alpha, beta):
     diff = Xq - Xj
@@ -8,6 +10,7 @@ def _ismote_point(Xq, Xj, alpha, beta):
     if np.linalg.norm(Xnew1 - Xq) >= 0.5 * np.linalg.norm(diff):
         return Xq + alpha * diff - beta * diff
     return Xq + alpha * diff + beta * diff
+
 
 def augment(Z, y, c, k, rng, **params):
     """ISMOTE oversampling of class `c`, producing exactly `k` synthetic rows."""
@@ -24,8 +27,10 @@ def augment(Z, y, c, k, rng, **params):
         return Zadd, yadd, wadd
 
     n_neighbors = min(params.get('n_neighbors', 5), n - 1)
-    idx = NearestNeighbors(n_neighbors=n_neighbors + 1).fit(Xc).kneighbors(
-        Xc, return_distance=False
+    idx = (
+        NearestNeighbors(n_neighbors=n_neighbors + 1)
+        .fit(Xc)
+        .kneighbors(Xc, return_distance=False)
     )  # (n, n_neighbors+1), includes the query point itself
 
     Zadd = np.empty((k, d), dtype=np.float64)
@@ -41,12 +46,14 @@ def augment(Z, y, c, k, rng, **params):
     wadd = np.ones(k, dtype=np.float64)
     return Zadd, yadd, wadd
 
+
 if __name__ == '__main__':
     rng = np.random.default_rng(0)
     d = 50
 
     # Eq. (2)/(3) branch geometry with hand-picked alpha/beta
-    Xq = np.zeros(d); Xq[0] = 10.0
+    Xq = np.zeros(d)
+    Xq[0] = 10.0
     Xj = np.zeros(d)  # X_q - X_j = 10 on coord 0 only; distance(X_q, X_j) = 10
 
     # "+" branch fires when alpha < 0.5 (dist(Xnew1,Xq)=alpha*10 < 5); t=alpha+beta>0,

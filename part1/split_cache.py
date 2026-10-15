@@ -1,72 +1,159 @@
 """Replay aida.py data preparation, the donor-disjoint split and PCA-50, and cache each seed to split_seed<s>.npz."""
+
 import os, sys, time, numpy as np, pandas as pd, anndata as ad, scanpy as sc
 from sklearn.decomposition import PCA
 
 D = os.environ['AIDA_DIR'].rstrip('/') + '/'
 HVG, NEV, CAP = 2000, 200, 500
 SIZES = np.array([1, 2, 4, 8, 16, 32, 64, 128])
-PROBE = ['double negative T regulatory cell', 'CD141-positive myeloid dendritic cell',
-         'innate lymphoid cell', 'pre-conventional dendritic cell', 'plasma cell',
-         'plasmacytoid dendritic cell', 'mature B cell',
-         'CD16-negative, CD56-bright natural killer cell, human']
+PROBE = [
+    'double negative T regulatory cell',
+    'CD141-positive myeloid dendritic cell',
+    'innate lymphoid cell',
+    'pre-conventional dendritic cell',
+    'plasma cell',
+    'plasmacytoid dendritic cell',
+    'mature B cell',
+    'CD16-negative, CD56-bright natural killer cell, human',
+]
 EXPECT = {0: (283, 11755, 75503), 1: (283, 11755, 72739), 2: (290, 11755, 70807)}
 P31 = os.environ.get('P31') == '1'
 
-def die(msg): sys.exit(f'replay mismatch: {msg}')
+
+def die(msg):
+    sys.exit(f'replay mismatch: {msg}')
+
 
 if __name__ == '__main__':
     t0 = time.time()
-    ref = pd.read_csv('aida.csv'); ref = ref[ref.probe].drop_duplicates(['seed', 'name_'])
+    ref = pd.read_csv('aida.csv')
+    ref = ref[ref.probe].drop_duplicates(['seed', 'name_'])
     REF_N = {(int(s), nm): int(n) for s, nm, n in ref[['seed', 'name_', 'n']].values}
-    A = ad.concat([ad.read_h5ad(D + 'AIDA_AbundantPool_120k.h5ad'), ad.read_h5ad(D + 'AIDA_RarePool.h5ad')],
-                  join='inner', index_unique='-')
+    A = ad.concat(
+        [
+            ad.read_h5ad(D + 'AIDA_AbundantPool_120k.h5ad'),
+            ad.read_h5ad(D + 'AIDA_RarePool.h5ad'),
+        ],
+        join='inner',
+        index_unique='-',
+    )
     A.obs['ct'] = A.obs.cell_type.astype(str)
     A = A[:, np.asarray(A.X.sum(0)).ravel() > 0].copy()
-    TRH = os.environ.get('HVG_TRAIN') == '1'   # 1 = pick HVGs per seed on train cells only; aida used the pooled cohort
+    TRH = (
+        os.environ.get('HVG_TRAIN') == '1'
+    )  # 1 = pick HVGs per seed on train cells only; aida used the pooled cohort
+
     def lognorm(X):
         X = np.asarray(X.todense() if hasattr(X, 'todense') else X, dtype=np.float32)
-        return np.log1p(X / np.maximum(X.sum(1, keepdims=True), 1) * 1e4).astype(np.float32)
-    if not TRH: sc.pp.highly_variable_genes(A, n_top_genes=HVG, flavor='seurat_v3', subset=True)
-    cts = sorted(A.obs.ct.unique()); ci = {c: i for i, c in enumerate(cts)}; NC = len(cts)
+        return np.log1p(X / np.maximum(X.sum(1, keepdims=True), 1) * 1e4).astype(
+            np.float32
+        )
+
+    if not TRH:
+        sc.pp.highly_variable_genes(A, n_top_genes=HVG, flavor='seurat_v3', subset=True)
+    cts = sorted(A.obs.ct.unique())
+    ci = {c: i for i, c in enumerate(cts)}
+    NC = len(cts)
     yall = A.obs.ct.map(ci).values.astype(np.int64)
-    dall = A.obs.donor_id.astype(str).values; UD = np.unique(dall)
-    if not TRH: Xn = lognorm(A.X); del A
-    if P31: order = np.random.default_rng(31).permutation(cts); assert NC == 31
-    else: probe = np.array(sorted(ci[c] for c in PROBE))
+    dall = A.obs.donor_id.astype(str).values
+    UD = np.unique(dall)
+    if not TRH:
+        Xn = lognorm(A.X)
+        del A
+    if P31:
+        order = np.random.default_rng(31).permutation(cts)
+        assert NC == 31
+    else:
+        probe = np.array(sorted(ci[c] for c in PROBE))
     print(f'loaded {len(yall):,} cells  {time.time()-t0:.0f}s', flush=True)
     for seed in range(int(sys.argv[1]), int(sys.argv[2])):
         rng = np.random.default_rng(seed)
         if P31:
-            PROBE = [order[(seed + 4 * k) % NC] for k in range(len(SIZES))]; probe = np.array(sorted(ci[c] for c in PROBE))
-        perm = rng.permutation(UD); cnt = {c: 0 for c in PROBE}; ev_d = []
+            PROBE = [order[(seed + 4 * k) % NC] for k in range(len(SIZES))]
+            probe = np.array(sorted(ci[c] for c in PROBE))
+        perm = rng.permutation(UD)
+        cnt = {c: 0 for c in PROBE}
+        ev_d = []
         for d in perm:
-            if all(v >= NEV for v in cnt.values()): break
-            ev_d.append(d); m = dall == d
-            for c in PROBE: cnt[c] += int((yall[m] == ci[c]).sum())
-        if min(cnt.values()) < NEV: die(f'seed {seed}: ran out of donors before every probe type had {NEV} eval cells')
-        ev_mask = np.isin(dall, ev_d); tr_mask = ~ev_mask
-        size_of = ({ci[c]: int(r) for c, r in zip(PROBE, SIZES)} if P31 else dict(zip(probe.tolist(), rng.permutation(SIZES).tolist())))
+            if all(v >= NEV for v in cnt.values()):
+                break
+            ev_d.append(d)
+            m = dall == d
+            for c in PROBE:
+                cnt[c] += int((yall[m] == ci[c]).sum())
+        if min(cnt.values()) < NEV:
+            die(
+                f'seed {seed}: ran out of donors before every probe type had {NEV} eval cells'
+            )
+        ev_mask = np.isin(dall, ev_d)
+        tr_mask = ~ev_mask
+        size_of = (
+            {ci[c]: int(r) for c, r in zip(PROBE, SIZES)}
+            if P31
+            else dict(zip(probe.tolist(), rng.permutation(SIZES).tolist()))
+        )
         ev_idx, full_tr, keep = [], [], []
         for c in range(NC):
-            ep = rng.permutation(np.where((yall == c) & ev_mask)[0]); ev_idx.append(ep[:NEV])
-            rest = rng.permutation(np.where((yall == c) & tr_mask)[0]); full_tr.append(rest)
-            keep.append(rest[:size_of[c]] if c in size_of else rest[:CAP])
-        ev_idx = np.concatenate(ev_idx); tr_idx = np.concatenate(keep)
+            ep = rng.permutation(np.where((yall == c) & ev_mask)[0])
+            ev_idx.append(ep[:NEV])
+            rest = rng.permutation(np.where((yall == c) & tr_mask)[0])
+            full_tr.append(rest)
+            keep.append(rest[: size_of[c]] if c in size_of else rest[:CAP])
+        ev_idx = np.concatenate(ev_idx)
+        tr_idx = np.concatenate(keep)
         n_del = len(np.concatenate(full_tr)) - len(tr_idx)
-        ytr = yall[tr_idx]; n_c = np.bincount(ytr, minlength=NC)
-        if any(n_c[c] != r for c, r in size_of.items()): die(f'seed {seed}: a size did not land')
-        if set(dall[tr_idx]) & set(dall[ev_idx]): die(f'seed {seed}: donor overlap')
-        if not P31 and seed in EXPECT and (len(ev_d), len(tr_idx), n_del) != EXPECT[seed]:
-            die(f'seed {seed}: {(len(ev_d), len(tr_idx), n_del)} != aida.py run {EXPECT[seed]}')
-        if not P31 and seed in EXPECT and any(n_c[c] != REF_N[(seed, cts[c])] for c in probe): die(f'seed {seed}: n != aida.csv')
+        ytr = yall[tr_idx]
+        n_c = np.bincount(ytr, minlength=NC)
+        if any(n_c[c] != r for c, r in size_of.items()):
+            die(f'seed {seed}: a size did not land')
+        if set(dall[tr_idx]) & set(dall[ev_idx]):
+            die(f'seed {seed}: donor overlap')
+        if (
+            not P31
+            and seed in EXPECT
+            and (len(ev_d), len(tr_idx), n_del) != EXPECT[seed]
+        ):
+            die(
+                f'seed {seed}: {(len(ev_d), len(tr_idx), n_del)} != aida.py run {EXPECT[seed]}'
+            )
+        if (
+            not P31
+            and seed in EXPECT
+            and any(n_c[c] != REF_N[(seed, cts[c])] for c in probe)
+        ):
+            die(f'seed {seed}: n != aida.csv')
         if TRH:
-            g = sc.pp.highly_variable_genes(A[tr_idx].copy(), n_top_genes=HVG, flavor='seurat_v3', inplace=False).highly_variable.values
+            g = sc.pp.highly_variable_genes(
+                A[tr_idx].copy(), n_top_genes=HVG, flavor='seurat_v3', inplace=False
+            ).highly_variable.values
             Xtr, Xev = lognorm(A.X[tr_idx][:, g]), lognorm(A.X[ev_idx][:, g])
-        else: Xtr, Xev = Xn[tr_idx], Xn[ev_idx]
-        pca = PCA(50, random_state=seed).fit(Xtr[rng.choice(len(tr_idx), min(30000, len(tr_idx)), replace=False)])
-        fn = f'split{"31" if P31 else ""}{"train" if TRH else ""}_seed{seed}.npz'; Ztr = pca.transform(Xtr)
-        if os.path.exists(fn): assert np.array_equal(np.load(fn)['Ztr'], Ztr), f'{fn}: rerun does not reproduce the cached split'
-        np.savez(fn, Ztr=Ztr, ytr=ytr, Zev=pca.transform(Xev), yev=yall[ev_idx], n_c=n_c, probe=probe, cts=np.array(cts),
-                 n_ev_donors=len(ev_d), Xtr=Xtr, pmean=pca.mean_, comp=pca.components_)
-        print(f'  seed {seed}: {len(ev_d)}/{len(UD)} eval donors, {len(tr_idx):,} train, deleted {n_del:,}, '
-              f'overlap 0, sizes ok{" , matches aida" if seed in EXPECT and not P31 else ""}  {time.time()-t0:.0f}s', flush=True)
+        else:
+            Xtr, Xev = Xn[tr_idx], Xn[ev_idx]
+        pca = PCA(50, random_state=seed).fit(
+            Xtr[rng.choice(len(tr_idx), min(30000, len(tr_idx)), replace=False)]
+        )
+        fn = f'split{"31" if P31 else ""}{"train" if TRH else ""}_seed{seed}.npz'
+        Ztr = pca.transform(Xtr)
+        if os.path.exists(fn):
+            assert np.array_equal(
+                np.load(fn)['Ztr'], Ztr
+            ), f'{fn}: rerun does not reproduce the cached split'
+        np.savez(
+            fn,
+            Ztr=Ztr,
+            ytr=ytr,
+            Zev=pca.transform(Xev),
+            yev=yall[ev_idx],
+            n_c=n_c,
+            probe=probe,
+            cts=np.array(cts),
+            n_ev_donors=len(ev_d),
+            Xtr=Xtr,
+            pmean=pca.mean_,
+            comp=pca.components_,
+        )
+        print(
+            f'  seed {seed}: {len(ev_d)}/{len(UD)} eval donors, {len(tr_idx):,} train, deleted {n_del:,}, '
+            f'overlap 0, sizes ok{" , matches aida" if seed in EXPECT and not P31 else ""}  {time.time()-t0:.0f}s',
+            flush=True,
+        )

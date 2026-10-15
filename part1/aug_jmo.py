@@ -3,6 +3,7 @@
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
+
 def fit_reference(Z, y, seed, max_iter=2000, C=1.0):
     clf = LogisticRegression(max_iter=max_iter, C=C, random_state=seed)
     clf.fit(Z, y)
@@ -10,6 +11,7 @@ def fit_reference(Z, y, seed, max_iter=2000, C=1.0):
     P = np.zeros((Z.shape[0], n_classes), dtype=np.float64)
     P[:, clf.classes_] = clf.predict_proba(Z)
     return P
+
 
 def augment(Z, y, c, k, rng, **params):
     """Generate k JM1-style synthetic rows for class c."""
@@ -24,7 +26,9 @@ def augment(Z, y, c, k, rng, **params):
     if P is None:
         seed = params.get("seed", int(rng.integers(0, 2**31 - 1)))
         P = fit_reference(
-            Z, y, seed,
+            Z,
+            y,
+            seed,
             max_iter=params.get("ref_max_iter", 2000),
             C=params.get("ref_C", 1.0),
         )
@@ -39,8 +43,8 @@ def augment(Z, y, c, k, rng, **params):
         raise ValueError(f"class {c} has no training cells to mix")
 
     pred_c = np.argmax(P[idx_c], axis=1)
-    minority = idx_c[pred_c != c]   # g: misclassified, "difficult" (Sec. 2, B)
-    majority = idx_c[pred_c == c]   # g-bar: correctly classified, "easy"
+    minority = idx_c[pred_c != c]  # g: misclassified, "difficult" (Sec. 2, B)
+    majority = idx_c[pred_c == c]  # g-bar: correctly classified, "easy"
 
     cross_group = minority.size > 0 and majority.size > 0
     pool_g = minority if cross_group else idx_c
@@ -50,25 +54,26 @@ def augment(Z, y, c, k, rng, **params):
     for t in range(k):
         i = rng.choice(pool_g)
         if cross_group:
-            j = rng.choice(pool_h)          # disjoint from pool_g by construction
+            j = rng.choice(pool_h)  # disjoint from pool_g by construction
         elif n >= 2:
-            rest = pool_h[pool_h != i]      # degenerate split: avoid a trivial i == j
+            rest = pool_h[pool_h != i]  # degenerate split: avoid a trivial i == j
             j = rng.choice(rest) if rest.size > 0 else i
         else:
-            j = i                            # n == 1: only one point exists
+            j = i  # n == 1: only one point exists
 
         if coupled and rng.random() < 0.5:
-            alpha = rng.uniform(0.0, 1.0)    # Beta(1,1) == U(0,1)
+            alpha = rng.uniform(0.0, 1.0)  # Beta(1,1) == U(0,1)
         elif coupled:
             alpha = rng.beta(beta_a, beta_b)
         else:
             alpha = rng.uniform(0.0, 1.0)
 
-        Zadd[t] = alpha * Z[i] + (1.0 - alpha) * Z[j]   # Eq. 4
+        Zadd[t] = alpha * Z[i] + (1.0 - alpha) * Z[j]  # Eq. 4
 
-    yadd = np.full(k, c, dtype=y.dtype)   # Eq. 4: y_mix = y (hard, class-conditional)
-    wadd = np.ones(k, dtype=np.float64)   # unit weight per synthetic cell
+    yadd = np.full(k, c, dtype=y.dtype)  # Eq. 4: y_mix = y (hard, class-conditional)
+    wadd = np.ones(k, dtype=np.float64)  # unit weight per synthetic cell
     return Zadd, yadd, wadd
+
 
 if __name__ == "__main__":
     d = 50
@@ -89,7 +94,9 @@ if __name__ == "__main__":
         probe_pts = centers[0] + r.normal(scale=2.5, size=(n_probe, d))
         Zs.append(probe_pts)
         ys.append(np.zeros(n_probe, dtype=int))
-        return np.concatenate(Zs).astype(np.float64), np.concatenate(ys).astype(np.int64)
+        return np.concatenate(Zs).astype(np.float64), np.concatenate(ys).astype(
+            np.int64
+        )
 
     def on_some_segment(z, A, B, tol=1e-6):
         """True iff z = alpha*a + (1-alpha)*b for some a in A, b in B, alpha in [0,1]."""
@@ -128,34 +135,48 @@ if __name__ == "__main__":
         pts_c = Z[idx_c]
         pred_c = np.argmax(P[idx_c], axis=1)
         minority, majority = pts_c[pred_c != c], pts_c[pred_c == c]
-        A, B = (minority, majority) if (minority.shape[0] and majority.shape[0]) else (pts_c, pts_c)
+        A, B = (
+            (minority, majority)
+            if (minority.shape[0] and majority.shape[0])
+            else (pts_c, pts_c)
+        )
 
         if n == 1:
-            assert np.allclose(Zadd, pts_c[0]), "n=1 must degenerate to exact duplication"
+            assert np.allclose(
+                Zadd, pts_c[0]
+            ), "n=1 must degenerate to exact duplication"
         else:
             for z in Zadd:
-                assert on_some_segment(z, A, B), f"n={n}: synthetic point off every real-pair segment"
-            assert np.unique(np.round(Zadd, 6), axis=0).shape[0] > 1, f"n={n}: no variety in synthetic points"
+                assert on_some_segment(
+                    z, A, B
+                ), f"n={n}: synthetic point off every real-pair segment"
+            assert (
+                np.unique(np.round(Zadd, 6), axis=0).shape[0] > 1
+            ), f"n={n}: no variety in synthetic points"
 
-        print(f"n={n:4d} k={k:4d} cross_group={bool(minority.shape[0] and majority.shape[0])} OK")
+        print(
+            f"n={n:4d} k={k:4d} cross_group={bool(minority.shape[0] and majority.shape[0])} OK"
+        )
 
     # cross_group=True branch (Eq. 4, g != g-bar) on a hand-built split
     n_classes_tiny = 3
-    Z_tiny = np.array([
-        [0.0, 0.0],   # class c=0, correctly-classified half (g-bar)
-        [0.2, -0.1],  # class c=0, correctly-classified half (g-bar)
-        [5.0, 5.0],   # class c=0, misclassified half (g)
-        [5.2, 4.9],   # class c=0, misclassified half (g)
-        [1.0, 1.0],   # class 1 filler
-        [2.0, 2.0],   # class 2 filler
-    ])
+    Z_tiny = np.array(
+        [
+            [0.0, 0.0],  # class c=0, correctly-classified half (g-bar)
+            [0.2, -0.1],  # class c=0, correctly-classified half (g-bar)
+            [5.0, 5.0],  # class c=0, misclassified half (g)
+            [5.2, 4.9],  # class c=0, misclassified half (g)
+            [1.0, 1.0],  # class 1 filler
+            [2.0, 2.0],  # class 2 filler
+        ]
+    )
     Z_tiny = np.pad(Z_tiny, ((0, 0), (0, d - 2)))
     y_tiny = np.array([0, 0, 0, 0, 1, 2])
     P_tiny = np.zeros((6, n_classes_tiny))
-    P_tiny[0] = [0.9, 0.05, 0.05]   # argmax = 0 = c, g-bar
-    P_tiny[1] = [0.8, 0.1, 0.1]     # argmax = 0 = c, g-bar
-    P_tiny[2] = [0.1, 0.8, 0.1]     # argmax = 1 != c, g
-    P_tiny[3] = [0.1, 0.1, 0.8]     # argmax = 2 != c, g
+    P_tiny[0] = [0.9, 0.05, 0.05]  # argmax = 0 = c, g-bar
+    P_tiny[1] = [0.8, 0.1, 0.1]  # argmax = 0 = c, g-bar
+    P_tiny[2] = [0.1, 0.8, 0.1]  # argmax = 1 != c, g
+    P_tiny[3] = [0.1, 0.1, 0.8]  # argmax = 2 != c, g
     P_tiny[4] = [0.1, 0.8, 0.1]
     P_tiny[5] = [0.1, 0.1, 0.8]
     rng_tiny = np.random.default_rng(7)
@@ -164,7 +185,9 @@ if __name__ == "__main__":
     assert np.isclose(wadd_t.sum(), 10)
     g_bar_pts, g_pts = Z_tiny[:2], Z_tiny[2:4]
     for z in Zadd_t:
-        assert on_some_segment(z, g_pts, g_bar_pts), "cross_group branch not on the g/g-bar segment"
+        assert on_some_segment(
+            z, g_pts, g_bar_pts
+        ), "cross_group branch not on the g/g-bar segment"
     print("cross_group=True branch OK (explicit split)")
 
     # no-op edge case: k == 0 must return empty arrays of the right shape, no crash
