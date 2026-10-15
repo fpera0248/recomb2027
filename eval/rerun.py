@@ -5,7 +5,7 @@
 ASSET_DIR holds the extracted release assets. For each pool the learned scorer (models/refit_dev_nat.pkl) is applied to the frozen candidate
 groups and features (cands/), blended with the saved Leiden subclustering scores, and scored against the hidden labels. OUT_DIR gets
 preds/hiddenrare, preds/scorer and rerun.csv: per pool the union AP of the rerun and of the saved scores, and the Spearman correlation of
-the per-cell scores. The saved scores come from a scorer that is not in this repository, so the rerun matches them in ranking, not exactly.
+the per-cell scores. The saved scores come from an earlier fit of the same recipe that was not kept (models/refit_dev_nat.pkl is a refit), so the rerun matches them in ranking, not exactly.
 """
 import os
 import sys
