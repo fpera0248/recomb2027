@@ -17,6 +17,7 @@ TAG=${TAG:-v0.1.0}
 BASE=${BASE:-https://github.com/fpera0248/recomb2027/releases/download/$TAG}
 here=$(cd "$(dirname "$0")" && pwd)
 mode=${1:?usage: fetch_data.sh paper|rerun|full|all [DEST]}; dest=${2:-assets}
+case $mode in paper|rerun|full|all) ;; *) echo "unknown mode $mode" >&2; exit 2 ;; esac
 mkdir -p "$dest"
 
 md5of() { if command -v md5sum >/dev/null 2>&1; then md5sum "$1" | cut -d' ' -f1; else md5 -q "$1"; fi; }
@@ -52,14 +53,13 @@ for r in csv.DictReader(open(sys.argv[1])):
         print("\t".join([r["dataset_id"], r["download_url"], r["remote_size"], r["md5"]]))
 PY
     f=$a/$id.h5ad
-    [ -s "$f" ] || { get "$url" "$f.part" && mv "$f.part" "$f"; }
-    [ "$(sizeof "$f")" = "$size" ] || { echo "size mismatch: $f (delete the partial file and rerun)" >&2; exit 1; }
+    [ -s "$f" ] || { get "$url" "$f.part" && mv "$f.part" "$f"; } || { echo "download failed: $url (rerun to resume $f.part)" >&2; exit 1; }
+    [ "$(sizeof "$f")" = "$size" ] || { echo "size mismatch: $f (delete it and rerun; the dataset version may have changed)" >&2; exit 1; }
     [ -z "$md5" ] || [ "$(md5of "$f")" = "$md5" ] || { echo "md5 mismatch: $f" >&2; exit 1; }
     echo "ok  $id${md5:+ (md5 checked)}"
   done
 }
 
-case $mode in paper|rerun|full|all) ;; *) echo "unknown mode $mode" >&2; exit 2 ;; esac
 if [ "$mode" = paper ] || [ "$mode" = all ]; then for n in predictions.tgz tool_predictions.tgz pools.tgz part1_results.tgz; do asset $n; done; fi
 if [ "$mode" = rerun ] || [ "$mode" = all ]; then for n in pools.tgz predictions.tgz rerun_inputs.tgz; do asset $n; done; fi
 if [ "$mode" = full ] || [ "$mode" = all ]; then atlases test10; fi
