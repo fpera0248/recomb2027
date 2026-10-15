@@ -65,6 +65,30 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 
 `reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, metrics used in the MARS and scCAD papers), `03_null_test.ipynb` (twin pools with the hidden cells removed: 101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks assert numbers and draw no figures. They only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. The `paper` and `rerun` tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases). The 8-atlas test set (69 pools) and the 10-atlas test set (57 pools) are different sets; the 10-atlas predictions are produced by `full`.
 
+## Paper items
+
+`reproduce.sh paper` recomputes numbers; no tier draws a figure. "Reproduced" means the notebook recomputes and asserts the values behind the item, "partial" that only some of them.
+
+| Paper item | Notebook section | Tier | Status |
+|---|---|---|---|
+| Fig. 1a, augmentation minus duplication over 88 datasets | 04 section 1 | paper | partial: win counts and deep-generator summary; the 352-test counts are not recomputed |
+| Fig. 1b, default threshold against matched point | 04 section 1 | paper | partial: duplication against no augmentation only |
+| Fig. 1c, duplication equals sample weighting | 04 section 2 | paper | reproduced |
+| Fig. 1d, union AP of our method, Leiden subclustering, scCAD and the loops | 01 sections 2, 4, 5; 02 section 2 | paper | partial: union AP values; the random-ranking line is not recomputed |
+| Fig. 2a, atlas-equal means of the methods | 02 sections 1 and 2 | paper | partial: values for the methods in `predictions.tgz` |
+| Fig. 2b, per-atlas differences | 01 section 3; 02 section 3 | paper | reproduced |
+| Fig. 3, separability tiers and UMAPs | none | none | not in repo (10-atlas results) |
+| Fig. 4, hidden-type calls plus duplication | none | none | not in repo (`combination/` code only, results pending) |
+| Supp. Fig. S1, example pool | none | none | not in repo |
+| Supp. Fig. S2, null twins | 03 and 03 section 2 | paper | reproduced (rates and AUC) |
+| Supp., published detectors against our method | 02 sections 2 and 3 | paper | reproduced |
+| Supp., metrics for the called cells | 02 section 4 | paper | reproduced |
+| Supp., 31-type run | 04 section 3 | paper | reproduced |
+| Supp., per-subtype results by tier | none | none | not in repo |
+| Supp., datasets | none | none | partial: `ATLAS_MANIFEST.csv`, `data/used_datasets.csv` hold the sources, not the table |
+| Supp., duplication study conditions, methods compared, methods missing, comparator checks | none | none | not in repo |
+| Label and donor ablations, strata, CHOIR | none | none | not in repo |
+
 ## One pool
 
 ```
