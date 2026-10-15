@@ -83,7 +83,7 @@ The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every 
 | Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced: rates; the AUC recomputes to 0.61 against the 0.60 printed |
 | Supp., published detectors against our method | 02 sections 2 and 3 | paper | reproduced |
 | Supp., metrics for the called cells | 02 sections 3 and 4 | paper | reproduced |
-| Extra check, not in the paper: 31-type run | 04 section 3 | paper | recomputed |
+| 31-type AIDA run: the values asserted here are not printed in the paper; the paper's 31-type statement in the matched-operating-point paragraph is not recomputed | 04 section 3 | paper | recomputed (other readout) |
 | Supp., per-subtype results by tier | none | none | not in repo |
 | Supp., datasets | none | none | partial: `ATLAS_MANIFEST.csv`, `data/used_datasets.csv` hold the sources, not the table |
 | Supp., duplication study conditions, methods compared, methods missing, comparator checks | none | none | not in repo |
