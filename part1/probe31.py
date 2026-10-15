@@ -13,20 +13,20 @@ CLF = ["lr", "knn", "rf", "mlp"]
 
 
 def table(csv):
-    S = pd.read_csv(csv)
+    S = pd.read_csv(csv).rename(columns={"arm": "method"})
     rows = []
     for k in CLF:
         P = S[(S.clf == k) & S.probe]
         for part, m in (("all", P.n > 0), ("n<=8", P.n <= 8), ("n>=16", P.n >= 16)):
-            w = P[m].pivot_table(index=["seed", "name_"], columns="arm", values="rec200")
+            w = P[m].pivot_table(index=["seed", "name_"], columns="method", values="rec200")
             for a in w.columns:
                 if a == "upsample":
                     continue
                 d = (w[a] - w["upsample"]).values
                 p, dt = signflip_p(d, w.index.get_level_values("name_").values)
-                rows.append(dict(clf=k, part=part, arm=a, arm_rec=w[a].mean(), up_rec=w["upsample"].mean(), d=d.mean(), types_pos=int((dt > 0).sum()), types=len(dt), p=p))
+                rows.append(dict(clf=k, part=part, method=a, method_rec=w[a].mean(), up_rec=w["upsample"].mean(), d=d.mean(), types_pos=int((dt > 0).sum()), types=len(dt), p=p))
     R = pd.DataFrame(rows)
-    prim = (R.part == "all") & R.arm.isin(PRIMARY)
+    prim = (R.part == "all") & R.method.isin(PRIMARY)
     assert prim.sum() == 20, prim.sum()
     R.loc[prim, "q_primary"] = multipletests(R.loc[prim, "p"], method="fdr_bh")[1]
     return R

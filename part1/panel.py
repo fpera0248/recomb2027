@@ -29,14 +29,14 @@ def load(panel_dir, eligible):
     S = []
     for f in sorted(glob.glob(f"{panel_dir}/*/clf.csv")):
         R = os.path.dirname(f)
-        x = pd.concat([pd.read_csv(f), pd.read_csv(f"{R}/real.csv")])
+        x = pd.concat([pd.read_csv(f), pd.read_csv(f"{R}/real.csv")]).rename(columns={"arm": "method"})
         x = x[x.probe]
         x["ds"] = os.path.basename(R)
         x["tissue"] = E.tissue.get(x.ds.iloc[0], "n/a")
         S.append(x)
     S = pd.concat(S)
-    assert set(S.arm) <= set(FAMOF) | {"upsample"}, set(S.arm) - set(FAMOF)
-    assert not S.duplicated(["ds", "seed", "name_", "clf", "arm"]).any()
+    assert set(S.method) <= set(FAMOF) | {"upsample"}, set(S.method) - set(FAMOF)
+    assert not S.duplicated(["ds", "seed", "name_", "clf", "method"]).any()
     return S
 
 
@@ -44,7 +44,7 @@ def within(S, metric, sub):
     rows, P2 = [], []
     for ds, X in S.groupby("ds"):
         X = SUB[sub](X)
-        w = X.pivot_table(index=["seed", "name_"], columns=["clf", "arm"], values=metric)
+        w = X.pivot_table(index=["seed", "name_"], columns=["clf", "method"], values=metric)
         R, TM = [], {}
         for (k, a) in w.columns:
             if a == "upsample" or (k, "upsample") not in w.columns:
@@ -54,7 +54,7 @@ def within(S, metric, sub):
             p, dt = signflip_p(dd.values, dd.index.get_level_values("name_").values)
             if FAMOF[a] == "published":
                 TM[(k, a)] = dd.groupby(level="name_").mean()
-            R.append(dict(ds=ds, tissue=X.tissue.iloc[0], metric=metric, sub=sub, clf=k, arm=a, fam=FAMOF[a], d=float(dt.mean()), pos=int((dt > 0).sum()),
+            R.append(dict(ds=ds, tissue=X.tissue.iloc[0], metric=metric, sub=sub, clf=k, method=a, fam=FAMOF[a], d=float(dt.mean()), pos=int((dt > 0).sum()),
                           types=len(dt), p=p, mde=1.92 * dt.std(ddof=1), units=int(m.sum()), seeds=dd.index.get_level_values("seed").nunique()))
         if not R:
             continue
@@ -64,17 +64,17 @@ def within(S, metric, sub):
         if TM:
             pa = max_t(pd.DataFrame(TM))
             r = pa.idxmin()
-            P2.append(dict(ds=ds, tissue=X.tissue.iloc[0], metric=metric, sub=sub, p_maxT=pa.min(), tests=len(pa), clf=r[0], arm=r[1], d=float(TM[r].mean()), pos=int((TM[r] > 0).sum())))
+            P2.append(dict(ds=ds, tissue=X.tissue.iloc[0], metric=metric, sub=sub, p_maxT=pa.min(), tests=len(pa), clf=r[0], method=r[1], d=float(TM[r].mean()), pos=int((TM[r] > 0).sum())))
     return pd.concat(rows), pd.DataFrame(P2)
 
 
 def across(T):
     out = []
-    for (mt, sb, k, a), g in T.groupby(["metric", "sub", "clf", "arm"]):
+    for (mt, sb, k, a), g in T.groupby(["metric", "sub", "clf", "method"]):
         d = g.d.values
         b = np.random.default_rng(0).choice(d, (5000, len(d))).mean(1)
         p = signflip_p(d, np.arange(len(d)))[0] if len(d) > 1 else np.nan
-        out.append(dict(metric=mt, sub=sb, clf=k, arm=a, fam=FAMOF[a], n_ds=len(d), mean_d=d.mean(), lo=np.percentile(b, 2.5), hi=np.percentile(b, 97.5), hi95=np.percentile(b, 95),
+        out.append(dict(metric=mt, sub=sb, clf=k, method=a, fam=FAMOF[a], n_ds=len(d), mean_d=d.mean(), lo=np.percentile(b, 2.5), hi=np.percentile(b, 97.5), hi95=np.percentile(b, 95),
                         median_d=np.median(d), p_ds=p, ds_win=int(((g.q < .05) & (g.d > 0)).sum()), ds_loss=int(((g.q < .05) & (g.d < 0)).sum())))
     A = pd.DataFrame(out)
     A["q_ds"] = A.groupby(["metric", "sub"]).p_ds.transform(lambda s: bh(s.fillna(1).values))
