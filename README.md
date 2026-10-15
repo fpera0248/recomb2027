@@ -2,6 +2,8 @@
 
 Code for the RECOMB 2027 paper. Given a pool of cells with a coarse visible label (say "T cell"), the method ranks cells by how likely they belong to a finer subtype that is not labelled. It never sees the finer annotation.
 
+This repository holds our method (`hiddenrare/`), the evaluation (`eval/`), the builders of the test pools (`data/`), the wrappers for the published detectors we compare against (`tools/`, `scripts/`), the study of known rare types (`part1/`), the hidden-type calls plus duplication experiment (`combination/`) and the notebooks that recompute the numbers of the paper (`notebooks/`).
+
 ## Method
 
 1. `hiddenrare/candidates.py`: Leiden clustering of each label at 8 resolutions in two spaces (pool PCA-50, and per-label HVG + PCA-50). Clusters with at least 10 cells and under 10% of the label are candidate groups.
@@ -13,26 +15,55 @@ Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables be
 
 ## Install
 
-Python 3.12. `pip install -r requirements.txt`. scikit-learn must be 1.5.2 (the model pickle was written with it). The 10-atlas results were computed with these versions on macOS arm64. Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ (Spearman about 0.8 to 0.9 on one test pool) and pool union AP moves by about 0.01. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper.
+Pick one.
 
-## Reproducing the numbers
+**Container (recommended).** Two prebuilt images, built by `.github/workflows/build-images.yml` and pushed to GHCR on every release:
+
+| Image | Contents |
+|---|---|
+| `ghcr.io/fpera0248/recomb2027-hiddenrare` | our method, the evaluation, the notebooks (Python 3.12) |
+| `ghcr.io/fpera0248/recomb2027-tools` | the published detectors: Python tools, CellSIUS, GapClust, SCISSORS (R 4.6.1, Seurat 4.4.0) |
+
+```
+docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:latest
+docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
+    env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
+```
+Apptainer and details: `CONTAINER.md`. While the repository is private the images are private too; log in to `ghcr.io` with a token that can read packages.
+
+**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is its full `pip list`. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ (Spearman about 0.8 to 0.9 on one test pool) and pool union AP moves by about 0.01. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
+
+## Reproduce the numbers
 
 ```
 ./reproduce.sh paper     # download the release assets, recompute the Part II numbers of the 8-atlas test set, assert the match
 ./reproduce.sh rerun     # rescore the 69 held-out pools with this repository's scorer
 ./reproduce.sh full      # rebuild the 10-atlas test pools from CELLxGENE and rerun everything
 ```
+
+| Tier | Input | Exactness | Time and disk |
+|---|---|---|---|
+| paper | saved predictions of every method on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and Part I figures are asserted; the bootstrap interval is checked to 0.005 | about 2 minutes, 1.2 GB of downloads (measured on the run machine) |
+| rerun | frozen candidate tables and Leiden scores | not exact: mean Spearman of per-cell scores 0.88 against the saved ones, atlas-equal union AP 0.3195 against 0.3213; asserted within 0.01 | about 2 minutes, same assets as paper (measured) |
+| full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | about 30 GB of downloads and 20 GB of pool files, hours to days on 12 cores (estimated from the run machine; not re-timed) |
+
+At the `paper` tier the results match the paper exactly: every table value, test and null-test rate is recomputed from the saved predictions and asserted, so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Time estimates for the containers have not been measured, and the images have not been built from this checkout (no Docker on the machine that prepared them); the first CI build is the first test of the Dockerfiles.
+
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
 
 While the repository is private, the plain release URLs return 404. `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in with read access), or set `ASSET_SRC=DIR` to take the assets from a local directory. Set `TAG` for another release.
 
-| Tier | Input | Exactness | Time |
-|---|---|---|---|
-| paper | saved predictions of every method on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and Part I figures are asserted; the bootstrap interval is checked to 0.005 | 2 minutes, 1.2 GB |
-| rerun | frozen candidate tables and Leiden scores | not exact: mean Spearman of per-cell scores 0.88 against the saved ones, atlas-equal union AP 0.3195 against 0.3213; asserted within 0.01 | 2 minutes |
-| full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | about 30 GB of downloads, hours to days |
+## Atlases
 
-The `paper` tier executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, MARS and scCAD style metrics), `03_null_test.ipynb` (twin pools with the hidden cells removed) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Container images, an image build workflow and per-tool environment files are not provided yet. The `paper` and `rerun` tiers use only the 69 pools of the 8-atlas test set; the 10-atlas predictions are produced by `full`.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`name` is the short id used by the builders). `data/atlases.csv` is the list of the 10-atlas test set, `data/used_datasets.csv` the datasets used before the test. Download them with `data/download_atlases.sh` (or `reproduce.sh full`).
+
+## Notebooks
+
+`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, MARS and scCAD style metrics), `03_null_test.ipynb` (twin pools with the hidden cells removed) and `04_part1_summary.ipynb` (the 88-dataset panel, the 31-type run, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`. Not recomputed by `paper`: the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, donor ablation, CHOIR and the tools that ran only there), scGAD on 32 pools, the random-ranking line of Fig. 1d, and the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs); notebook 04 lists what it covers. The rerun tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. The `paper` and `rerun` tiers use only the 69 pools of the 8-atlas test set; the 10-atlas predictions are produced by `full`.
+
+## Rebuild the test sets
+
+See "Rebuilding the 10-atlas test and the evaluation" below: `data/build_pools.py` writes the pools and `data/build_twins.py` the null-gate twin pools from the atlases of the manifest; `data/manifests` and `data/targets` are the pool lists and target tables of the original run.
 
 ## One pool
 
@@ -66,7 +97,7 @@ combination/run_all.sh lr                                    # all eligible pool
 
 ## Published tools
 
-`tools/sources.txt` lists the official repositories and commits; `tools/fetch_sources.sh` clones them into `$TOOLS_SRC`. The wrappers in `tools/` only adapt input and output. R tools need Seurat 4.4.0 / SeuratObject 4.1.4.
+`tools/sources.txt` lists the official repositories and commits; `tools/fetch_sources.sh` clones them into `$TOOLS_SRC`. The wrappers in `tools/` only adapt input and output. R tools need Seurat 4.4.0 / SeuratObject 4.1.4. The `recomb2027-tools` image (`docker/Dockerfile.tools`) installs all of this; `Rpackages_tools.csv` and `piplist_tools.txt` are the exact package sets of the environment the tools ran in.
 
 Python tools run in their own environment: `pip install -r tools/requirements.txt; pip install --no-deps $TOOLS_SRC/GiniClust3 $TOOLS_SRC/scGPT`; build FiRE with `python setup.py build_ext --inplace` in `FIRE_BUILD` (Boost headers needed); set `SCGPT_CKPT` to the scGPT whole-human checkpoint dir and `MCL` to the mcl binary. `$TOOLS_SRC/scCAD/scCAD.py` must have md5 a0865c37513aaee5eae13551e48da6f2. The reported scGPT run used `DEVICE=mps`.
 
