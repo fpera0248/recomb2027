@@ -16,8 +16,8 @@ python3 dup_weight.py
 HVG_TRAIN=1 python3 split_cache.py 0 20                        # training-only gene selection
 REP=splittrain CLF=lr,knn,rf,mlp TAG=_trhvg python3 statistical.py run 0 20
 REP=splittrain CLF=lr,knn,rf,mlp TAG=_trhvg python3 statistical.py report
-P31=1 HVG_TRAIN=1 python3 split_cache.py 0 20                  # 31-type run
-REP=split31train CLF=lr,knn,rf,mlp TAG=_p31 python3 statistical.py run 0 20
+P31=1 HVG_TRAIN=1 python3 split_cache.py 0 31                  # 31-type run
+REP=split31train CLF=lr,knn,rf,mlp TAG=_p31 python3 statistical.py run 0 31
 CLF=lr,knn,rf,mlp TAG=_clf python3 statistical.py run 0 20     # four classifiers
 
 # second and third datasets
