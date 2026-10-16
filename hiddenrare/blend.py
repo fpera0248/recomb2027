@@ -8,7 +8,7 @@ import sys
 
 import pandas as pd
 
-W = 0.75  # weight of the scorer, fixed in the pre-registration
+W = 0.75  # weight of the scorer, fixed before the 8-atlas held-out test (paper Methods)
 
 
 def combo(a, b, w=W):

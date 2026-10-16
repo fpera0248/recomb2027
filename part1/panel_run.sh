@@ -1,4 +1,6 @@
 #!/bin/bash
+# Usage: panel_run.sh DATASET_ID [pull]. With no argument it runs the next dataset of panel_queue_shuffled.txt
+# that has no done, failed or claimed marker in panel_runs/<dataset>/; after an interrupted run, delete that claimed file to requeue it.
 ds=$1
 if [ -z "$1" ] && [ -f panel_queue_shuffled.txt ]; then
   ds=$(while read q; do [ -e panel_runs/$q/done ] || [ -e panel_runs/$q/failed ] || [ -e panel_runs/$q/claimed ] || { echo $q; break; }; done < panel_queue_shuffled.txt)

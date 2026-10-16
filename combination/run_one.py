@@ -1,6 +1,6 @@
 """One pool, one seed, one CSV row per setting (see DESIGN.md).
   python -m combination.run_one POOL SEED [--clf lr|rf|mlp] [--out CSV]
-  python -m combination.run_one --plan     donor split and eligibility of every pool and seed, from metadata only
+  python -m combination.run_one --plan --out CSV     donor split and eligibility of every pool and seed, from metadata only
 HR_DATA holds pilots/, manifests/, pools.csv and predictions/ (the paper-tier assets); HR_POOLS holds the pool h5ad files (default HR_DATA/pools).
 Pseudo-labels use only the method's own calls on training-donor cells; true labels enter the true_* settings, the scores and the purity diagnostic.
 """

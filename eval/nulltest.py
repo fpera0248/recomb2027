@@ -4,7 +4,7 @@ Each real pool has a twin with every hidden cell removed. A method's evidence fo
 (for the blended method, which has no native scale, the learned scorer's score on the blend's top 200). The threshold flags 95% of
 the real pools; the false-call rate is the share of twins above it (about 0.95 for an uninformative score).
 
-PRED_ROOT/<method>/<pool>.parquet holds real and twin pools; twins.csv has pilot_id, atlas and real_pool.
+PRED_ROOT/<method>/<pool>.parquet holds real and twin pools; the twins table (ids/twin_manifest.csv in the release assets) has pilot_id, atlas and real_pool.
 """
 
 import numpy as np

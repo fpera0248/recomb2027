@@ -5,9 +5,9 @@
         [--ours hiddenrare] [--leiden leiden_sub] [--sccad sccad_lab] [--learned scorer]
   python -m eval.analyze scan PRED_ROOT OUT.csv            # score files with NaN or a single unique value
   python -m eval.analyze tiefair PRED_ROOT OUT.csv PILOT_DIR MANIFEST.csv [...]   # tie-fair union AP per pool
-  python -m eval.analyze gateprep PRED_ROOT GROUP_ROOT OUT.csv PILOT_DIR MANIFEST.csv [...] [--twin-map twins.csv]
+  python -m eval.analyze gateprep PRED_ROOT GROUP_ROOT OUT.csv PILOT_DIR MANIFEST.csv [...] [--twin-map GROUP_ROOT/twin_map.csv]
 
---exclude ATLAS (default 0bf30b02) adds a tumour stratum without that atlas, as in the pre-registered analysis.
+--exclude ATLAS (default 0bf30b02) adds a tumour stratum without that atlas, as in the analysis specified before the test.
 
 Primary test: union_AP, our method minus a comparator, mean over atlases of the pool means, exact two-sided sign-flip
 test over atlases. Outputs PREFIX.json and PREFIX.md.

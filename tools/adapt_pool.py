@@ -4,6 +4,7 @@
 Loads the pool blind (opaque cell ids, obs label only) and writes OUT_DIR/py/<pool>.h5ad (genes with counts in
 at least 3 cells) and OUT_DIR/r/<pool>.h5ad (the 2000 highly variable genes). var['feature_name'] holds gene
 symbols from GENEMAP.csv (written by data/build_pools.py); the pool files carry Ensembl ids only.
+For another pool, write GENEMAP.csv with columns gene_id (every var name of the pool) and feature_name (its gene symbol, e.g. the source atlas's var['feature_name']).
 """
 
 import os
