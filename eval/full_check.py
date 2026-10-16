@@ -4,7 +4,7 @@
 
 RESULT.json is written by eval.analyze (eval/run_eval.sh). PAPER holds the atlas-equal means and difference of the 10-atlas test
 (ours minus Leiden subclustering = T1, ours minus scCAD with labels = T2). Tolerance: Leiden partitions change between numerical
-stacks, so means and differences must be within 0.03, the sign must agree and the atlas-level exact test must
+stacks by an amount not measured, so means and differences must be within 0.03 (a chosen bound), the sign must agree and the atlas-level exact test must
 stay below 0.05. The E1_union differences (0.087, 0.111) are from the 10-atlas analysis, not printed in the paper. The run must have 57 pools in 10 atlases.
 Exit status 1 when a check fails. T2 needs the scCAD run (--no-sccad skips it).
 """

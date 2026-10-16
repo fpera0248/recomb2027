@@ -1,6 +1,7 @@
 #!/bin/bash
 # All pools and seeds, one classifier (lr is the primary readout; rf and mlp are secondary), then the analysis. Finished pool-seeds are skipped.
-# usage: HR_DATA=assets HR_POOLS=/path/to/pool_h5ads combination/run_all.sh [lr|rf|mlp]     rows and logs go to $OUT (default combination/rows); the 69 pool h5ads are not in the release (combination/README.md)
+# usage: HR_DATA=assets HR_POOLS=/path/to/pool_h5ads combination/run_all.sh [lr|rf|mlp]
+# Rows and logs go to $OUT (default combination/rows). The 69 pool h5ads are not in the release; see combination/README.md.
 here=$(cd "$(dirname "$0")" && pwd)
 cd "$here/.."
 CLF=${1:-lr}
