@@ -1,6 +1,12 @@
 # Container
 
-The two images are defined in `docker/` and built by `.github/workflows/build-images.yml` on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`). Both are published on GHCR with the release tag `v0.1.0` (use this one; the `v0.1.1` images exist but no check has run them; `latest` and `main` move with later builds) and pull without a login. `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual); `recomb2027-tools` has not been run end to end. They are amd64 only; on Apple silicon add `--platform linux/amd64` (emulated, slow).
+The two images are defined in `docker/`. `.github/workflows/build-images.yml` builds them on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`).
+
+Both are published on GHCR with the release tag `v0.1.0` and pull without a login. Use `v0.1.0`: the `v0.1.1` images exist but no check has run them, and `latest` and `main` move with later builds.
+
+Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual). `recomb2027-tools` has not been run end to end.
+
+The images are amd64 only. On Apple silicon add `--platform linux/amd64` (emulated, slow).
 
 | Image | Contents | Use for |
 |---|---|---|
