@@ -45,7 +45,7 @@ The table lists 22 paper items: 3 reproduced, 7 partial, 1 recomputed with anoth
 | Supp. Fig. S3, hidden-type calls plus duplication | none | none | not in repo (`combination/` holds the code; the per-pool result rows are not included) |
 | Supp. Fig. S1, example pool | none | none | not in repo (needs that pool's h5ad, one of the 69 below, and a figure script) |
 | Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced: rates; the AUC recomputes to 0.61 against the 0.60 printed |
-| Supp. Table S6, published detectors against our method | 02 sections 2 and 3 | paper | partial: the first block, and the FiRE means of the rebuilt-subsample block, where FiRE (per label) recomputes to 0.098 against the 0.097 printed; the rest of that block and the 10-atlas block (predictions not released) are not recomputed |
+| Supp. Table S6, published detectors against our method | 02 sections 2 and 3 | paper | partial: the first block; the rebuilt-subsample block and the 10-atlas block (predictions not released) are not recomputed |
 | Supp., metrics for the called cells | 02 sections 3 and 4 | paper | reproduced |
 | 31-type AIDA run (values not printed in the paper) | 04 section 3 | paper | recomputed with another readout; the paper's 31-type values (matched-operating-point paragraph) are not recomputed |
 | Supp., per-subtype results on the 8-atlas pools | none | none | not in repo (separability is computed from the counts of the 69 pools, whose h5ads are not released) |
