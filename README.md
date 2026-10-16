@@ -120,7 +120,7 @@ A missing release or asset gives 404 (check `TAG`; the assets are on release v0.
 
 ## Atlases
 
-The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders; 10 rows have no URL, and 5 of them have a note in `notes`; the other 5 are `panel` rows with no recorded version. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Ten rows have no URL, and 5 of them have a note in `notes`. The other 5 are `panel` rows with no recorded version; download them by `dataset_id` from the page in `collection_url`, which serves the current version.
 
 `data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` lists the datasets used before the test.
 
