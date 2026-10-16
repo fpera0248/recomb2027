@@ -140,6 +140,7 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - `tools/`: wrappers of the published detectors, their pinned repositories and commits (`sources.txt`) and `fetch_sources.sh`, which clones them ([tools/README.md](tools/README.md)).
 - `part1/`: the study of known rare types, duplication against generators ([part1/README.md](part1/README.md)).
 - `combination/`: the hidden-type calls plus duplication experiment ([combination/README.md](combination/README.md)).
+- `supplement/`: unchanged copies of the scripts behind the supplement analyses that no level runs ([supplement/README.md](supplement/README.md)).
 - `docker/`: the two image definitions (see `CONTAINER.md`).
 - `.github/workflows/`: CI (self-tests on every push, no level run), the image builds and the manual container check (`paper` and `rerun` levels in the published image).
 
@@ -148,8 +149,8 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - CELLxGENE data (downloaded by the builders), the training pools and the tool checkouts. `hiddenrare/scorer.py fit` is the training script and needs the training pools. Run it from the repository root (it imports eval/targets.py).
 - The 10-atlas predictions: the 10-atlas results (strata, separability levels, label ablation, CHOIR) cannot be rerun from the release.
 - The rebuilt 8-atlas subsamples and their predictions (our method, Leiden subclustering, GiniClust3 and FiRE): the second block of Supp. Table S6 and the GiniClust3 and FiRE bars of Fig. 2a cannot be rerun from the release.
-- Figure scripts.
-- The scripts of the supplement analyses listed in [PAPER_ITEMS.md](PAPER_ITEMS.md) (the further analyses of the duplication study, the distance metrics of the generator papers and the further analyses (Supp. Fig. S5)).
+- Figure scripts, except `supplement/figures/figS_further.py` (Supp. Fig. S5), which no level runs. No level runs the statistics script `supplement/figures/p1_panel_stats.py` either.
+- Most inputs of the supplement analyses listed in [PAPER_ITEMS.md](PAPER_ITEMS.md): the AIDA, HLCA and lupus files, the generated cells and the 10-atlas subsamples. Only `part1_results.tgz` is released. Their scripts are in [`supplement/`](supplement/README.md), but no level runs them.
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools: only their wrappers and pinned environments are included.
