@@ -98,6 +98,7 @@ def main():
         else sorted(glob.glob(f"{a.panel}/*.h5ad"))
     )
     assert pools, "no pools"
+    assert panel, f"no panel files in {a.panel}"
     U = None
     for f in pools + panel:
         with h5py.File(f, "r") as h:
