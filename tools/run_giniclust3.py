@@ -1,6 +1,7 @@
-"""GiniClust3, https://github.com/rdong08/GiniClust3 commit a58d0c886cde690398c2a46e4320f1247f72cd4f, as published (README call sequence).
+"""GiniClust3, https://github.com/rdong08/GiniClust3 commit a58d0c886cde690398c2a46e4320f1247f72cd4f, README call sequence without its two filters.
 usage: python run_giniclust3.py pool.h5ad out.parquet
 normalize_per_cell 1e4; calGini/clusterGini (defaults, neighbors 5, res 0.1); calFano/clusterFano (15, 0.1); consensus.
+This is the earlier run the paper labels GiniClust3 (no filters, 5 neighbors). The GiniClust3 (swapped filters) rows (genes detected in at least 200 cells, no cell filter, and 3 neighbors on the 8-atlas set) came from a runner that is not included.
 GiniClust3 returns only clusters, so: call = final consensus cluster with under 1% of the cells (the tool's own rarity cutoff), score = -ln(cluster share).
 """
 

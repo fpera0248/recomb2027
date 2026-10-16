@@ -1,6 +1,6 @@
 """Panel of public datasets: does any published generator beat plain duplication of the rare class?
 
-Input: PANEL_DIR/<dataset>/clf.csv (every augmentation and readout) and real.csv (no augmentation), plus eligible.csv (dataset, tissue).
+Input: PANEL_DIR/<dataset>/clf.csv (every augmentation and readout) and real.csv (no augmentation), plus panel_eligible.csv (dataset_id, tissue).
 Probe rows only. The unit is the dataset; inside a dataset the unit is the probe type (8 per dataset), averaged over the seeds.
 
 Per dataset and readout, d = recall of an augmentation minus recall of duplication, per (seed, type); exact two-sided sign-flip over the

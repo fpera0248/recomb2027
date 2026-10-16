@@ -2,7 +2,7 @@
 usage: python run_fire.py pool.h5ad out.parquet; writes out.parquet (as published, pool-wide) and out_lab.parquet (per visible label).
 Published pipeline (example/jurkat_simulation.py): utils/preprocess.ranger_preprocess(ngenes_keep=1000), FiRE(L=100, M=50), score,
 call = score >= Q3 + 1.5 IQR. Label-aware variant: the same preprocess, FiRE and IQR rule within each label with at least 20 cells; other labels
-score 0 and are not called; score = average-tie rank percentile of the raw score within the label.
+score 0 and are not called; score = average-tie rank percentile of the raw score within the label. A rerun writes it to tool_out/fire_lab; in tool_predictions.tgz the same score is fire_lab_pct (the paper's FiRE (per label) row) and fire_lab holds the raw within-label score.
 Needs TOOLS_SRC (the FiRE checkout) and FIRE_BUILD (directory holding the compiled FiRE module).
 """
 

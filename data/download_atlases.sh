@@ -1,5 +1,5 @@
 #!/bin/bash
-# Download the test atlases listed in atlases.csv (public CELLxGENE h5ad files) into $HR_DATA/atlas.
+# Download the test atlases listed in atlases.csv (public CELLxGENE h5ad files) into $HR_DATA/atlas. No size or md5 check; fetch_data.sh full checks both.
 set -euo pipefail
 dest=${HR_DATA:-work}/atlas
 mkdir -p "$dest"
