@@ -10,6 +10,27 @@ Download the 10-atlas test set with `./fetch_data.sh full DIR` (`reproduce.sh fu
 
 The 8-atlas set (`test8`, 69 pools) is the one the `paper` and `rerun` tiers check. The 10-atlas set (`test10`, 57 pools) is the one `full` and `data/build_pools.py` build. The two share no dataset or collection.
 
+## Notebooks
+
+`reproduce.sh paper` executes four notebooks:
+
+1. `notebooks/01_heldout_test.ipynb`: our method against Leiden subclustering and the in-house baselines.
+2. `02_published_detectors.ipynb`: published detectors, with the metrics used in the MARS and scCAD papers.
+3. `03_null_test.ipynb`: twin pools with the hidden cells removed (101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set).
+4. `04_part1_summary.ipynb`: the 88-dataset panel, an extra 31-type check and duplication as sample weighting.
+
+The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`; they assert numbers and draw no figures.
+
+The `paper` tier does not recompute:
+
+- the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, CHOIR and the tools that ran only there);
+- the donor ablation, which recomputes features on the 69 pools of the 8-atlas test set;
+- scGAD on 32 pools;
+- the random-ranking line of Fig. 1d;
+- the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs). Notebook 04 lists what it covers.
+
+The `rerun` tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Both tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases).
+
 ## One pool
 
 ```
@@ -19,4 +40,4 @@ scripts/run_pool.sh POOL.h5ad PILOTS.parquet OUT_DIR
 
 ## Datasets used before the test
 
-Datasets used before the test are listed in `data/used_datasets.csv`. A Human Breast Cell Atlas file from collection 48259aa8 was also used during development (row `hbca` of `ATLAS_MANIFEST.csv`). Its dataset id was not recorded, so the cell-level leak check may not cover it. The collection itself is in the list (dataset 55003f67), so the collection check of `data/build_pools.py` excludes every dataset of that collection.
+`data/used_datasets.csv` lists the datasets used before the test. A Human Breast Cell Atlas file from collection 48259aa8 was also used during development (row `hbca` of `ATLAS_MANIFEST.csv`). Its dataset id was not recorded, so the cell-level leak check may not cover it. The collection itself is in the list (dataset 55003f67), so the collection check of `data/build_pools.py` excludes every dataset of that collection.
