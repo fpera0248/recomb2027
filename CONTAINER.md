@@ -18,7 +18,9 @@ docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0 \
 ```
 To work offline, or for another release tag, put the release files in `out/release` and add `-e ASSET_SRC=/out/release` (or set `TAG`). A missing release gives 404.
 
-`reproduce rerun` and `reproduce full` work the same way (`full` also wants `HR_DATA=/out/work`, since the default, ./work, is inside the container; its downloads alone are 29.3 GB, total disk use is not measured). One pool:
+`reproduce rerun` and `reproduce full` work the same way. For `full`, also pass `HR_DATA=/out/work`, because the default, ./work, is inside the container. `full` downloads 29.3 GB; its total disk use is not measured.
+
+To run one pool:
 ```
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0 \
     scripts/run_pool.sh /out/POOL.h5ad /out/PILOTS.parquet /out/run
@@ -37,7 +39,10 @@ apptainer exec -B "$PWD/out":/out recomb2027.sif env ASSETS=/out/assets OUT=/out
 ```
 `Apptainer.def` builds the same from the published image.
 
-v0.1.0 digests: recomb2027-hiddenrare sha256:6d856f7fc7c5adcf722ef89b83bbd7671edc5e29e454f08b9524b96f059de283, recomb2027-tools sha256:07ab7720f7ff1f6ff65f7b1f765a46db81b4d7e4125680d21a42d44f901811b6.
+Digests of the `v0.1.0` images:
+
+- recomb2027-hiddenrare sha256:6d856f7fc7c5adcf722ef89b83bbd7671edc5e29e454f08b9524b96f059de283
+- recomb2027-tools sha256:07ab7720f7ff1f6ff65f7b1f765a46db81b4d7e4125680d21a42d44f901811b6
 
 ## Build locally
 
