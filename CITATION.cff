@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use this code or reproduce our results, please cite the paper."
 title: "Finding Rare Cell Subtypes Hidden Inside Broad Labels"
 version: v0.1.0
+date-released: "2026-10-15"
 license: MIT
 abstract: "This repository contains our method for ranking cells of a pool by how likely they belong to an unlabelled finer subtype, the evaluation on the held-out atlases, wrappers for the published detectors, pinned environments and container images."
 type: software
