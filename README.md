@@ -78,7 +78,7 @@ You can run the code in a Python environment or in a container.
 
 **Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). The pins are the package versions of the Python 3.12 environment (macOS arm64) that computed the 10-atlas results. `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
 
-**Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`. They pull without a login. Use `v0.1.0`: the `v0.1.2` images have not been checked, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)). The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
+**Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`. They pull without a login. Use `v0.1.0`: the `v0.1.1` images have not been checked, the `v0.1.2` images are built when that release is published and no check has run them yet, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)). The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -116,11 +116,11 @@ At the `paper` tier a mismatch with any asserted value fails the run (see Paper 
 
 | Release | What it holds |
 |---|---|
-| v0.1.2 | The code for the RECOMB 2027 submission. This is the release to cite and the one that matches the paper version. Its container images (tag `v0.1.2`) are built when the release is published and no container check has run on them yet. It has no data assets. |
-| v0.1.0 | The data assets (the five tarballs listed in `ASSETS.md5`) and the container images checked end to end (`paper` and `rerun` tiers). `fetch_data.sh` downloads from this release by default. |
-| v0.1.1 | Superseded by v0.1.2. It has no assets. |
+| v0.1.2 | The code for the RECOMB 2027 submission. This is the release to cite. Its container images (tag `v0.1.2`) are built when the release is published and no container check has run on them yet. It has no data assets. |
+| v0.1.0 | The data assets (the five tarballs listed in `ASSETS.md5`) and the container images to use. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers; the `recomb2027-tools` image has not been run end to end. `fetch_data.sh` downloads from this release by default. |
+| v0.1.1 | Superseded by v0.1.2. It has no data assets. Its container images (tag `v0.1.1`) were built, but no container check has run on them. |
 
-The v0.1.2 code differs from v0.1.0 in documentation, comments, driver fixes (for example the seeds of `part1/run.sh`, which no tier runs) and an empty-panel check in `data/leak_check.py`. The method code in `hiddenrare/` differs only in one comment line. So the `v0.1.0` image runs the same method as v0.1.2.
+The `v0.1.0` image holds the v0.1.0 code. The v0.1.2 code differs from it only in documentation, comments and usage text, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it), printed text in `part1/panel_readout.py` and notebooks 03 and 04, and an empty-panel check in `data/leak_check.py`. The method code in `hiddenrare/` differs only in one comment line, so the `v0.1.0` image runs the same method as v0.1.2.
 
 CI: the `ci` workflow runs the self-tests on every push and pull request, and has passed on `main` ([runs](https://github.com/fpera0248/recomb2027/actions/workflows/ci.yml)). The container check is a separate manual workflow; see `CONTAINER.md`.
 
