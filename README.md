@@ -32,7 +32,7 @@ pip install -r requirements.txt    # Python 3.12
 | Fig. 2b, per-atlas differences | 01 sections 2 and 3; 02 section 3 | paper | partial: per-atlas differences against Leiden subclustering are asserted; against scCAD with labels only the mean, atlas count and p |
 | Fig. 3, separability tiers and UMAPs | none | none | not in repo (panel a uses the 10-atlas results; no tier draws figures) |
 | Supp. Fig. S3, hidden-type calls plus duplication | none | none | not in repo (`combination/` holds the code; the per-pool result rows are not included) |
-| Supp. Fig. S1, example pool | none | none | not in repo (no figure script; no tier draws figures) |
+| Supp. Fig. S1, example pool | none | none | not in repo (needs that pool's h5ad, one of the 69 below, and a figure script) |
 | Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced: rates; the AUC recomputes to 0.61 against the 0.60 printed |
 | Supp. Table S6, published detectors against our method | 02 sections 2 and 3 | paper | reproduced |
 | Supp., metrics for the called cells | 02 sections 3 and 4 | paper | reproduced |
@@ -110,7 +110,7 @@ Apptainer and details: `CONTAINER.md`.
 
 At the `paper` tier every value the notebooks print is recomputed from the saved predictions and asserted (see Paper items for what is partial), so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. In the `recomb2027-hiddenrare` container on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s.
 
-The code release is v0.1.1. The release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets), and the v0.1.0 image holds the v0.1.0 code, which differs only in documentation, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03. `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
+The code release is v0.1.1. The release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets), and the v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03. `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
 
 A missing release or asset gives 404 (check `TAG`; the assets are on release v0.1.0, and release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in). Set `ASSET_SRC=DIR` to take the assets from a local directory, for offline use.
 
@@ -140,8 +140,8 @@ Datasets used before the test are listed in `data/used_datasets.csv`. A Human Br
 - CELLxGENE data (downloaded by the builders), the training pools and the tool checkouts. `hiddenrare/scorer.py fit` is the training script; it needs the training pools. Run it from the repository root (it imports eval/targets.py).
 - The 10-atlas predictions: the 10-atlas results (strata, separability tiers, ablations, CHOIR) cannot be rerun from the release.
 - Figure scripts; the notebooks assert numbers and draw nothing.
-- The 69 pool h5ads of the 8-atlas test set, needed by `combination/` and by any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
-- The inputs of the Part I runs (the AIDA, HLCA and lupus h5ad files, whose dataset ids are not recorded, and the CFGen and scDiffusion checkouts) and the training of the generators.
+- The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Supp. Fig. S1 and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
+- The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools; only their wrappers and pinned environments are included.
 - RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
 - The `full` tier is untested, and the `recomb2027-tools` image has not been run end to end. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers.
@@ -150,7 +150,7 @@ Datasets used before the test are listed in `data/used_datasets.csv`. A Human Br
 
 ## Citation
 
-Please cite the paper. `CITATION.cff` holds the metadata; GitHub's "Cite this repository" button gives BibTeX:
+Please cite the paper. `CITATION.cff` holds the metadata; GitHub's "Cite this repository" button gives BibTeX. Until the paper is published:
 
 ```bibtex
 @unpublished{peraltacastro2026hidden,
