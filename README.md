@@ -76,7 +76,7 @@ The table lists 22 paper items: 3 reproduced, 7 partial, 1 recomputed with anoth
 
 You can run the code in a Python environment or in a container.
 
-**Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). The pins are the versions of the interpreter that computed the 10-atlas results (macOS arm64). `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
+**Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). The pins are the package versions of the Python 3.12 environment (macOS arm64) that computed the 10-atlas results. `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
 
 **Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`. They pull without a login. Use `v0.1.0`: the `v0.1.1` images have not been checked, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)). The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
@@ -103,7 +103,7 @@ For Apptainer and more details, see `CONTAINER.md`.
 | Tier | Input | Exactness | Time and disk |
 |---|---|---|---|
 | paper | saved predictions of every method run on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and the Part I numbers of notebook 04 are asserted; the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
-| rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 to 3 minutes (3 min 0 s on a GitHub Actions runner, see `CONTAINER.md`), about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
+| rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 to 3 minutes (3 min 0 s on a GitHub Actions runner after the paper tier had already downloaded the pools and predictions, see `CONTAINER.md`), about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
 | full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`; a chosen tolerance, since the change of Leiden partitions between machines is not measured) | 29.3 GB of downloads (sum of the manifest sizes); time and disk for the pools and the run are not measured; untested end to end |
 
 `full` does not rebuild the twin pools, run the leak check or run the Part I panel. It also skips the strata, separability tiers, ablations, CHOIR and figures.

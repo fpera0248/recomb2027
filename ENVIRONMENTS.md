@@ -1,6 +1,6 @@
 # Environments
 
-The pins of the `hiddenrare` environment (`requirements.txt`, `environment_hiddenrare.yml`) are the versions of the interpreter that computed the 10-atlas results (macOS arm64). scikit-learn must be 1.5.2, because the model pickle was written with it. Leiden partitions depend on the numerical stack, so per-cell scores differ on another machine; this repository does not measure by how much. Rerunning reproduces the pipeline and the evaluation, not the paper's exact per-cell scores.
+The pins of the `hiddenrare` environment (`requirements.txt`, `environment_hiddenrare.yml`) are the package versions of the Python 3.12 environment (macOS arm64) that computed the 10-atlas results. scikit-learn must be 1.5.2, because the model pickle was written with it. Leiden partitions depend on the numerical stack, so per-cell scores differ on another machine; this repository does not measure by how much. Rerunning reproduces the pipeline and the evaluation, not the paper's exact per-cell scores.
 
 The code uses two environments, kept apart because their dependencies differ. Our method needs Python 3.12 and the numerical packages pinned in `requirements.txt`. The published tools need a pinned R 4 / Seurat 4.4.0 stack plus PyTorch.
 
