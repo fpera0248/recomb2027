@@ -8,7 +8,7 @@ Code for our RECOMB 2027 submission. Given a pool of cells with a coarse visible
 pip install -r requirements.txt    # Python 3.12
 ./reproduce.sh paper
 ```
-This downloads 1.2 GB of release assets (about 2.5 GB on disk) and runs in about 4 minutes plus the download (measured on a laptop, 4 threads). A good run prints `paper: all notebooks ran and every assertion held`. The `paper` tier recomputes numbers from the saved predictions and result tables and asserts them (the bootstrap interval to 0.005); Paper items lists what it covers. It does not refit the model. `./reproduce.sh rerun` applies a refit scorer and is a consistency check, so its numbers differ a little (atlas-equal union AP 0.3195 against 0.3213). For the container, see the `docker run` line under Install (image `v0.1.0`, not yet run end to end). Report reproduction problems at https://github.com/fpera0248/recomb2027/issues.
+This downloads 1.2 GB of release assets (about 2.5 GB on disk) and runs in about 4 minutes plus the download (measured on a laptop, 4 threads). A good run prints `paper: all notebooks ran and every assertion held`. The `paper` tier recomputes numbers from the saved predictions and result tables and asserts them (the bootstrap interval to 0.005); Paper items lists what it covers. It does not refit the model. `./reproduce.sh rerun` applies a refit scorer and is a consistency check, so its numbers differ a little (atlas-equal union AP 0.3195 against 0.3213). For the container, see the `docker run` line under Install (image `v0.1.0`; the `paper` and `rerun` tiers pass in it, see Install). Report reproduction problems at https://github.com/fpera0248/recomb2027/issues.
 
 ## Paper items
 
@@ -72,7 +72,7 @@ Pick one.
 
 **Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter the 10-atlas results were computed with (macOS arm64); `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so on another machine per-cell scores differ. Rerunning reproduces the pipeline and the evaluation, not the exact per-cell scores of the paper. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
-**Container.** Two images, defined in `docker/`. `.github/workflows/build-images.yml` builds them and pushes them to GHCR on every release or manual dispatch; both are published with the release tag `v0.1.0` (use this one; `latest` and `main` move with later builds) and pull without a login, but neither has been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
+**Container.** Two images, defined in `docker/`. `.github/workflows/build-images.yml` builds them and pushes them to GHCR on every release or manual dispatch; both are published with the release tag `v0.1.0` (use this one; `latest` and `main` move with later builds) and pull without a login. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)); the `recomb2027-tools` image has not been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -102,7 +102,7 @@ Apptainer and details: `CONTAINER.md`.
 
 `full` does not rebuild the twin pools, run the leak check or the Part I panel, and does not produce the strata, separability tiers, ablations, CHOIR or figures. `TOOLS=1` also runs the published tools. They need their own Python environment (scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it, see `ENVIRONMENTS.md`) and `SCGPT_CKPT`. A tool that already has an output is skipped; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
-At the `paper` tier every value the notebooks print is recomputed from the saved predictions and asserted (see Paper items for what is partial), so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. Container run times are not measured.
+At the `paper` tier every value the notebooks print is recomputed from the saved predictions and asserted (see Paper items for what is partial), so a mismatch fails the run. The `rerun` and `full` tiers rerun code and can differ from the paper as stated in the table. In the `recomb2027-hiddenrare` container on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s.
 
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
 
@@ -137,7 +137,7 @@ Datasets used before the test are listed in `data/used_datasets.csv`; the Human 
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/` and by any rescoring of those pools from counts.
 - The inputs of the Part I runs (source h5ad files, generator checkouts) and the training of the generators.
 - Reproductions of the published tools; only their wrappers and pinned environments are included.
-- The `full` tier is untested; the container images are built and published but have not been run end to end.
+- The `full` tier is untested, and the `recomb2027-tools` image has not been run end to end. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers.
 - The time and memory per pool (Supp., further details of the method; per-job `/usr/bin/time -l` logs on the run machine).
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no tier rebuilds them.
 
