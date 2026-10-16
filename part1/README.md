@@ -7,7 +7,7 @@ Run the commands in `part1/run.sh` from the `part1/` directory.
 - `aida.py`: all generators and duplication on AIDA.
 - `split_cache.py`, `statistical.py` and `dup_weight.py`: statistical augmentation conditions and sample weighting on the same split.
 - `hlca.py` and `lupus.py`: the same protocol on two more datasets.
-- `panel_run.sh` (which calls `panel_pull.py`, `panel_readout.py` and `noaug.py`) and `panel_analysis.py`: the 88-dataset CELLxGENE panel.
+- `panel_run.sh` (which calls `panel_pull.py`, `hlca.py`, `panel_readout.py` and `noaug.py`) and `panel_analysis.py`: the 88-dataset CELLxGENE panel.
 
 `scdesign3.R` is the scDesign3 driver and `diffusion.py` wraps scDiffusion. These runs need the source h5ad files, CFGen and scDiffusion checkouts, and `part1/mem_patch.R` for scDesign3. `MEM_PATCH` points at it; `SD3_MEM=1`, which `scdesign3.R` sets, turns it on. They also need days of CPU compute.
 
