@@ -1,7 +1,7 @@
 #!/bin/bash
 # One published tool on one adapted pool.
 # usage: scripts/run_tool.sh TOOL POOL_ID TOOLIN_DIR OUT_DIR      TOOLIN_DIR/{py,r}/<pool>.h5ad from tools/adapt_pool.py
-# Results land in OUT_DIR/tool_out/<method>/<pool>.parquet. Python tools: TOOLS_PYTHON (else PYTHON, else python3; the tools environment, not the one for run_pool.sh), TOOLS_SRC, FIRE_BUILD, SCGPT_CKPT;
+# Results land in OUT_DIR/tool_out/<method>/<pool>.parquet. Python tools: TOOLS_PYTHON (else PYTHON, else python3; the tools environment, not the one for run_pool.sh), TOOLS_SRC, FIRE_BUILD, SCGPT_CKPT, DEVICE (scgpt_if only, default cpu);
 # R tools: RSCRIPT (default Rscript), RETICULATE_PYTHON, R_EXTRA_LIBS (see tools/io.R), MCL (mcl binary for CellSIUS, default mcl; see tools/run_cellsius.R).
 set -euo pipefail
 tool=$1

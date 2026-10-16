@@ -41,6 +41,7 @@ docker run -v "$PWD/out":/out -v /path/to/scGPT_human:/ckpt -e SCGPT_CKPT=/ckpt 
 
 ```
 apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0
+mkdir -p out
 apptainer exec -B "$PWD/out":/out recomb2027.sif env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
 `Apptainer.def` builds the same from the published image.
