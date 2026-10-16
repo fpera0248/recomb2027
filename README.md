@@ -16,11 +16,22 @@ pip install -r requirements.txt    # Python 3.12
 - Container: the `docker run` line under Install (image `v0.1.0`; the `paper` and `rerun` tiers pass in it).
 - Reproduction problems: https://github.com/fpera0248/recomb2027/issues
 
+## Method
+
+1. `hiddenrare/candidates.py`: Leiden clustering of each label at 8 resolutions in two spaces (pool PCA-50, and per-label HVG + PCA-50). Clusters with at least 10 cells and under 10% of the label are candidate groups.
+2. `hiddenrare/markers.py`, `halo.py`: marker and neighbourhood ("halo") statistics per group. With geometry features, these make 41 features per group.
+3. `hiddenrare/scorer.py`: a gradient-boosted regressor (`models/refit_dev_nat.pkl`) predicts how pure each group is. A cell's score is the best group it belongs to, plus a small isolation tie-break.
+4. `hiddenrare/baselines.py`, `blend.py`: the final score is 0.75 * rank(scorer) + 0.25 * rank(Leiden subclustering score).
+
+`models/refit_dev_nat.pkl` is a refit of the same recipe; we did not keep the fit behind the saved scores of the 8-atlas test set. The `paper` tier reads the saved scores and is exact; the `rerun` tier applies the refit and is a consistency check (`eval/rerun.py`).
+
+Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables because `hiddenrare/scorer.py` reads them by name in the order used to fit the model.
+
 ## Paper items
 
 The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with another readout, and 11 not in this repository.
 
-`reproduce.sh paper` recomputes numbers; no tier draws a figure. "Reproduced" means the notebook recomputes and asserts the values behind the item. "Partial" means it does so for only some of them.
+`reproduce.sh paper` recomputes numbers. "Reproduced" means the notebook recomputes and asserts the values behind the item. "Partial" means it does so for only some of them.
 
 | Paper item | Notebook section | Tier | Status |
 |---|---|---|---|
@@ -61,24 +72,13 @@ The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with anoth
 - `docker/`: the two image definitions (see `CONTAINER.md`).
 - `.github/workflows/`: CI (self-tests on every push; it runs no tier), the image builds and the container check (`paper` and `rerun` tiers in the published image, manual).
 
-## Method
-
-1. `hiddenrare/candidates.py`: Leiden clustering of each label at 8 resolutions in two spaces (pool PCA-50, and per-label HVG + PCA-50). Clusters with at least 10 cells and under 10% of the label are candidate groups.
-2. `hiddenrare/markers.py`, `halo.py`: marker and neighbourhood ("halo") statistics per group. With geometry features, these make 41 features per group.
-3. `hiddenrare/scorer.py`: a gradient-boosted regressor (`models/refit_dev_nat.pkl`) predicts how pure each group is. A cell's score is the best group it belongs to, plus a small isolation tie-break.
-4. `hiddenrare/baselines.py`, `blend.py`: the final score is 0.75 * rank(scorer) + 0.25 * rank(Leiden subclustering score).
-
-`models/refit_dev_nat.pkl` is a refit of the same recipe; we did not keep the fit behind the saved scores of the 8-atlas test set. The `paper` tier reads the saved scores and is exact; the `rerun` tier applies the refit and is a consistency check (`eval/rerun.py`).
-
-Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables because `hiddenrare/scorer.py` reads them by name in the order used to fit the model.
-
 ## Install
 
 Pick one.
 
 **Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter that computed the 10-atlas results (macOS arm64); `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter. scikit-learn must be 1.5.2, because the model pickle was written with it. Leiden partitions depend on the numerical stack, so per-cell scores differ on another machine. Rerunning reproduces the pipeline and the evaluation, not the paper's exact per-cell scores. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
-**Container.** Two images are defined in `docker/`. `.github/workflows/build-images.yml` builds them and pushes them to GHCR on every release or manual dispatch. Both are published with the release tag `v0.1.0` and pull without a login. Use `v0.1.0`: the `v0.1.1` images exist but no check has run them, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)); the `recomb2027-tools` image has not been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
+**Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`; they pull without a login. Use `v0.1.0`, because the `v0.1.1` images have not been checked and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)); the `recomb2027-tools` image has not been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -110,15 +110,19 @@ For Apptainer and more details, see `CONTAINER.md`.
 
 `TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). A tool that already has an output is skipped; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
-At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so they can differ from the paper (see table). In the `recomb2027-hiddenrare` container on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s.
+At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so they can differ from the paper (see table).
 
-The code release is v0.1.1. The release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets), and the v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03. `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
+The code release is v0.1.1. The release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets), and the v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03.
+
+`fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`. For `full` it also downloads and checks the source atlases (see Atlases). `data/README.md` explains how to check or refresh `ATLAS_MANIFEST.csv`.
 
 A missing release or asset gives 404 (check `TAG`; the assets are on release v0.1.0, and release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in). Set `ASSET_SRC=DIR` to take the assets from a local directory, for offline use.
 
 ## Atlases
 
-The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders; 10 rows have no URL, and 5 of them have a note in `notes`; the other 5 are `panel` rows with no recorded version, so download them by `dataset_id` from the page in `collection_url`, which serves the current version). `data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` the datasets used before the test.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Ten rows have no URL, and 5 of them have a note in `notes`. The other 5 are `panel` rows with no recorded version; download them by `dataset_id` from the page in `collection_url`, which serves the current version.
+
+`data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` lists the datasets used before the test.
 
 Download the 10-atlas test set with `./fetch_data.sh full DIR` (`reproduce.sh full` calls it; `data/download_atlases.sh` checks neither size nor md5). `full` downloads the 10 rows of set `test10` (29.3 GB) and checks each against its size, and against its md5 for the 3 rows that have one.
 
@@ -142,7 +146,7 @@ The `paper` tier does not recompute:
 - the random-ranking line of Fig. 1d;
 - the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs). Notebook 04 lists what it covers.
 
-The `rerun` tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Both tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases). The 10-atlas test set (57 pools) is a different set; `full` (untested) produces its predictions.
+The `rerun` tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Both tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases).
 
 ## One pool
 
@@ -153,7 +157,7 @@ scripts/run_pool.sh POOL.h5ad PILOTS.parquet OUT_DIR
 
 ## Datasets used before the test
 
-Datasets used before the test are listed in `data/used_datasets.csv`. A Human Breast Cell Atlas file from collection 48259aa8 was also used during development (row `hbca` of `ATLAS_MANIFEST.csv`); its dataset id was not recorded, so the cell-level leak check may not cover it. The collection itself is in the list (dataset 55003f67), so the collection check of `data/build_pools.py` excludes every dataset of that collection.
+Datasets used before the test are listed in `data/used_datasets.csv`. A Human Breast Cell Atlas file from collection 48259aa8 was also used during development (row `hbca` of `ATLAS_MANIFEST.csv`). Its dataset id was not recorded, so the cell-level leak check may not cover it. The collection itself is in the list (dataset 55003f67), so the collection check of `data/build_pools.py` excludes every dataset of that collection.
 
 ## Not included and known gaps
 

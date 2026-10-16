@@ -20,3 +20,7 @@ python -m data.leak_check cells $NAMES --panel work/panel    # panel: see the no
 The panel download is not scripted. Download each dataset of `data/used_datasets.csv` from CELLxGENE into `work/panel`, using `download_url` in `ATLAS_MANIFEST.csv`. For the 5 panel rows without one, use the current file on the collection page in `collection_url`.
 
 Then run `scripts/run_pool.sh` on every pool, the published tools with `scripts/run_tool.sh` (inputs from `tools/adapt_pool.py`), and `eval/run_eval.sh $HR_DATA RUN_DIR OUT_DIR` to score and analyse. `eval/signflip.py` recomputes the exact sign-flip p-values independently.
+
+## Check or refresh the manifest
+
+`python data/build_manifest.py --check` re-verifies the URLs in `ATLAS_MANIFEST.csv`. `python data/build_manifest.py --refresh` rewrites the manifest from the CELLxGENE curation API; it then points to the latest dataset versions.
