@@ -2,8 +2,8 @@
 # Our method and the evaluation: hiddenrare/, eval/, data/, the part1/ result-table readers and the notebooks.
 # Built by .github/workflows/build-images.yml.
 #
-#   docker build -f docker/Dockerfile.hiddenrare -t ghcr.io/fpera0248/recomb2027-hiddenrare:latest .
-#   docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
+#   docker build -f docker/Dockerfile.hiddenrare -t recomb2027-hiddenrare .
+#   docker run -v "$PWD/out":/out recomb2027-hiddenrare \
 #       env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 
 FROM python:3.12-slim-bookworm

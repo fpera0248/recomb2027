@@ -1,6 +1,7 @@
 """MARS (Brbic 2020), https://github.com/snap-stanford/mars commit f6f03ba2c1f42221e337e934dad52a1d085b917c.
 usage: run_mars.py pool.h5ad out.parquet [--n-extra 3] [--seed 3] [--device cpu]
-Published code unmodified; only import shims for the 2019 API (scanpy.api, sklearn k_means_). Needs TOOLS_SRC (the mars checkout is TOOLS_SRC/mars).
+Published model code unmodified; only import shims for the 2019 API (scanpy.api, sklearn k_means_). Needs TOOLS_SRC (the mars checkout is TOOLS_SRC/mars).
+The preprocessing, score and call below are ours; this wrapper gave the paper's row MARS (our reimplementation) on the 10-atlas set.
 MARS needs labeled data, so it is label-aware by construction: the pool with obs['label'] is the labeled
 experiment and the same cells are the unlabeled experiment (n_clusters = n_labels + n_extra).
 score = squared MARS-embedding distance of the cell to its nearest labeled class mean (high = novel).

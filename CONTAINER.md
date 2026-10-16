@@ -1,6 +1,6 @@
 # Container
 
-The two images are defined in `docker/` and built by `.github/workflows/build-images.yml` on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`). Both are published on GHCR with the release tag `v0.1.0` (use this one; `latest` and `main` move with later builds) and pull without a login. `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual); `recomb2027-tools` has not been run end to end. They are amd64 only; on Apple silicon add `--platform linux/amd64` (emulated, slow).
+The two images are defined in `docker/` and built by `.github/workflows/build-images.yml` on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`). Both are published on GHCR with the release tag `v0.1.0` (use this one; the `v0.1.1` images exist but no check has run them; `latest` and `main` move with later builds) and pull without a login. `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual); `recomb2027-tools` has not been run end to end. They are amd64 only; on Apple silicon add `--platform linux/amd64` (emulated, slow).
 
 | Image | Contents | Use for |
 |---|---|---|
@@ -21,7 +21,7 @@ To work offline, or for another release tag, put the release files in `out/relea
 `reproduce rerun` and `reproduce full` work the same way (`full` also wants `HR_DATA=/out/work`, since the default, ./work, is inside the container; its downloads alone are 29.3 GB, total disk use is not measured). One pool:
 ```
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0 \
-    scripts/run_pool.sh /out/POOL.h5ad /out/PILOT.parquet /out/run
+    scripts/run_pool.sh /out/POOL.h5ad /out/PILOTS.parquet /out/run
 ```
 A published tool on an adapted pool (`tools/adapt_pool.py` writes the inputs; the scGPT checkpoint is not in the image):
 ```

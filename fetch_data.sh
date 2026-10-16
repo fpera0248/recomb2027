@@ -9,7 +9,7 @@
 #
 # Release assets come from $BASE/<asset> with BASE=https://github.com/fpera0248/recomb2027/releases/download/$TAG, and are checked against
 # ASSETS.md5 (kept in this repository). ASSET_SRC=DIR takes them from a local directory instead of the network.
-# A missing release gives 404 (check TAG). The download then falls back to `gh release download` (needs gh and a login).
+# A missing release or asset gives 404 (check TAG; the assets are on v0.1.0, and v0.1.1 has none). The download then falls back to `gh release download` (needs gh and a login).
 # CELLxGENE publishes no checksums: every atlas is checked against its size in ATLAS_MANIFEST.csv, and against its md5 when the manifest has one.
 set -euo pipefail
 case ${1:-} in

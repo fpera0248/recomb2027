@@ -10,10 +10,11 @@ The code uses two environments, kept apart because their dependencies differ (Py
 ## Quick start
 
 ```
-conda env create -f environment_hiddenrare.yml     # or: pip install -r requirements.txt
+conda env create -f environment_hiddenrare.yml
 conda activate hiddenrare
 ./reproduce.sh paper
 ```
+Without conda, run `pip install -r requirements.txt` in a Python 3.12 environment in place of the first two lines.
 For the tools, use the container (`CONTAINER.md`) or follow `docker/Dockerfile.tools` step by step.
 
 ## Spec files
@@ -33,5 +34,6 @@ venv/bin/pip install --no-deps tools_src/GiniClust3 tools_src/scGPT
 export FIRE_BUILD=$PWD/fire_build; mkdir -p $FIRE_BUILD; cp tools_src/FiRE/python/FiRE/* $FIRE_BUILD/; cp tools/fire_setup.py $FIRE_BUILD/setup.py
 (cd $FIRE_BUILD && BOOST_INC=/usr/include ../venv/bin/python setup.py build_ext --inplace)      # Boost headers needed
 # R packages: follow the RUN lines of docker/Dockerfile.tools (Seurat 4.4.0, SeuratObject 4.1.4, rflann with tools/Makevars.rflann, then CellSIUS, GapClust, SCISSORS)
+# MCL (CellSIUS): install the mcl binary (Debian and Ubuntu package mcl, as in docker/Dockerfile.tools) and set MCL to its path
 ```
 Set `TOOLS_PYTHON` (`PYTHON` stays the hiddenrare environment), `RETICULATE_PYTHON`, `TOOLS_SRC`, `FIRE_BUILD`, `SCGPT_CKPT` and `MCL` as described in `scripts/run_tool.sh` and `tools/io.R`.
