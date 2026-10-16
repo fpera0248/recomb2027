@@ -2,7 +2,7 @@
 
 The two images are defined in `docker/`. `.github/workflows/build-images.yml` builds them on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`).
 
-Both are published on GHCR with the release tag `v0.1.0` and pull without a login. Use `v0.1.0`: the `v0.1.1` images exist but no check has run them, and `latest` and `main` move with later builds.
+Both are published on GHCR with the release tag `v0.1.0` and pull without a login. Use `v0.1.0`: the `v0.1.1` images exist but no check has run them, the `v0.1.2` images are built when that release is published and no check has run them yet (see [Releases](README.md#releases)), and `latest` and `main` move with later builds.
 
 Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual). In [this container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374) on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s. `recomb2027-tools` has not been run end to end.
 
