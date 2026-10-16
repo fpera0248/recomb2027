@@ -1,6 +1,6 @@
 # Supplement analyses
 
-These are the scripts behind the supplement analyses that `reproduce.sh` does not run. They cover the further analyses of the duplication study (Supplementary Section S7) and the further analyses of the hidden-subtype study with Figure S5 (Supplementary Section S17). Each file is an unchanged copy of a script we ran. Most produced printed numbers. The rest are the helpers, queues and checks they need. The S7 paragraph on HLCA has no script here.
+These are the scripts behind the supplement analyses that `reproduce.sh` does not run. They cover the further analyses of the duplication study (Supplementary Section S7) and the further analyses of the hidden-subtype study with Figure S5 (Supplementary Section S17). Each file is an unchanged copy of a script we ran. Most produced printed numbers. The rest are the helpers, queues and checks they need. For the S7 paragraph on HLCA, `duplication/m27_hlclf.py` (`run`, then `report`) scored the generated cells. The scripts that generated them are not here.
 
 The scripts do not run from this repository alone. Paths inside them point to our machines (`/Users/...`, `/private/tmp/...` and the external volume `/Volumes/Files`). Most read inputs that we did not release: the AIDA, HLCA and lupus files, the generated cells and the subsamples of the 10-atlas set. Read them as a record of what we ran.
 
@@ -39,7 +39,7 @@ Headings follow the supplement. Paths are relative to this folder.
 
 - `duplication/` holds the helpers that the scripts import: `stat16.py` (classifiers and matched recall), `polh.py` (the sign-flip test), `sdiff_mod.py` (our scDiffusion wrapper), `m27_hlclf.py` (classifiers for AIDA, HLCA and lupus), `metrics/common.py` (data loading for `run_e1.py`) and `mem_patch.R` (a memory patch for scDesign3). `m27_gen_base.py` writes the saved cells of the eight usual types that later scripts read.
 - `further/method_at_submission/` is our method as it stood when we ran the further analyses, which import it. `hiddenrare/` at the repository root is the released version.
-- `further/embeddings/`, `further/labels_and_atac/` and `further/scale_and_regressors/` also hold shared helpers: `harness.py`, `w2lib.py`, `w6common.py`, `gfcfg.py` and `gfload.py` (Geneformer loading for `w2_embed.py`), `w2_common.sh` and `laptop_lock_run.sh` (sourced by the w2 queues) and the pool lists.
+- `further/embeddings/`, `further/labels_and_atac/` and `further/scale_and_regressors/` also hold shared helpers: `harness.py`, `w2lib.py`, `w6common.py`, `gfcfg.py` and `gfload.py` (Geneformer loading for `w2_embed.py`), `w2_common.sh` (sourced by the w2 queues), `laptop_lock_run.sh` (a lock wrapper that `w2_fm_gf.sh` and `w2_fm_plumb.sh` run) and the pool lists.
 - `further/queues/` holds the shell scripts that ran the jobs in order.
 
 We did not copy third-party code. CFGen, scDiffusion and Geneformer load from clones of the authors' repositories. scGPT and scvi-tools come from pip, and scDesign3 and snapATAC2 are installed packages.
