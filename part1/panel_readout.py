@@ -106,7 +106,7 @@ if __name__ == '__main__' and sys.argv[1] == 'run':
     ]
     out = Parallel(n_jobs=int(os.environ.get('NJ', 3)), verbose=5)(jobs)
     pd.DataFrame([r for o in out for r in o]).to_csv(CSV, index=False)
-    print(f'wrote {CSV}')
+    print('wrote panel_readout.csv')
 
 if __name__ == '__main__' and sys.argv[1] == 'report':
     import signflip
