@@ -2,9 +2,9 @@
 
 The two images are defined in `docker/`. `.github/workflows/build-images.yml` builds them on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`).
 
-Both are published on GHCR with the release tag `v0.1.2` and pull without a login. Use `v0.1.2`. The `v0.1.1` images exist but no check has run them (see [Releases](README.md#releases)), and `latest` and `main` move with later builds.
+Both are published on GHCR with the release tag `v0.1.2` and pull without a login. Use `v0.1.2`. The `v0.1.1` images exist but no check has run them (see [Releases](REPRODUCE.md#releases)), and `latest` and `main` move with later builds.
 
-Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual). In [this container check](https://github.com/fpera0248/recomb2027/actions/runs/38940072528) on a GitHub Actions runner, `paper` took 3 min 31 s including the image pull and the data download, and `rerun` took 2 min 10 s. The `v0.1.0` image passed the same tiers in [an earlier check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374). `recomb2027-tools` has not been run end to end.
+Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` levels (`.github/workflows/container-check.yml`, manual). In [this container check](https://github.com/fpera0248/recomb2027/actions/runs/38940072528) on a GitHub Actions runner, `paper` took 3 min 31 s including the image pull and the data download, and `rerun` took 2 min 10 s. The `v0.1.0` image passed the same levels in [an earlier check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374). `recomb2027-tools` has not been run end to end.
 
 The images are amd64 only. On Apple silicon add `--platform linux/amd64` (emulated, slow).
 
