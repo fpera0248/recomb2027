@@ -8,7 +8,7 @@ Run the commands from the repository root.
 
 `run_cellsius.R` on the 2,000 variable genes of `tools/adapt_pool.py` gave the CellSIUS (per label) scores of Fig. 3a. The later all-gene CellSIUS run of the supplement reached the 32 GB memory limit and has no result.
 
-R tools need Seurat 4.4.0 / SeuratObject 4.1.4. The `recomb2027-tools` image (`docker/Dockerfile.tools`) installs all of this. `Rpackages_tools.csv` and `piplist_tools.txt` are the exact package sets of the environment the tools ran in.
+R tools need Seurat 4.4.0 / SeuratObject 4.1.4. The `recomb2027-tools` image (`docker/Dockerfile.tools`) installs the tool sources, these R packages and everything in the Python steps below, including FiRE and mcl; it does not include the scGPT checkpoint. `Rpackages_tools.csv` and `piplist_tools.txt` are the exact package sets of the environment the tools ran in.
 
 Python tools run in their own Python 3.12 environment; the pins come from a macOS arm64 environment. Set `TOOLS_PYTHON` for `scripts/run_tool.sh` and `reproduce.sh full`. Install the Python packages with:
 
