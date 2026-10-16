@@ -1,7 +1,7 @@
 # Apptainer definition for HPC use.
 #
 # Without a .def file:
-#   apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0
+#   apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2
 #
 # This file bootstraps from the same image. Build and run:
 #   apptainer build recomb2027.sif Apptainer.def
@@ -9,7 +9,7 @@
 # For the published tools bootstrap from recomb2027-tools instead.
 
 Bootstrap: docker
-From: ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0
+From: ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2
 
 %environment
     export PYTHONDONTWRITEBYTECODE=1
