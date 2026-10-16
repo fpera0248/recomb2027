@@ -15,11 +15,11 @@
 # rerun    not exact. Applies models/refit_dev_nat.pkl to the frozen Leiden groups and features and blends with the saved Leiden scores. The pkl
 #          is a refit of the same recipe; the fit behind the saved scores was not kept. Measured on the 69 pools: Spearman of per-cell scores 0.878 on average (0.76 to 0.95),
 #          atlas-equal union AP 0.3195 against 0.3213, single pools move by up to 0.2. Asserted: atlas-equal union AP within 0.01, mean Spearman above 0.8.
-#          About 2 minutes.
+#          About 2 to 3 minutes.
 # full     approximate. The cell-level leak check against the earlier datasets (data/leak_check.py, needs the 90 panel files) is not run here.
 #          Leiden partitions depend on the numerical stack, so scores differ pool by pool. Tolerance (eval/full_check.py): atlas-equal
 #          union AP and the difference to Leiden and to scCAD within 0.03 of the paper, same sign, exact atlas-level p below 0.05. 29.3 GB of downloads;
-#          untested end to end, time and disk for the run are not measured. Without TOOLS=1 only the Leiden comparison (T1) is checked.
+#          untested end to end, time and disk for the run are not measured. Without TOOLS=1 only the Leiden comparison (T1) is checked; $OUT/eval/result.md then still reads NOT PASSED with T2 among the failed parts, and eval/full_check.py decides the tier.
 set -euo pipefail
 case ${1:-} in
   -h|--help)

@@ -29,7 +29,7 @@ Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables be
 
 ## Paper items
 
-The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with another readout, and 11 not in this repository.
+The table lists 22 paper items: 3 reproduced, 7 partial, 1 recomputed with another readout, and 11 not in this repository.
 
 `reproduce.sh paper` recomputes numbers. "Reproduced" means the notebook recomputes and asserts the values behind the item. "Partial" means it does so for only some of them.
 
@@ -45,7 +45,7 @@ The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with anoth
 | Supp. Fig. S3, hidden-type calls plus duplication | none | none | not in repo (`combination/` holds the code; the per-pool result rows are not included) |
 | Supp. Fig. S1, example pool | none | none | not in repo (needs that pool's h5ad, one of the 69 below, and a figure script) |
 | Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced: rates; the AUC recomputes to 0.61 against the 0.60 printed |
-| Supp. Table S6, published detectors against our method | 02 sections 2 and 3 | paper | reproduced |
+| Supp. Table S6, published detectors against our method | 02 sections 2 and 3 | paper | partial: the first block, and the FiRE means of the rebuilt-subsample block, where FiRE (per label) recomputes to 0.098 against the 0.097 printed; the rest of that block and the 10-atlas block (predictions not released) are not recomputed |
 | Supp., metrics for the called cells | 02 sections 3 and 4 | paper | reproduced |
 | 31-type AIDA run (values not printed in the paper) | 04 section 3 | paper | recomputed with another readout; the paper's 31-type values (matched-operating-point paragraph) are not recomputed |
 | Supp., per-subtype results on the 8-atlas pools | none | none | not in repo (separability is computed from the counts of the 69 pools, whose h5ads are not released) |
@@ -76,7 +76,7 @@ The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with anoth
 
 You can run the code in a Python environment or in a container.
 
-**Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
+**Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). The pins are the package versions of the Python 3.12 environment (macOS arm64) that computed the 10-atlas results. `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
 
 **Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`. They pull without a login. Use `v0.1.0`: the `v0.1.1` images have not been checked, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)). The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
@@ -103,12 +103,12 @@ For Apptainer and more details, see `CONTAINER.md`.
 | Tier | Input | Exactness | Time and disk |
 |---|---|---|---|
 | paper | saved predictions of every method run on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and the Part I numbers of notebook 04 are asserted; the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
-| rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 minutes, about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
-| full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | 29.3 GB of downloads (sum of the manifest sizes); time and disk for the pools and the run are not measured; untested end to end |
+| rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 to 3 minutes (3 min 0 s on a GitHub Actions runner after the paper tier had already downloaded the pools and predictions, see `CONTAINER.md`), about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
+| full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`; a chosen tolerance, since the change of Leiden partitions between machines is not measured) | 29.3 GB of downloads (sum of the manifest sizes); time and disk for the pools and the run are not measured; untested end to end |
 
 `full` does not rebuild the twin pools, run the leak check or run the Part I panel. It also skips the strata, separability tiers, ablations, CHOIR and figures.
 
-`TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). `full` skips a tool with an existing output; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
+`TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). `full` skips a tool with an existing output; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `$OUT/eval/result.md` then still reads NOT PASSED with T2 among the failed parts, because `eval/analyze.py` counts a T2 it cannot evaluate as failed; the tier passes or fails on `eval/full_check.py`, which then checks T1 only. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
 At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so their results can differ from the paper (see table).
 
@@ -131,6 +131,7 @@ A missing release or asset gives 404 (check `TAG`; the assets are on release v0.
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools; only their wrappers and pinned environments are included.
 - RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
+- The code of our AnnoGCD and scGAD reimplementations and the runner of the GiniClust3 (swapped filters) rows. Notebook 02 scores the saved AnnoGCD output.
 - The `full` tier is untested, and we have not run the `recomb2027-tools` image end to end.
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no tier rebuilds them.
 
