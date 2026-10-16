@@ -1,6 +1,6 @@
 # Container
 
-The two images are defined in `docker/` and built by `.github/workflows/build-images.yml` on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`). Both are published on GHCR (tags `latest` and `main`) and pull without a login; neither has been run end to end yet. They are amd64 only; on Apple silicon add `--platform linux/amd64` (emulated, slow).
+The two images are defined in `docker/` and built by `.github/workflows/build-images.yml` on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`). Both are published on GHCR with the release tag `v0.1.0` (use this one; `latest` and `main` move with later builds) and pull without a login; neither has been run end to end yet. They are amd64 only; on Apple silicon add `--platform linux/amd64` (emulated, slow).
 
 | Image | Contents | Use for |
 |---|---|---|
@@ -12,30 +12,32 @@ No GPU is needed.
 ## Run
 
 ```
-docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:latest
-docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
+docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0
+docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0 \
     env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
 To work offline, or for another release tag, put the release files in `out/release` and add `-e ASSET_SRC=/out/release` (or set `TAG`). A missing release gives 404.
 
 `reproduce rerun` and `reproduce full` work the same way (`full` also wants `HR_DATA=/out/work`, since the default, ./work, is inside the container; its downloads alone are 29.3 GB, total disk use is not measured). One pool:
 ```
-docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:latest \
+docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0 \
     scripts/run_pool.sh /out/POOL.h5ad /out/PILOT.parquet /out/run
 ```
 A published tool on an adapted pool (`tools/adapt_pool.py` writes the inputs; the scGPT checkpoint is not in the image):
 ```
 docker run -v "$PWD/out":/out -v /path/to/scGPT_human:/ckpt -e SCGPT_CKPT=/ckpt \
-    ghcr.io/fpera0248/recomb2027-tools:latest scripts/run_tool.sh sccad POOL_ID /out/toolin /out/run
+    ghcr.io/fpera0248/recomb2027-tools:v0.1.0 scripts/run_tool.sh sccad POOL_ID /out/toolin /out/run
 ```
 
 ## Apptainer
 
 ```
-apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:latest
+apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0
 apptainer exec -B "$PWD/out":/out recomb2027.sif env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
 `Apptainer.def` builds the same from the published image.
+
+v0.1.0 digests: recomb2027-hiddenrare sha256:6d856f7fc7c5adcf722ef89b83bbd7671edc5e29e454f08b9524b96f059de283, recomb2027-tools sha256:07ab7720f7ff1f6ff65f7b1f765a46db81b4d7e4125680d21a42d44f901811b6.
 
 ## Build locally
 
