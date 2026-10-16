@@ -32,3 +32,14 @@ def write_out(cell_id, score, call, path):
             "call": np.asarray(call, bool),
         }
     ).to_parquet(path, index=False)
+
+
+def label_arm(cluster, label, share=0.10, floor=-1.0, dropped="dropped"):
+    """Per-label arm from a tool's clusters (our modification): a cluster holding at least `share` of a visible label is not rare for it.
+    ov = |cluster & label| / |label|: ov >= share -> score ov - 1, else 1 - ov; call = score > 0.5. Cells in the group `dropped` (removed by the
+    tool's own filter) get `floor`, below every other score, and no call."""
+    d = pd.DataFrame({"c": np.asarray(cluster).astype(str), "l": np.asarray(label).astype(str)})
+    ov = (d.groupby(["c", "l"]).c.transform("size") / d.groupby("l").c.transform("size")).values
+    s = np.where(ov >= share, ov - 1, 1 - ov)
+    gone = d.c.values == dropped
+    return np.where(gone, floor, s), (s > 0.5) & ~gone

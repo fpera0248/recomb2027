@@ -2,6 +2,8 @@
 # One published tool on one adapted pool.
 # usage: scripts/run_tool.sh TOOL POOL_ID TOOLIN_DIR OUT_DIR      TOOLIN_DIR/{py,r}/<pool>.h5ad from tools/adapt_pool.py
 # Results land in OUT_DIR/tool_out/<method>/<pool>.parquet. Python tools: TOOLS_PYTHON (else PYTHON, else python3; the tools environment, not the one for run_pool.sh), TOOLS_SRC, FIRE_BUILD, SCGPT_CKPT, DEVICE (scgpt_if only, default cpu);
+# raceid, choir and scissors_official read py/ (genes detected in at least 3 cells); TOOLS_CORES (default 4) is the core count of raceid and choir; the per-label arms (raceid_lab, choir_lab, scissors_official_lab) come from tools/run_lab.py.
+# choir needs Seurat >= 5 (the paper's CHOIR ran on Seurat 5): CHOIR_RSCRIPT (default RSCRIPT) and CHOIR_R_EXTRA_LIBS (default empty, replaces R_EXTRA_LIBS for choir only).
 # R tools: RSCRIPT (default Rscript), RETICULATE_PYTHON, R_EXTRA_LIBS (see tools/io.R), MCL (mcl binary for CellSIUS, default mcl; see tools/run_cellsius.R).
 set -euo pipefail
 tool=$1
@@ -51,6 +53,34 @@ case $tool in
   scissors)
     $rs $t/run_scissors.R $in/r/$pid.h5ad $w/scissors_cluster.parquet cluster
     keep scissors_cluster scissors_cluster
+    ;;
+  giniclust3_readme)
+    $py $t/run_giniclust3_readme.py $in/py/$pid.h5ad $w/giniclust3_readme.parquet
+    keep giniclust3_readme giniclust3_readme
+    keep giniclust3_readme_lab giniclust3_readme_lab
+    ;;
+  gapclust_official)
+    $rs $t/run_gapclust_official.R $in/py/$pid.h5ad $w/gapclust_official.parquet $w/gapclust_official_adapter.parquet
+    keep gapclust_official gapclust_official
+    keep gapclust_official_adapter gapclust_official_adapter
+    ;;
+  scissors_official)
+    $rs $t/run_scissors_official.R $in/py/$pid.h5ad $w/scissors_official.parquet
+    $py $t/run_lab.py $in/py/$pid.h5ad $w/scissors_official.parquet $w/scissors_official_lab.parquet
+    keep scissors_official scissors_official
+    keep scissors_official_lab scissors_official_lab
+    ;;
+  raceid | choir)
+    if [ ! -s $w/$tool.parquet ]; then   # a failed run_lab.py leaves the R output in .work: resume without the hours of CHOIR
+      if [ $tool = choir ]; then
+        R_EXTRA_LIBS=${CHOIR_R_EXTRA_LIBS:-} ${CHOIR_RSCRIPT:-$rs} $t/run_choir.R $in/py/$pid.h5ad $w/choir.parquet ${TOOLS_CORES:-4}
+      else
+        $rs $t/run_raceid.R $in/py/$pid.h5ad $w/raceid.parquet ${TOOLS_CORES:-4}
+      fi
+    fi
+    $py $t/run_lab.py $in/py/$pid.h5ad $w/$tool.parquet $w/${tool}_lab.parquet
+    keep $tool $tool
+    keep ${tool}_lab ${tool}_lab
     ;;
   *)
     echo "unknown tool $tool" >&2

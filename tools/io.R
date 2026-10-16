@@ -15,9 +15,11 @@ read_pool <- function(path) {
   dimnames(counts) <- list(genes, cells)    # genes x cells
   list(counts = counts, label = setNames(as.character(a$obs[["label"]]), cells))
 }
-write_out <- function(cell_id, score, call, path) {
+write_out <- function(cell_id, score, call, path, group = NULL) {   # group (optional): cluster id per cell, kept for the per-label arm
   pd <- reticulate::import("pandas", convert = FALSE)
-  df <- pd$DataFrame(reticulate::r_to_py(list(cell_id = as.list(cell_id), score = as.list(as.numeric(score)), call = as.list(as.logical(call)))))
+  l <- list(cell_id = as.list(cell_id), score = as.list(as.numeric(score)), call = as.list(as.logical(call)))
+  if (!is.null(group)) l$group <- as.list(as.character(group))
+  df <- pd$DataFrame(reticulate::r_to_py(l))
   df$to_parquet(path, index = FALSE)
 }
 cp10k_log <- function(counts, base = exp(1)) {              # CP10K then log(x+1) (base selectable)

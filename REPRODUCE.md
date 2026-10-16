@@ -154,9 +154,9 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools: only their wrappers and pinned environments are included.
-- RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
+- RaceID and CHOIR: `tools/run_raceid.R`, `tools/run_choir.R` and `tools/install_raceid_choir.R` are included, but the `recomb2027-tools` image does not contain them.
 - The code of our AnnoGCD and scGAD reimplementations and the runner of the GiniClust3 (swapped filters) rows. Notebook 02 scores the saved AnnoGCD output.
-- The code of the local outlier factor, isolation forest on scVI, classifier uncertainty and self-training loop baselines. `hiddenrare/baselines.py` holds only Leiden subclustering and the isolation forest on PCA.
+- The local outlier factor, isolation forest on scVI, classifier uncertainty and self-training loop baselines run through `hiddenrare/baselines_hmod.py` (`HMOD=1` in `reproduce.sh full`), which imports their original code unchanged. Isolation forest on scVI needs scvi-tools, which neither pinned environment contains.
 - The `full` level is untested, and we have not run the `recomb2027-tools` image end to end.
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no level rebuilds them.
 

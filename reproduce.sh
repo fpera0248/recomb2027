@@ -8,6 +8,8 @@
 # Env: PYTHON (python3), ASSETS (./assets), OUT (./reproduce_out), TAG and ASSET_SRC (see fetch_data.sh).
 # full also: HR_DATA (./work); TOOLS=1 runs the published tools. They need their own Python environment (tools/requirements.txt, scikit-learn 1.9.1,
 #   which conflicts with requirements.txt): set TOOLS_PYTHON to it. Also SCGPT_CKPT (scGPT whole-human checkpoint dir), MCL, RSCRIPT, see ENVIRONMENTS.md.
+#   HMOD=1 also runs the other in-house baselines (hiddenrare/baselines_hmod.py; isolation forest on scVI only if scvi-tools is installed).
+#   CHOIR needs Seurat >= 5: set CHOIR_RSCRIPT (and CHOIR_R_EXTRA_LIBS), see scripts/run_tool.sh.
 #   A tool that already has an output is skipped; failures are listed in $OUT/tool_failures.txt and the run goes on.
 #
 # paper    exact. Asserted: Table values, tests, per-atlas differences, null-test rates, the Part I numbers of notebook 04 (see notebooks/; they draw no figures). A few minutes, 1.2 GB of downloads.
@@ -70,6 +72,14 @@ case $mode in
       pid=$(basename "$t" .parquet)
       [ -s "$run/preds/hiddenrare/$pid.parquet" ] || nice -n 10 "$here/scripts/run_pool.sh" "$HR_DATA/pools/${pid#atl_}.h5ad" "$t" "$run"
     done
+    if [ "${HMOD:-0}" = 1 ]; then   # the other in-house baselines (isolation forest on scVI needs scvi-tools)
+      for t in "$HR_DATA"/pilots/atl_*.parquet; do
+        pid=$(basename "$t" .parquet)
+        nice -n 10 env PYTHONPATH="$here" $PYTHON -m hiddenrare.baselines_hmod "$HR_DATA/pools/${pid#atl_}.h5ad" "$t" "$run/preds" \
+          lof_pca uncertainty dup_loop nodup_loop classweight_loop $($PYTHON -c 'import scvi' 2>/dev/null && echo iforest_scvi) \
+          || echo "hmod $pid" >> "$OUT/tool_failures.txt"
+      done
+    fi
     if [ "${TOOLS:-0}" = 1 ]; then
       tp=${TOOLS_PYTHON:-$PYTHON}
       mkdir -p "$run/tool_out"
@@ -81,7 +91,7 @@ case $mode in
           echo "adapt_pool $pid" >> "$OUT/tool_failures.txt"
           continue
         }
-        for tool in giniclust3 fire mars sccad scgpt_if cellsius gapclust scissors; do
+        for tool in giniclust3 giniclust3_readme fire mars sccad scgpt_if cellsius gapclust scissors gapclust_official scissors_official raceid choir; do
           dir=$tool
           [ $tool = cellsius ] && dir=cellsius_label
           [ $tool = scissors ] && dir=scissors_cluster

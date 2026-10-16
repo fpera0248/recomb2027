@@ -8,3 +8,6 @@ CellSIUS    https://github.com/Novartis/CellSIUS         3c88967128dbc427015e909
 GapClust    https://github.com/fabotao/GapClust          bdec2ad21a8791b85315588d94e2e5537def146f
 SCISSORS    https://github.com/jr-leary7/SCISSORS        79001b24001bba4fb9f45a8795707805468ebb5a
 rflann      https://github.com/YeeJeremy/rflann          e0c06e72c8a7b7f4d812cf7d5ad1a09a094b4595
+RaceID      https://github.com/dgrun/RaceID3_StemID2_package 403c1f26a7dde0b8edfb74690317c6ae6b4b1b7a
+CHOIR       https://github.com/corceslab/CHOIR           e9ebfbc9089beeaf4ca088c7b81b18f39758b0bc
+mrtree      https://github.com/pengminshi/mrtree         720f469ab592303b66df012830495401b2645265

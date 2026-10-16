@@ -19,7 +19,16 @@ from .score_atl import truth_table
 
 OURS, LEIDEN, SCCAD, LEARNED = "hiddenrare", "leiden_sub", "sccad_lab", "scorer"
 POOLM = ["union_AP", "E1_union"]
-BASELINES = {"leiden_sub", "iforest_pca"}
+BASELINES = {  # in-house baselines, not published tools
+    "leiden_sub",
+    "iforest_pca",
+    "iforest_scvi",
+    "lof_pca",
+    "uncertainty",
+    "dup_loop",
+    "nodup_loop",
+    "classweight_loop",
+}
 NA = float("nan")
 
 

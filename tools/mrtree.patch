@@ -1,0 +1,46 @@
+diff --git a/DESCRIPTION b/DESCRIPTION
+index ca913c2..1c433a0 100644
+--- a/DESCRIPTION
++++ b/DESCRIPTION
+@@ -27,19 +27,15 @@ Imports:
+     tidytree,
+     ggplot2,
+     ggtree,
+-    ggimage,
+     clustree,
+     reshape2,
+     yaml,
+     Seurat,
+     SingleCellExperiment,
+     uwot,
+-    grDevices,
+-    SymSim
++    grDevices
+ Depends:
+     R (>= 3.6.0)
+ biocViews:
+-Remotes:
+-    YosefLab/SymSim
+ RoxygenNote: 7.1.1
+ Config/testthat/edition: 3
+diff --git a/NAMESPACE b/NAMESPACE
+index 067e214..19d2539 100644
+--- a/NAMESPACE
++++ b/NAMESPACE
+@@ -38,7 +38,6 @@ export(tree1)
+ export(tree_to_labelmat)
+ import(RSpectra)
+ import(checkmate)
+-import(ggimage)
+ import(ggplot2)
+ import(parallel)
+ importFrom(RSpectra,svds)
+@@ -54,8 +53,6 @@ importFrom(Seurat,Tool)
+ importFrom(Seurat,VariableFeatures)
+ importFrom(SingleCellExperiment,SingleCellExperiment)
+ importFrom(SingleCellExperiment,rowData)
+-importFrom(SymSim,PlotTsne)
+-importFrom(SymSim,SimulateTrueCounts)
+ importFrom(ape,Nnode)
+ importFrom(ape,Ntip)
+ importFrom(ape,as.phylo)
