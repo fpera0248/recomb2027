@@ -23,9 +23,9 @@ pip install -r requirements.txt    # Python 3.12
 3. `hiddenrare/scorer.py`: a gradient-boosted regressor (`models/refit_dev_nat.pkl`) predicts the fraction of each group's cells that belong to hidden subtypes. A cell's score is the best group it belongs to, plus a small isolation tie-break.
 4. `hiddenrare/baselines.py`, `blend.py`: the final score is 0.75 * rank(scorer) + 0.25 * rank(Leiden subclustering score).
 
-`models/refit_dev_nat.pkl` is a refit of the same recipe; we did not keep the fit behind the saved scores of the 8-atlas test set. The `paper` tier reads the saved scores and is exact; the `rerun` tier applies the refit and is a consistency check (`eval/rerun.py`).
+`models/refit_dev_nat.pkl` is a refit of the same recipe; we did not keep the fit behind the saved scores of the 8-atlas test set. The `paper` tier reads the saved scores and is exact; the `rerun` tier applies the refit as a consistency check (`eval/rerun.py`).
 
-Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables because `hiddenrare/scorer.py` reads them by name in the order used to fit the model.
+We kept feature-table column names (`mk_*`, `hl_*`) from the training tables because `hiddenrare/scorer.py` reads them by name in the order used to fit the model.
 
 ## Paper items
 
@@ -53,7 +53,7 @@ The table lists 22 paper items: 3 reproduced, 7 partial, 1 recomputed with anoth
 | Supp. Tables S2 to S5 (duplication study conditions, comparator checks, methods compared) and the list of methods missing | none | none | not in repo (S3 and S4 come from the comparator checks, which are not included; S2, S5 and the list are descriptive) |
 | Label and donor ablations, strata, CHOIR | none | none | not in repo (the label ablation, strata and CHOIR use the 10-atlas predictions, which are not released; the donor ablation recomputes features on the 69 pools of the 8-atlas set, whose h5ads are not released) |
 | Supp. Fig. S4 and Table S8, labels with hidden subtypes (60 labels) | none | none | not in repo (the UMAPs and separability need the counts of the 69 pools, whose h5ads are not released; no figure scripts) |
-| Supp., donor correction (Harmony) and the donor-strata table (Table S7) | none | none | not in repo (no code here; both use both test sets. Harmony rescores from counts, and the 69 pool h5ads of the 8-atlas set are not released; Table S7 reads the saved scores, and those of the 10-atlas set are not released) |
+| Supp., donor correction (Harmony) and the donor-strata table (Table S7) | none | none | not in repo (no code here; each uses both test sets. Harmony rescores from counts, and the 69 pool h5ads of the 8-atlas set are not released. Table S7 reads the saved scores, which are not released for the 10-atlas set) |
 | Supp., biology on a dataset with automated labels | none | none | not in repo (no code here; the blood dataset is row `cede8227` of `ATLAS_MANIFEST.csv`, which has no dataset id or URL) |
 | Supp. Table S9, validation of called groups against annotated types | none | none | not in repo (the gene tests need the counts of the 69 pools, whose h5ads are not released) |
 | Supp., further details of the method: time and memory per pool | none | none | not in repo (per-job `/usr/bin/time -l` logs on the run machine) |
@@ -103,12 +103,12 @@ For Apptainer and more details, see `CONTAINER.md`.
 | Tier | Input | Exactness | Time and disk |
 |---|---|---|---|
 | paper | saved predictions of every method run on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and the Part I numbers of notebook 04 are asserted; the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
-| rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 to 3 minutes (3 min 0 s on a GitHub Actions runner after the paper tier had already downloaded the pools and predictions, see `CONTAINER.md`), about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
+| rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 to 3 minutes (3 min 0 s on a GitHub Actions runner after the paper tier had downloaded the pools and predictions; see `CONTAINER.md`) and about 1.05 GB downloaded for the pools, predictions and rerun inputs (measured) |
 | full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`; a chosen tolerance, since the change of Leiden partitions between machines is not measured) | 29.3 GB of downloads (sum of the manifest sizes); time and disk for the pools and the run are not measured; untested end to end |
 
 `full` does not rebuild the twin pools, run the leak check or run the Part I panel. It also skips the strata, separability tiers, ablations, CHOIR and figures.
 
-`TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). `full` skips a tool with an existing output; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `$OUT/eval/result.md` then still reads NOT PASSED with T2 among the failed parts, because `eval/analyze.py` counts a T2 it cannot evaluate as failed; the tier passes or fails on `eval/full_check.py`, which then checks T1 only. `eval/full_check.py` asserts 57 pools in 10 atlases.
+`TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). `full` skips a tool with an existing output; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `$OUT/eval/result.md` then still reads NOT PASSED with T2 among the failed parts, because `eval/analyze.py` counts a T2 it cannot evaluate as failed. The tier passes or fails on `eval/full_check.py`, which then checks T1 only. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
 At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so their results can differ from the paper (see table).
 
@@ -116,7 +116,7 @@ The code release is v0.1.1, but the release assets and the checked container ima
 
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`. For `full` it also downloads and checks the source atlases (see [REPRODUCE.md](REPRODUCE.md#atlases)). `data/README.md` explains how to check or refresh `ATLAS_MANIFEST.csv`.
 
-A missing release or asset gives 404 (check `TAG`; the assets are on release v0.1.0, and release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download`, which needs the GitHub CLI and a login. Offline, set `ASSET_SRC=DIR` to use a local directory of assets.
+A missing release or asset returns a 404 error (check `TAG`; the assets are on release v0.1.0, while release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download`, which needs the GitHub CLI and a login. Offline, set `ASSET_SRC=DIR` to use a local directory of assets.
 
 ## Notebooks
 
