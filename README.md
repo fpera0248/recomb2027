@@ -78,7 +78,7 @@ You can run the code in a Python environment or in a container.
 
 **Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). The pins are the package versions of the Python 3.12 environment (macOS arm64) that computed the 10-atlas results. `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
 
-**Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`. They pull without a login. Use `v0.1.0`: the `v0.1.1` images have not been checked, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)). The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
+**Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`. They pull without a login. Use `v0.1.0`: the `v0.1.2` images have not been checked, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)). The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -112,11 +112,21 @@ For Apptainer and more details, see `CONTAINER.md`.
 
 At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so their results can differ from the paper (see table).
 
-The code release is v0.1.1, but the release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets). The v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03.
+## Releases
+
+| Release | What it holds |
+|---|---|
+| v0.1.2 | The code for the RECOMB 2027 submission. This is the release to cite and the one that matches the paper version. Its container images (tag `v0.1.2`) are built when the release is published and no container check has run on them yet. It has no data assets. |
+| v0.1.0 | The data assets (the five tarballs listed in `ASSETS.md5`) and the container images checked end to end (`paper` and `rerun` tiers). `fetch_data.sh` downloads from this release by default. |
+| v0.1.1 | Superseded by v0.1.2. It has no assets. |
+
+The v0.1.2 code differs from v0.1.0 in documentation, comments, driver fixes (for example the seeds of `part1/run.sh`, which no tier runs) and an empty-panel check in `data/leak_check.py`. The method code in `hiddenrare/` differs only in one comment line. So the `v0.1.0` image runs the same method as v0.1.2.
+
+CI: the `ci` workflow runs the self-tests on every push and pull request, and has passed on `main` ([runs](https://github.com/fpera0248/recomb2027/actions/workflows/ci.yml)). The container check is a separate manual workflow; see `CONTAINER.md`.
 
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`. For `full` it also downloads and checks the source atlases (see [REPRODUCE.md](REPRODUCE.md#atlases)). `data/README.md` explains how to check or refresh `ATLAS_MANIFEST.csv`.
 
-A missing release or asset returns a 404 error (check `TAG`; the assets are on release v0.1.0, while release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download`, which needs the GitHub CLI and a login. Offline, set `ASSET_SRC=DIR` to use a local directory of assets.
+A missing release or asset returns a 404 error (check `TAG`; the assets are on release v0.1.0, while release v0.1.2, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download`, which needs the GitHub CLI and a login. Offline, set `ASSET_SRC=DIR` to use a local directory of assets.
 
 ## Notebooks
 
@@ -144,7 +154,7 @@ Please cite the paper. `CITATION.cff` holds the metadata; GitHub's "Cite this re
 @unpublished{peraltacastro2026hidden,
   author = {Peralta Castro, Fernando and Zhang, Jiaqi and Singh, Ritambhara},
   title  = {Finding Rare Cell Subtypes Hidden Inside Broad Labels},
-  note   = {RECOMB 2027 submission. Code: https://github.com/fpera0248/recomb2027, release v0.1.1},
+  note   = {RECOMB 2027 submission. Code: https://github.com/fpera0248/recomb2027, release v0.1.2},
   year   = {2026}
 }
 ```
