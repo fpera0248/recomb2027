@@ -26,7 +26,9 @@ The `paper` tier does not recompute:
 - the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, CHOIR and the tools that ran only there);
 - the donor ablation, which recomputes features on the 69 pools of the 8-atlas test set;
 - scGAD on 32 pools;
-- the random-ranking line of Fig. 1d;
+- the random-ranking line of Figs. 1d and 2a;
+- the rebuilt-subsample block of Supp. Table S6 and the GiniClust3 and FiRE bars of Fig. 2a (notebook 02 scores the earlier GiniClust3 and FiRE runs on the original subsamples);
+- classifier uncertainty in Fig. 2a;
 - the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs). Notebook 04 lists what it covers.
 
 The `rerun` tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Both tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases).
