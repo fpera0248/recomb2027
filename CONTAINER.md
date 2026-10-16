@@ -4,7 +4,7 @@ The two images are defined in `docker/`. `.github/workflows/build-images.yml` bu
 
 Both are published on GHCR with the release tag `v0.1.0` and pull without a login. Use `v0.1.0`: the `v0.1.1` images exist but no check has run them, and `latest` and `main` move with later builds.
 
-Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual). `recomb2027-tools` has not been run end to end.
+Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual). In [this container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374) on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s. `recomb2027-tools` has not been run end to end.
 
 The images are amd64 only. On Apple silicon add `--platform linux/amd64` (emulated, slow).
 
