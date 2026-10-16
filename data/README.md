@@ -23,4 +23,4 @@ Then run `scripts/run_pool.sh` on every pool, the published tools with `scripts/
 
 ## Check or refresh the manifest
 
-`python data/build_manifest.py --check` re-verifies the URLs in `ATLAS_MANIFEST.csv`. `python data/build_manifest.py --refresh` rewrites the manifest from the CELLxGENE curation API; it then points to the latest dataset versions.
+`python data/build_manifest.py --check` re-verifies the URLs in `ATLAS_MANIFEST.csv`. `python data/build_manifest.py --refresh` rewrites the manifest from the CELLxGENE curation API. The manifest then points to the latest dataset versions.

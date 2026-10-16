@@ -2,9 +2,9 @@
 
 The two images are defined in `docker/`. `.github/workflows/build-images.yml` builds them on every published release (tagged with the release tag and `latest`) or by manual dispatch (tagged with the branch name and `latest`).
 
-Both are published on GHCR with the release tag `v0.1.0` and pull without a login. Use `v0.1.0`: the `v0.1.1` images exist but no check has run them, the `v0.1.2` images are built when that release is published and no check has run them yet (see [Releases](README.md#releases)), and `latest` and `main` move with later builds.
+Both are published on GHCR with the release tag `v0.1.2` and pull without a login. Use `v0.1.2`. The `v0.1.1` images exist but no check has run them (see [Releases](README.md#releases)), and `latest` and `main` move with later builds.
 
-Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual). In [this container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374) on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s. `recomb2027-tools` has not been run end to end.
+Test status: `recomb2027-hiddenrare` passes the `paper` and `rerun` tiers (`.github/workflows/container-check.yml`, manual). In [this container check](https://github.com/fpera0248/recomb2027/actions/runs/38940072528) on a GitHub Actions runner, `paper` took 3 min 31 s including the image pull and the data download, and `rerun` took 2 min 10 s. The `v0.1.0` image passed the same tiers in [an earlier check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374). `recomb2027-tools` has not been run end to end.
 
 The images are amd64 only. On Apple silicon add `--platform linux/amd64` (emulated, slow).
 
@@ -18,33 +18,38 @@ No GPU is needed.
 ## Run
 
 ```
-docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0
-docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0 \
+docker pull ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2
+docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2 \
     env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
 For offline use or another release tag, put the release files in `out/release` and add `-e ASSET_SRC=/out/release` (or set `TAG`). A missing release gives 404.
 
-`reproduce rerun` and `reproduce full` work the same way. For `full`, also pass `HR_DATA=/out/work`, because the default, ./work, is inside the container. `full` downloads 29.3 GB; its total disk use is not measured.
+`reproduce rerun` and `reproduce full` work the same way. For `full`, also pass `HR_DATA=/out/work`, because the default, ./work, is inside the container. `full` downloads 29.3 GB. Its total disk use is not measured.
 
 To run one pool:
 ```
-docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0 \
+docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2 \
     scripts/run_pool.sh /out/POOL.h5ad /out/PILOTS.parquet /out/run
 ```
-A published tool on an adapted pool (`tools/adapt_pool.py` writes the inputs; the scGPT checkpoint is not in the image):
+A published tool on an adapted pool (`tools/adapt_pool.py` writes the inputs, and the scGPT checkpoint is not in the image):
 ```
 docker run -v "$PWD/out":/out -v /path/to/scGPT_human:/ckpt -e SCGPT_CKPT=/ckpt \
-    ghcr.io/fpera0248/recomb2027-tools:v0.1.0 scripts/run_tool.sh sccad POOL_ID /out/toolin /out/run
+    ghcr.io/fpera0248/recomb2027-tools:v0.1.2 scripts/run_tool.sh sccad POOL_ID /out/toolin /out/run
 ```
 
 ## Apptainer
 
 ```
-apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.0
+apptainer pull recomb2027.sif docker://ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2
 mkdir -p out
 apptainer exec -B "$PWD/out":/out recomb2027.sif env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
 `Apptainer.def` builds the same from the published image.
+
+Digests of the `v0.1.2` images:
+
+- recomb2027-hiddenrare sha256:55e2273ae7f7689c86bf35ea83ed2b83db191c3ae0548dd1ed55f377ae8a4e46
+- recomb2027-tools sha256:190f2d8e306cb1ef884c125467e90a8d86a3ae40aba08f3bfe35b6e054ff416b
 
 Digests of the `v0.1.0` images:
 
