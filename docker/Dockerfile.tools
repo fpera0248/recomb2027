@@ -4,9 +4,9 @@
 # adapt input and output; the tools are the official repositories at the commits in tools/sources.txt.
 # CPU only. The scGPT whole-human checkpoint is not baked; mount it and set SCGPT_CKPT.
 #
-#   docker build -f docker/Dockerfile.tools -t ghcr.io/fpera0248/recomb2027-tools:latest .
+#   docker build -f docker/Dockerfile.tools -t recomb2027-tools .
 #   docker run -v "$PWD/out":/out -v /path/to/scGPT_human:/ckpt -e SCGPT_CKPT=/ckpt \
-#       ghcr.io/fpera0248/recomb2027-tools:latest scripts/run_tool.sh sccad POOL /out/toolin /out/run
+#       recomb2027-tools scripts/run_tool.sh sccad POOL /out/toolin /out/run
 
 FROM rocker/r-ver:4.6.1
 ENV DEBIAN_FRONTEND=noninteractive PIP_NO_CACHE_DIR=1 PYTHONDONTWRITEBYTECODE=1 \
