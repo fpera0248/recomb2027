@@ -1,7 +1,8 @@
 #!/bin/bash
 # Score every prediction root and run the analysis.
 # usage: eval/run_eval.sh DATA_DIR RUN_DIR OUT_DIR
-#   DATA_DIR  $HR_DATA written by data/build_pools.py: pilots/, manifests/, targets/
+#   DATA_DIR  $HR_DATA written by data/build_pools.py or data/build_pools8.py: pilots/, manifests/, targets/
+#   ATLASES_CSV (env) lists the atlases and their strata: data/atlases.csv by default, data/atlases8.csv for the 8-atlas set
 #   RUN_DIR   preds/<method>/<pool>.parquet from scripts/run_pool.sh, tool_out/<tool>/<pool>.parquet from scripts/run_tool.sh
 set -euo pipefail
 data=$(cd "$1" && pwd)
@@ -11,7 +12,8 @@ out=$(cd "$3" && pwd)
 py=${PYTHON:-python3}
 root=$(cd "$(dirname "$0")/.." && pwd)
 export PYTHONPATH=$root
-atlases=$(cut -d, -f1 "$root/data/atlases.csv" | tail -n +2)
+atl=${ATLASES_CSV:-$root/data/atlases.csv}   # data/atlases8.csv for the 8-atlas set
+atlases=$(cut -d, -f1 "$atl" | tail -n +2)
 man=()
 tgt=()
 for a in $atlases; do
@@ -40,6 +42,6 @@ else
 fi
 drop=()
 [ -s "$data/leak_drop.txt" ] && drop=(--drop "$data/leak_drop.txt")
-$py -m eval.analyze run --scores scores_*.csv --manifest "${man[@]}" --atlases "$root/data/atlases.csv" --split test ${drop[@]+"${drop[@]}"} \
+$py -m eval.analyze run --scores scores_*.csv --manifest "${man[@]}" --atlases "$atl" --split test ${drop[@]+"${drop[@]}"} \
   --targets "${tgt[@]}" --flags flags.csv --tiefair tf.csv ${gate[@]+"${gate[@]}"} --sccad sccad_lab --out result
 $py -m eval.signflip result.json

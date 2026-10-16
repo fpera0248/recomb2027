@@ -1,0 +1,9 @@
+name,dataset_id,collection_id,stratum,label_col,fine_col
+luad,01ff5cf0-730f-4ddc-b1be-7b407211f544,0bebef1a-4607-4584-9070-dacf89a0d635,tumour,author_cell_type_level_1,author_cell_type_level_2
+cereb,bab7432a-5cfe-45ea-928c-422d03c45cdd,72d37bc9-76cc-442d-9131-da0e273862db,non-tumour,cell_type,subtype
+hspc,4a5b00e0-1ba3-4fd4-af89-d3512eb20720,5542eeb0-96ef-4ab9-95ea-eb6abc178461,non-tumour,cell_type,cell state
+htapp,6c87755e-a671-41a8-9c7e-4e43b850a57b,a96133de-e951-4e2d-ace6-59db8b3bfb1d,tumour,compartments,author_cell_type
+arthritis,612b7bff-4460-421e-917a-fe60e3d96580,10eb236d-d42d-45b8-8363-c2dcf865f388,non-tumour,celltype_l3,celltype_l4
+psccolon,56bbabcb-3968-4206-8e0b-4a7d6bda5195,75e35754-bd21-4562-a4f8-39eaa4dfce36,non-tumour,cell_type,author_cell_type
+hypomap,a2c833f7-b7f1-4f4d-ad31-cae478b601b7,d0941303-7ce3-4422-9249-cf31eb98c480,non-tumour,C2_named,C3_named
+ocular,61adb974-beea-432e-9b4f-677d9cb22ece,0f7d022a-46c7-4e64-be4c-e34adbb78089,non-tumour,cell_type,author_cell_type

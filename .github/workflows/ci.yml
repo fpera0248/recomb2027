@@ -19,4 +19,5 @@ jobs:
           python -m eval.paper
           python -m eval.nulltest
           python -m eval.full_check --selftest
+          python -m eval.check_pools8 --selftest
           python -c "import pickle; pickle.load(open('models/refit_dev_nat.pkl', 'rb'))"

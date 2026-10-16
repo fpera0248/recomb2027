@@ -24,7 +24,7 @@ docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2 \
 ```
 For offline use or another release tag, put the release files in `out/release` and add `-e ASSET_SRC=/out/release` (or set `TAG`). A missing release gives 404.
 
-`reproduce rerun` and `reproduce full` work the same way. For `full`, also pass `HR_DATA=/out/work`, because the default, ./work, is inside the container. `full` downloads 29.3 GB. Its total disk use is not measured.
+`reproduce rerun` and `reproduce full` work the same way. For `full`, also pass `HR_DATA=/out/work`, because the default, ./work, is inside the container. `full` downloads 29.3 GB. Its total disk use is not measured. For `full8`, pass `HR_DATA=/out/work8`; it downloads 22.3 GB.
 
 To run one pool:
 ```

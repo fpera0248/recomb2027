@@ -4,11 +4,11 @@
 
 The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Eight rows have no URL, and 3 of them have a note in `notes`. The other 5 are `panel` rows with no recorded version. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
 
-`data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` lists the datasets used before the test.
+`data/atlases.csv` lists the 10-atlas test set, `data/atlases8.csv` the 8-atlas test set (names `luad`, `cereb`, `hspc`, `htapp`, `arthritis`, `psccolon`, `hypomap`, `ocular`, with their annotation columns), and `data/used_datasets.csv` lists the datasets used before the test.
 
 Download the 10-atlas test set with `./fetch_data.sh full DIR` (`reproduce.sh full` calls it, and `data/download_atlases.sh` checks neither size nor md5). `full` downloads the 10 rows of set `test10` (29.3 GB) and checks each against its size, and against its md5 for the 3 rows that have one.
 
-The 8-atlas set (`test8`, 69 pools) is the one the `paper` and `rerun` levels check. The 10-atlas set (`test10`, 57 pools) is the one `full` and `data/build_pools.py` build. The two share no dataset or collection.
+The 8-atlas set (`test8`, 69 scored pools) is the one the `paper` and `rerun` levels check, and `full8` and `data/build_pools8.py` rebuild. The 10-atlas set (`test10`, 57 pools) is the one `full` and `data/build_pools.py` build. The two share no dataset or collection.
 
 ## Notebooks
 
@@ -84,6 +84,7 @@ For Apptainer and more details, see `CONTAINER.md`.
 ./reproduce.sh paper     # download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and extra checks, assert the match
 ./reproduce.sh rerun     # rescore the 69 held-out pools with this repository's scorer
 ./reproduce.sh full      # rebuild the 10-atlas test pools from CELLxGENE and rerun our method, Leiden subclustering and (TOOLS=1) the published tools on them (untested)
+./reproduce.sh full8     # the same for the 8-atlas test pools, the set of the headline result (untested)
 ```
 
 | Level | Input | Exactness | Time and disk |
@@ -91,6 +92,8 @@ For Apptainer and more details, see `CONTAINER.md`.
 | paper | saved predictions of every method run on the 69 pools of the 8-atlas test set, and the Part I result tables | exact: values, tests, null-test rates and the Part I numbers of notebook 04 are asserted, and the bootstrap interval is checked to 0.005 | about 4 minutes plus the download, 1.2 GB downloaded and about 2.5 GB on disk (measured on a laptop, 4 threads) |
 | rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2. The check asserts atlas-equal union AP within 0.01 and mean Spearman above 0.8 (`eval/rerun.py`) | about 2 to 3 minutes (2 min 10 s on a GitHub Actions runner after the paper level had downloaded the pools and predictions, see `CONTAINER.md`) and about 1.05 GB downloaded for the pools, predictions and rerun inputs (measured) |
 | full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`). The tolerance is a chosen one, since the change of Leiden partitions between machines is not measured | 29.3 GB of downloads (sum of the manifest sizes). Time and disk for the pools and the run are not measured. The `full` level is untested end to end |
+
+`full8` is `full` on the 8-atlas set, with the engine of the original run (`data/build_pools8.py`: donors shuffled with seed 0 and packed to 20,000 cells, 20,000 cells sampled per pack, raw counts, no assay or placeholder filter, only the dropped donors and cells listed in the file). Run it with `HR_DATA` unset or pointed at its own directory (default `work8`), not the directory of `full`; its default `OUT` is `reproduce_out8`. It downloads the 8 rows of set `test8` (22.3 GB; only `luad` has an md5 in the manifest, the others are checked by size), builds 70 pools of 20,000 cells and then runs `eval/check_pools8.py`: per pool the number of cells, the number of targets, a sha1 of the sorted cell ids and the donor pack are compared with `eval/expected/test8_pools.tsv`. Its values are those of the original pools: the pilot tables and manifests in the release asset `pools.tgz`. The cell hash of `atl_cereb_p5`, which the release does not hold, is not compared. The strata in `result.md` are exploratory (tumour = luad, htapp). `atl_cereb_p5` has no target and is not run, so 69 pools are scored. The only saved file used is `models/refit_dev_nat.pkl`. The check (`eval/full_check.py --set8`) asserts 69 pools in 8 atlases and, for union AP, atlas-equal means and differences within 0.03 of the paper (ours 0.321, Leiden subclustering 0.220, difference +0.101, scCAD with labels 0.231), the same sign, and an exact atlas-level p below 0.05 for ours minus Leiden (no p is required against scCAD). An earlier rebuild on identical pools gave 0.312 and 0.207. `full8` is untested end to end, and like `full` it skips the twins, leak check, strata and the other analyses.
 
 `full` does not rebuild the twin pools, run the leak check or run the Part I panel. It also skips the strata, separability levels, ablations, CHOIR and figures.
 
@@ -151,7 +154,7 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - The rebuilt 8-atlas subsamples and their predictions (our method, Leiden subclustering, GiniClust3 and FiRE): the second block of Supp. Table S6 and the GiniClust3 and FiRE bars of Fig. 2a cannot be rerun from the release.
 - Figure scripts, except `supplement/figures/figS_further.py` (Supp. Fig. S5), which no level runs. No level runs the statistics script `supplement/figures/p1_panel_stats.py` either.
 - Most inputs of the supplement analyses listed in [PAPER_ITEMS.md](PAPER_ITEMS.md): the AIDA, HLCA and lupus files, the generated cells and the 10-atlas subsamples. Of these inputs, only `part1_results.tgz` and the trained regressor (`models/refit_dev_nat.pkl`) are released. Their scripts are in [`supplement/`](supplement/README.md), but no level runs them.
-- The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
+- The 69 pool h5ads of the 8-atlas test set are not released. They can be rebuilt with `reproduce.sh full8` (or `python -m data.build_pools8`, untested end to end). They are needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts.
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools: only their wrappers and pinned environments are included.
 - RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
