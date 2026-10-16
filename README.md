@@ -29,7 +29,7 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 
 ## Paper items
 
-The table lists 22 paper items: 3 reproduced, 7 partial, 1 recomputed with another readout, and 11 not in this repository.
+The table lists 25 paper items: 3 reproduced, 7 partial, 1 recomputed with another readout, and 14 not in this repository.
 
 `reproduce.sh paper` recomputes numbers. "Reproduced" means the notebook recomputes and asserts the values behind the item. "Partial" means it does so for only some of them.
 
@@ -57,6 +57,9 @@ The table lists 22 paper items: 3 reproduced, 7 partial, 1 recomputed with anoth
 | Supp., biology on a dataset with automated labels | none | none | not in repo (there is no code here, and the blood dataset is row `cede8227` of `ATLAS_MANIFEST.csv`) |
 | Supp. Table S9, validation of called groups against annotated types | none | none | not in repo (the gene tests need the counts of the 69 pools, whose h5ads are not released) |
 | Supp., further details of the method: time and memory per pool | none | none | not in repo (per-job `/usr/bin/time -l` logs on the run machine) |
+| Supp., further analyses of the duplication study (one-versus-rest classifiers, prior-shift control, resampling of evaluation donors, marker recovery, rare types close to another type, scDesign3 against scVI on donor-disjoint splits, where conditional scVI loses recall, a type with no training cells from one ancestry, other latent codes, choosing the condition by training-set size, cost to major types, false positive rates) | none | none | not in repo (the scripts are not included, and most need the AIDA, HLCA and lupus inputs, which are not included either) |
+| Supp. Table S10 and the distance metrics of the generator papers on AIDA | none | none | not in repo (Table S10 is descriptive. The distance script, the AIDA inputs and the generated cells are not included) |
+| Supp. Fig. S5 and the further analyses (time, memory and disk, other regressors, other embeddings, unreliable labels, annotation, chromatin accessibility) | none | none | not in repo (the scripts are not included. Most analyses rerun the method on subsamples of the 10-atlas set, which only `reproduce.sh full` rebuilds, and the regressor comparison also needs the training pools and the rebuilt 8-atlas subsamples, which are not released) |
 
 ## Layout
 
@@ -138,6 +141,7 @@ A missing release or asset returns a 404 error (check `TAG`: the assets are on r
 - The 10-atlas predictions: the 10-atlas results (strata, separability tiers, label ablation, CHOIR) cannot be rerun from the release.
 - The rebuilt 8-atlas subsamples and their predictions (our method, Leiden subclustering, GiniClust3 and FiRE): the second block of Supp. Table S6 and the GiniClust3 and FiRE bars of Fig. 2a cannot be rerun from the release.
 - Figure scripts.
+- The scripts of the supplement analyses listed in the table above (the further analyses of the duplication study, the distance metrics of the generator papers and the further analyses (Supp. Fig. S5)).
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools: only their wrappers and pinned environments are included.
