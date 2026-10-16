@@ -49,7 +49,7 @@ This downloads 1.2 GB of release assets (about 2.5 GB on disk) and runs in about
 - `notebooks/`: the four notebooks the `paper` tier runs.
 - `data/`: builders of the test and twin pools, reference pool lists and targets ([data/README.md](data/README.md) rebuilds the test sets).
 - `scripts/`: `run_pool.sh` (our method on one pool) and `run_tool.sh` (one published tool).
-- `tools/`: wrappers of the published detectors and their pinned sources ([tools/README.md](tools/README.md)).
+- `tools/`: wrappers of the published detectors, their pinned repositories and commits (`sources.txt`) and `fetch_sources.sh`, which clones them ([tools/README.md](tools/README.md)).
 - `part1/`: the study of known rare types, duplication against generators ([part1/README.md](part1/README.md)).
 - `combination/`: the hidden-type calls plus duplication experiment ([combination/README.md](combination/README.md)).
 - `docker/`: the two image definitions (see `CONTAINER.md`).
@@ -110,7 +110,7 @@ A missing release gives 404 (check `TAG`). `fetch_data.sh` then falls back to `g
 
 ## Atlases
 
-The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders; most rows without a URL say why in `notes`). `data/atlases.csv` is the list of the 10-atlas test set, `data/used_datasets.csv` the datasets used before the test. Download them with `data/download_atlases.sh` (or `reproduce.sh full`). `full` downloads the 10 rows of set `test10` (29.3 GB) and checks each against its size, and against its md5 for the 3 rows that have one. The 8-atlas set (`test8`, 69 pools), which the `paper` and `rerun` tiers check, and the 10-atlas set (`test10`, 57 pools), which `full` and `data/build_pools.py` build, share no dataset or collection.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders; 10 rows have no URL, and 5 of them have a note in `notes`). `data/atlases.csv` is the list of the 10-atlas test set, `data/used_datasets.csv` the datasets used before the test. Download them with `data/download_atlases.sh` (or `reproduce.sh full`). `full` downloads the 10 rows of set `test10` (29.3 GB) and checks each against its size, and against its md5 for the 3 rows that have one. The 8-atlas set (`test8`, 69 pools), which the `paper` and `rerun` tiers check, and the 10-atlas set (`test10`, 57 pools), which `full` and `data/build_pools.py` build, share no dataset or collection.
 
 ## Notebooks
 
@@ -152,6 +152,6 @@ The code in this repository is under the MIT license (`LICENSE`). Third-party co
 - The published tools, cloned by `tools/fetch_sources.sh` at the commits in `tools/sources.txt`: scCAD and FiRE (GPL-3), GapClust (GPL-3, per its DESCRIPTION file), rflann (GPL), GiniClust3, SCISSORS, mars and scGPT (MIT), CellSIUS (Apache-2.0).
 - The Python and R packages at the versions in `piplist_hiddenrare.txt`, `piplist_tools.txt` and `Rpackages_tools.csv`, among them leidenalg (GPL-3.0-or-later) and igraph (GPL-2.0-or-later).
 
-The container images contain these programs under their own licenses. The `recomb2027-tools` image keeps the full source of each published tool in `/opt/tools_src`; the source of every Python and R package is available from PyPI, CRAN and Bioconductor at the pinned version, and the source of the operating-system packages from the Debian (`recomb2027-hiddenrare`, based on `python:3.12-slim-bookworm`) and Ubuntu (`recomb2027-tools`, based on `rocker/r-ver:4.6.1`) archives. On request, the authors (open an issue at https://github.com/fpera0248/recomb2027/issues) will provide the complete corresponding source of any GPL-licensed component of the images for three years after each image release.
+The container images contain these programs under their own licenses. The `recomb2027-tools` image keeps the full source of each published tool in `/opt/tools_src`; the source of every Python and R package is available from PyPI, CRAN and Bioconductor at the version installed in the image, and the source of the operating-system packages from the Debian (`recomb2027-hiddenrare`, based on `python:3.12-slim-bookworm`) and Ubuntu (`recomb2027-tools`, based on `rocker/r-ver:4.6.1`) archives. On request, the authors (open an issue at https://github.com/fpera0248/recomb2027/issues) will provide the complete corresponding source of any GPL-licensed component of the images for three years after each image release.
 
 The release assets are derived from the public CELLxGENE datasets listed in `data/used_datasets.csv` and the CELLxGENE rows of `ATLAS_MANIFEST.csv`, which CELLxGENE distributes under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The assets are under the same license; please cite the original datasets.
