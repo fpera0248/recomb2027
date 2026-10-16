@@ -40,7 +40,7 @@ The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with anoth
 | Fig. 1c, duplication equals sample weighting | 04 section 2 | paper | reproduced |
 | Fig. 1d, union AP of our method, Leiden subclustering, scCAD and the loops | 01 sections 2, 4, 5; 02 section 2 | paper | partial: union AP values; the random-ranking line is not recomputed |
 | Fig. 2a, atlas-equal means of the methods | 01 section 5; 02 sections 1 and 2 | paper | partial: every method except classifier uncertainty |
-| Fig. 2b, per-atlas differences | 01 sections 2 and 3; 02 section 3 | paper | partial: per-atlas differences against Leiden subclustering are asserted; against scCAD with labels only the mean, atlas count and p |
+| Fig. 2b, per-atlas differences | 01 sections 2 and 3; 02 section 3 | paper | partial: per-atlas differences against Leiden subclustering are asserted; against scCAD with labels, only the mean, atlas count and p |
 | Fig. 3, separability tiers and UMAPs | none | none | not in repo (panel a uses the 10-atlas results; panels b and c show 8-atlas pools, whose h5ads are not released; no tier draws figures) |
 | Supp. Fig. S3, hidden-type calls plus duplication | none | none | not in repo (`combination/` holds the code; the per-pool result rows are not included) |
 | Supp. Fig. S1, example pool | none | none | not in repo (needs that pool's h5ad, one of the 69 below, and a figure script) |
@@ -70,15 +70,15 @@ The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with anoth
 - `part1/`: the study of known rare types, duplication against generators ([part1/README.md](part1/README.md)).
 - `combination/`: the hidden-type calls plus duplication experiment ([combination/README.md](combination/README.md)).
 - `docker/`: the two image definitions (see `CONTAINER.md`).
-- `.github/workflows/`: CI (self-tests on every push; it runs no tier), the image builds and the container check (`paper` and `rerun` tiers in the published image, manual).
+- `.github/workflows/`: CI (self-tests on every push; it runs no tier), the image builds and the manual container check (`paper` and `rerun` tiers in the published image).
 
 ## Install
 
-Pick one.
+You can run the code in a Python environment or in a container.
 
-**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
+**Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
 
-**Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`; they pull without a login. Use `v0.1.0`, because the `v0.1.1` images have not been checked and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)); the `recomb2027-tools` image has not been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
+**Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`. They pull without a login. Use `v0.1.0`: the `v0.1.1` images have not been checked, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)). The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -108,40 +108,19 @@ For Apptainer and more details, see `CONTAINER.md`.
 
 `full` does not rebuild the twin pools, run the leak check or run the Part I panel. It also skips the strata, separability tiers, ablations, CHOIR and figures.
 
-`TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). A tool that already has an output is skipped; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
+`TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). `full` skips a tool with an existing output; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
 
-At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so they can differ from the paper (see table).
+At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so their results can differ from the paper (see table).
 
-The code release is v0.1.1. The release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets), and the v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03.
+The code release is v0.1.1, but the release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets). The v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03.
 
 `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`. For `full` it also downloads and checks the source atlases (see [REPRODUCE.md](REPRODUCE.md#atlases)). `data/README.md` explains how to check or refresh `ATLAS_MANIFEST.csv`.
 
-A missing release or asset gives 404 (check `TAG`; the assets are on release v0.1.0, and release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in). Set `ASSET_SRC=DIR` to take the assets from a local directory, for offline use.
+A missing release or asset gives 404 (check `TAG`; the assets are on release v0.1.0, and release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download`, which needs the GitHub CLI and a login. Offline, set `ASSET_SRC=DIR` to use a local directory of assets.
 
 ## Notebooks
 
-`reproduce.sh paper` executes four notebooks:
-
-1. `notebooks/01_heldout_test.ipynb`: our method against Leiden subclustering and the in-house baselines.
-2. `02_published_detectors.ipynb`: published detectors, with the metrics used in the MARS and scCAD papers.
-3. `03_null_test.ipynb`: twin pools with the hidden cells removed (101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set).
-4. `04_part1_summary.ipynb`: the 88-dataset panel, an extra 31-type check and duplication as sample weighting.
-
-The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`; they assert numbers and draw no figures.
-
-The `paper` tier does not recompute:
-
-- the 10-atlas results (the 10-atlas test, strata, separability tiers, label ablation, CHOIR and the tools that ran only there);
-- the donor ablation, which recomputes features on the 69 pools of the 8-atlas test set;
-- scGAD on 32 pools;
-- the random-ranking line of Fig. 1d;
-- the Part I runs outside notebook 04 (generator training, the full data panel, the AIDA, HLCA and lupus runs). Notebook 04 lists what it covers.
-
-The `rerun` tier rescores frozen candidate tables with this repository's scorer; it does not rebuild embeddings or Leiden partitions. Both tiers use the 69 pools of the 8-atlas test set (notebook 03 also reads the twins of 12 atlases).
-
-## Atlases
-
-The source atlases, `ATLAS_MANIFEST.csv`, the two test sets, running one pool and the datasets used before the test are described in [REPRODUCE.md](REPRODUCE.md).
+`reproduce.sh paper` executes the four notebooks in `notebooks/`: 01 (held-out test), 02 (published detectors), 03 (null test) and 04 (Part I summary). They assert numbers and draw no figures. [REPRODUCE.md](REPRODUCE.md#notebooks) describes each notebook and lists what the `paper` and `rerun` tiers do not recompute. The same page also covers the source atlases, `ATLAS_MANIFEST.csv`, the two test sets, running one pool and the datasets used before the test.
 
 ## Not included and known gaps
 
@@ -152,7 +131,7 @@ The source atlases, `ATLAS_MANIFEST.csv`, the two test sets, running one pool an
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools; only their wrappers and pinned environments are included.
 - RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
-- The `full` tier is untested, and the `recomb2027-tools` image has not been run end to end.
+- The `full` tier is untested, and we have not run the `recomb2027-tools` image end to end.
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no tier rebuilds them.
 
 ## Citation
@@ -175,6 +154,6 @@ The code in this repository is under the MIT license (`LICENSE`). Third-party co
 - The published tools, cloned by `tools/fetch_sources.sh` at the commits in `tools/sources.txt`: scCAD and FiRE (GPL-3), GapClust (GPL-3, per its DESCRIPTION file), rflann (GPL), GiniClust3, SCISSORS, mars and scGPT (MIT), CellSIUS (Apache-2.0).
 - The Python and R packages at the versions in `piplist_hiddenrare.txt`, `piplist_tools.txt` and `Rpackages_tools.csv`, among them leidenalg (GPL-3.0-or-later) and igraph (GPL-2.0-or-later).
 
-The container images contain these programs under their own licenses. The `recomb2027-tools` image keeps the full source of each published tool in `/opt/tools_src`; the source of every Python and R package is available from PyPI, CRAN and Bioconductor at the version installed in the image, and the source of the operating-system packages from the Debian (`recomb2027-hiddenrare`, based on `python:3.12-slim-bookworm`) and Ubuntu (`recomb2027-tools`, based on `rocker/r-ver:4.6.1`) archives. On request, the authors (open an issue at https://github.com/fpera0248/recomb2027/issues) will provide the complete corresponding source of any GPL-licensed component of the images for three years after each image release.
+The container images contain these programs under their own licenses. The `recomb2027-tools` image keeps the full source of each published tool in `/opt/tools_src`; the source of every Python and R package is available from PyPI, CRAN and Bioconductor at the version installed in the image, and the source of the operating-system packages from the Debian (`recomb2027-hiddenrare`, based on `python:3.12-slim-bookworm`) and Ubuntu (`recomb2027-tools`, based on `rocker/r-ver:4.6.1`) archives. To get the complete corresponding source of any GPL-licensed component of the images, open an issue at https://github.com/fpera0248/recomb2027/issues; the authors will provide it for three years after each image release.
 
 The release assets are derived from the public CELLxGENE datasets listed in `data/used_datasets.csv` and the CELLxGENE rows of `ATLAS_MANIFEST.csv`, which CELLxGENE distributes under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The assets are under the same license; please cite the original datasets.
