@@ -1,6 +1,6 @@
 # Finding rare cell subtypes hidden inside broad labels
 
-Code for our RECOMB 2027 submission. Given a pool of cells with a coarse visible label (say "T cell"), the method ranks cells by how likely each belongs to a finer, unlabelled subtype. It never sees the finer annotation.
+Code for our RECOMB 2027 submission. Given a pool of cells with a coarse visible label (say "T cell"), our method ranks cells by how likely each belongs to a finer, unlabelled subtype. It never sees the finer annotation.
 
 ## Quick check
 
@@ -76,9 +76,9 @@ Feature-table column names (`mk_*`, `hl_*`) are kept from the training tables be
 
 Pick one.
 
-**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter that computed the 10-atlas results (macOS arm64); `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter. scikit-learn must be 1.5.2 (the model pickle was written with it). Leiden partitions depend on the numerical stack, so per-cell scores differ on another machine. Rerunning reproduces the pipeline and the evaluation, not the paper's exact per-cell scores. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
+**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml`. The versions are those of the interpreter that computed the 10-atlas results (macOS arm64); `piplist_hiddenrare.txt` is the dependency closure of `requirements.txt` in that interpreter. scikit-learn must be 1.5.2, because the model pickle was written with it. Leiden partitions depend on the numerical stack, so per-cell scores differ on another machine. Rerunning reproduces the pipeline and the evaluation, not the paper's exact per-cell scores. The published tools have their own environment (`environment_tools.yml`, `Rpackages_tools.csv`, `piplist_tools.txt`); see `ENVIRONMENTS.md`.
 
-**Container.** Two images, defined in `docker/`. `.github/workflows/build-images.yml` builds them and pushes them to GHCR on every release or manual dispatch; both are published with the release tag `v0.1.0` (use this one; the `v0.1.1` images exist but no check has run them; `latest` and `main` move with later builds) and pull without a login. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)); the `recomb2027-tools` image has not been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
+**Container.** Two images are defined in `docker/`. `.github/workflows/build-images.yml` builds them and pushes them to GHCR on every release or manual dispatch. Both are published with the release tag `v0.1.0` and pull without a login. Use `v0.1.0`: the `v0.1.1` images exist but no check has run them, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)); the `recomb2027-tools` image has not been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
 | Image | Contents |
 |---|---|
@@ -106,9 +106,11 @@ For Apptainer and more details, see `CONTAINER.md`.
 | rerun | frozen candidate tables and Leiden scores | not exact (refit scorer, see Method): mean Spearman of per-cell scores 0.878 against the saved ones, atlas-equal union AP 0.3195 against 0.3213, single pools can move by up to 0.2; asserted within 0.01 and Spearman above 0.8 (`eval/rerun.py`) | about 2 minutes, about 1.05 GB downloaded (pools, predictions, rerun inputs) (measured) |
 | full | CELLxGENE source files | approximate: atlas-equal means and differences within 0.03 of the paper, same sign, atlas-level exact p below 0.05 (`eval/full_check.py`) | 29.3 GB of downloads (sum of the manifest sizes); time and disk for the pools and the run are not measured; untested end to end |
 
-`full` does not rebuild the twin pools or run the leak check or the Part I panel. It also skips the strata, separability tiers, ablations, CHOIR and figures. `TOOLS=1` also runs the published tools. They need their own Python environment (scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it, see `ENVIRONMENTS.md`) and `SCGPT_CKPT`. A tool that already has an output is skipped; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
+`full` does not rebuild the twin pools, run the leak check or run the Part I panel. It also skips the strata, separability tiers, ablations, CHOIR and figures.
 
-At the `paper` tier every value the notebooks print is recomputed from the saved predictions and asserted (see Paper items for what is partial), so a mismatch fails the run. The `rerun` and `full` tiers rerun code, so they can differ from the paper (see table). In the `recomb2027-hiddenrare` container on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s.
+`TOOLS=1` also runs the published tools. They need their own Python environment and `SCGPT_CKPT`. That environment has scikit-learn 1.9.1, which conflicts with `requirements.txt`; point `TOOLS_PYTHON` at it (see `ENVIRONMENTS.md`). A tool that already has an output is skipped; failures go to `$OUT/tool_failures.txt`. Without `TOOLS=1` only the Leiden comparison is checked and T2 (against scCAD) is not evaluated. `eval/full_check.py` asserts 57 pools in 10 atlases.
+
+At the `paper` tier a mismatch with any asserted value fails the run (see Paper items for what is partial). The `rerun` and `full` tiers rerun code, so they can differ from the paper (see table). In the `recomb2027-hiddenrare` container on a GitHub Actions runner, `paper` took 5 min 18 s including the download and `rerun` took 3 min 0 s.
 
 The code release is v0.1.1. The release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets), and the v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03. `fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`; for `full` it downloads the source atlases listed in `ATLAS_MANIFEST.csv` and checks their sizes (and md5 where the manifest has one). `python data/build_manifest.py --check` re-verifies the URLs; `--refresh` rewrites the manifest from the CELLxGENE curation API (it then points to the latest dataset versions).
 
@@ -116,11 +118,22 @@ A missing release or asset gives 404 (check `TAG`; the assets are on release v0.
 
 ## Atlases
 
-The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders; 10 rows have no URL, and 5 of them have a note in `notes`; the other 5 are `panel` rows with no recorded version, so download them by `dataset_id` from the page in `collection_url`, which serves the current version). `data/atlases.csv` is the list of the 10-atlas test set, `data/used_datasets.csv` the datasets used before the test. Download them with `./fetch_data.sh full DIR` (`reproduce.sh full` calls it; `data/download_atlases.sh` checks neither size nor md5). `full` downloads the 10 rows of set `test10` (29.3 GB) and checks each against its size, and against its md5 for the 3 rows that have one. The 8-atlas set (`test8`, 69 pools), which the `paper` and `rerun` tiers check, and the 10-atlas set (`test10`, 57 pools), which `full` and `data/build_pools.py` build, share no dataset or collection.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders; 10 rows have no URL, and 5 of them have a note in `notes`; the other 5 are `panel` rows with no recorded version, so download them by `dataset_id` from the page in `collection_url`, which serves the current version). `data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` the datasets used before the test.
+
+Download the 10-atlas test set with `./fetch_data.sh full DIR` (`reproduce.sh full` calls it; `data/download_atlases.sh` checks neither size nor md5). `full` downloads the 10 rows of set `test10` (29.3 GB) and checks each against its size, and against its md5 for the 3 rows that have one.
+
+The 8-atlas set (`test8`, 69 pools) is the one the `paper` and `rerun` tiers check. The 10-atlas set (`test10`, 57 pools) is the one `full` and `data/build_pools.py` build. The two share no dataset or collection.
 
 ## Notebooks
 
-`reproduce.sh paper` executes `notebooks/01_heldout_test.ipynb` (our method against Leiden subclustering and the in-house baselines), `02_published_detectors.ipynb` (published detectors, metrics used in the MARS and scCAD papers), `03_null_test.ipynb` (twin pools with the hidden cells removed: 101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set) and `04_part1_summary.ipynb` (the 88-dataset panel, an extra 31-type check, duplication as sample weighting). The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`; they assert numbers and draw no figures.
+`reproduce.sh paper` executes four notebooks:
+
+1. `notebooks/01_heldout_test.ipynb`: our method against Leiden subclustering and the in-house baselines.
+2. `02_published_detectors.ipynb`: published detectors, with the metrics used in the MARS and scCAD papers.
+3. `03_null_test.ipynb`: twin pools with the hidden cells removed (101 real and twin pairs from 12 atlases, then the 69 pairs of the 8-atlas test set).
+4. `04_part1_summary.ipynb`: the 88-dataset panel, an extra 31-type check and duplication as sample weighting.
+
+The notebooks only call `eval/paper.py`, `eval/nulltest.py` and `part1/`; they assert numbers and draw no figures.
 
 The `paper` tier does not recompute:
 
@@ -146,13 +159,12 @@ Datasets used before the test are listed in `data/used_datasets.csv`. A Human Br
 
 - CELLxGENE data (downloaded by the builders), the training pools and the tool checkouts. `hiddenrare/scorer.py fit` is the training script; it needs the training pools. Run it from the repository root (it imports eval/targets.py).
 - The 10-atlas predictions: the 10-atlas results (strata, separability tiers, ablations, CHOIR) cannot be rerun from the release.
-- Figure scripts; the notebooks assert numbers and draw nothing.
+- Figure scripts.
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Supp. Fig. S1 and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools; only their wrappers and pinned environments are included.
 - RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
 - The `full` tier is untested, and the `recomb2027-tools` image has not been run end to end.
-- The time and memory per pool (Supp., further details of the method; per-job `/usr/bin/time -l` logs on the run machine).
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no tier rebuilds them.
 
 ## Citation
