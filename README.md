@@ -53,7 +53,7 @@ The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with anoth
 | Supp. Tables S2 to S5 (duplication study conditions, comparator checks, methods compared) and the list of methods missing | none | none | not in repo (S3 and S4 come from the comparator checks, which are not included; S2, S5 and the list are descriptive) |
 | Label and donor ablations, strata, CHOIR | none | none | not in repo (the label ablation, strata and CHOIR use the 10-atlas predictions, which are not released; the donor ablation recomputes features on the 69 pools of the 8-atlas set, whose h5ads are not released) |
 | Supp. Fig. S4 and Table S8, labels with hidden subtypes (60 labels) | none | none | not in repo (the UMAPs and separability need the counts of the 69 pools, whose h5ads are not released; no figure scripts) |
-| Supp., donor correction (Harmony) and the donor-strata table (Table S7) | none | none | not in repo (no code here; both cover the two test sets: Harmony rescores from counts, and the 69 pool h5ads are not released; Table S7 also reads the 10-atlas saved scores, which are not released) |
+| Supp., donor correction (Harmony) and the donor-strata table (Table S7) | none | none | not in repo (no code here; both use both test sets. Harmony rescores from counts, and the 69 pool h5ads of the 8-atlas set are not released; Table S7 reads the saved scores, and those of the 10-atlas set are not released) |
 | Supp., biology on a dataset with automated labels | none | none | not in repo (no code here; the blood dataset is row `cede8227` of `ATLAS_MANIFEST.csv`, which has no dataset id or URL) |
 | Supp. Table S9, validation of called groups against annotated types | none | none | not in repo (the gene tests need the counts of the 69 pools, whose h5ads are not released) |
 | Supp., further details of the method: time and memory per pool | none | none | not in repo (per-job `/usr/bin/time -l` logs on the run machine) |
@@ -76,7 +76,7 @@ The table lists 22 paper items: 4 reproduced, 6 partial, 1 recomputed with anoth
 
 Pick one.
 
-**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required; platform and score-reproducibility notes in `ENVIRONMENTS.md`). The published tools have their own environment; see `ENVIRONMENTS.md`.
+**Python environment.** Python 3.12, `pip install -r requirements.txt` or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
 
 **Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.0`; they pull without a login. Use `v0.1.0`, because the `v0.1.1` images have not been checked and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` tiers on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38827295374)); the `recomb2027-tools` image has not been run end to end. They are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
@@ -114,7 +114,7 @@ At the `paper` tier a mismatch with any asserted value fails the run (see Paper 
 
 The code release is v0.1.1. The release assets and the checked container images stay on v0.1.0 (v0.1.1 has no assets), and the v0.1.0 image holds the v0.1.0 code, which differs from v0.1.1 only in documentation, the image tag in `Apptainer.def`, the manual container-check workflow, the seeds of `part1/run.sh` (no tier runs it) and a print format in notebook 03.
 
-`fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`. For `full` it also downloads and checks the source atlases (see Atlases). `data/README.md` explains how to check or refresh `ATLAS_MANIFEST.csv`.
+`fetch_data.sh` downloads the assets of a release (`TAG`, default v0.1.0) and checks them against `ASSETS.md5`. For `full` it also downloads and checks the source atlases (see [REPRODUCE.md](REPRODUCE.md#atlases)). `data/README.md` explains how to check or refresh `ATLAS_MANIFEST.csv`.
 
 A missing release or asset gives 404 (check `TAG`; the assets are on release v0.1.0, and release v0.1.1, the version in `CITATION.cff`, has none). `fetch_data.sh` then falls back to `gh release download` (install the GitHub CLI and log in). Set `ASSET_SRC=DIR` to take the assets from a local directory, for offline use.
 
