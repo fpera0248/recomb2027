@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code or reproduce our results, please cite the paper."
-title: "Finding Rare Cell Subtypes Hidden Inside Broad Labels"
+title: "Duplication, Generators and Hidden Rare Cell Subtypes"
 version: v0.1.2
 date-released: "2026-10-16"
 license: MIT
@@ -22,7 +22,7 @@ keywords:
   - benchmarking
 preferred-citation:
   type: unpublished
-  title: "Finding Rare Cell Subtypes Hidden Inside Broad Labels"
+  title: "Duplication, Generators and Hidden Rare Cell Subtypes"
   authors:
     - family-names: "Peralta Castro"
       given-names: "Fernando"
