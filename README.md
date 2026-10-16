@@ -39,13 +39,13 @@ The table lists 22 paper items: 3 reproduced, 7 partial, 1 recomputed with anoth
 | Fig. 1b, default-threshold recall versus matched recall | 04 section 1 | paper | partial: duplication against no augmentation only |
 | Fig. 1c, duplication equals sample weighting | 04 section 2 | paper | reproduced |
 | Fig. 1d, union AP of our method, Leiden subclustering, scCAD and the loops | 01 sections 2, 4, 5; 02 section 2 | paper | partial: union AP values; the random-ranking line is not recomputed |
-| Fig. 2a, atlas-equal means of the methods | 01 section 5; 02 sections 1 and 2 | paper | partial: every method except classifier uncertainty |
+| Fig. 2a, atlas-equal means of the methods | 01 section 5; 02 sections 1 and 2 | paper | partial: every method except classifier uncertainty, GiniClust3 and FiRE (the figure plots GiniClust3 and FiRE runs on the rebuilt subsamples of Supp. Table S6; notebook 02 scores earlier runs of both on the original subsamples); the random-ranking line is not recomputed |
 | Fig. 2b, per-atlas differences | 01 sections 2 and 3; 02 section 3 | paper | partial: per-atlas differences against Leiden subclustering are asserted; against scCAD with labels, only the mean, atlas count and p |
 | Fig. 3, separability tiers and UMAPs | none | none | not in repo (panel a uses the 10-atlas results; panels b and c show 8-atlas pools, whose h5ads are not released; no tier draws figures) |
 | Supp. Fig. S3, hidden-type calls plus duplication | none | none | not in repo (`combination/` holds the code; the per-pool result rows are not included) |
 | Supp. Fig. S1, example pool | none | none | not in repo (needs that pool's h5ad, one of the 69 below, and a figure script) |
 | Supp. Fig. S2, null twins | 03 (101 pairs, opening cells) and 03 section 2 (69 pairs) | paper | reproduced: rates; the AUC recomputes to 0.61 against the 0.60 printed |
-| Supp. Table S6, published detectors against our method | 02 sections 2 and 3 | paper | partial: the first block, and the FiRE means of the rebuilt-subsample block, where FiRE (per label) recomputes to 0.098 against the 0.097 printed; the rest of that block and the 10-atlas block (predictions not released) are not recomputed |
+| Supp. Table S6, published detectors against our method | 02 sections 2 and 3 | paper | partial: the first block; the rebuilt-subsample block and the 10-atlas block are not recomputed (their predictions are not released; the GiniClust3 and FiRE rows of notebook 02 are earlier runs on the original subsamples) |
 | Supp., metrics for the called cells | 02 sections 3 and 4 | paper | reproduced |
 | 31-type AIDA run (values not printed in the paper) | 04 section 3 | paper | recomputed with another readout; the paper's 31-type values (matched-operating-point paragraph) are not recomputed |
 | Supp., per-subtype results on the 8-atlas pools | none | none | not in repo (separability is computed from the counts of the 69 pools, whose h5ads are not released) |
@@ -126,6 +126,7 @@ A missing release or asset gives 404 (check `TAG`; the assets are on release v0.
 
 - CELLxGENE data (downloaded by the builders), the training pools and the tool checkouts. `hiddenrare/scorer.py fit` is the training script; it needs the training pools. Run it from the repository root (it imports eval/targets.py).
 - The 10-atlas predictions: the 10-atlas results (strata, separability tiers, label ablation, CHOIR) cannot be rerun from the release.
+- The rebuilt 8-atlas subsamples and their predictions (our method, Leiden subclustering, GiniClust3 and FiRE): the second block of Supp. Table S6 and the GiniClust3 and FiRE bars of Fig. 2a cannot be rerun from the release.
 - Figure scripts.
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
