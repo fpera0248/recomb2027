@@ -13,7 +13,7 @@ Each pool is split by donor. Both methods scored the whole pool with test donors
 ```
 export HR_DATA=assets HR_POOLS=/path/to/pool_h5ads    # HR_DATA: paper-tier assets (pilots/, manifests/, pools.csv, predictions/)
 export OUT=work/combination_rows                      # keep outputs out of the source tree
-python -m combination.run_one atl_luad_p0 0 --out $OUT/one.csv                 # one pool, one seed: one row per setting
+python -m combination.run_one atl_luad_p0 0 --out $OUT/one.csv                 # one pool, one seed: one row per setting (without --out it writes combination/rows_<pool>_<seed>_<clf>.csv)
 combination/run_all.sh lr                                    # all eligible pools and seeds, then the analysis; also rf and mlp
 ```
 `HR_POOLS` holds `<source_path>` h5ad files (raw counts, all genes) for the 69 pools of the 8-atlas test set, for example `luad_p0.h5ad`.

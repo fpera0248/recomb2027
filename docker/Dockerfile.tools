@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 # Published tools that run on a pool: the Python tools (scCAD, GiniClust3, FiRE, MARS, scGPT
 # isolation forest) and the R tools (CellSIUS, GapClust, SCISSORS). The wrappers in tools/ only
-# adapt input and output; the tools are the official repositories at the commits in tools/sources.txt.
+# adapt input and output (run_cellsius.R also patches one type test in memory for R>=4.2; see
+# tools/README.md); the tools are the official repositories at the commits in tools/sources.txt.
 # CPU only. The scGPT whole-human checkpoint is not baked; mount it and set SCGPT_CKPT.
 #
 #   docker build -f docker/Dockerfile.tools -t recomb2027-tools .

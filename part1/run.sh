@@ -26,7 +26,9 @@ GENE_DIR=hlca_genes READOUT_CSV=hlca_clf.csv python3 panel_readout.py run
 GENE_DIR=hlca_genes READOUT_CSV=hlca_clf.csv python3 panel_readout.py report
 H5AD=${LUPUS_H5AD:?} python3 lupus.py
 
-# CELLxGENE panel: CL_OBO=<cl-basic.obo> python3 panel_census.py pull|report builds panel_eligible.csv (shipped here)
+# CELLxGENE panel. panel_eligible.csv is shipped here; to rebuild it, run pull, then report:
+#   CL_OBO=/path/to/cl-basic.obo python3 panel_census.py pull
+#   CL_OBO=/path/to/cl-basic.obo python3 panel_census.py report
 export PANEL_DATA=${PANEL_DATA:-panel_data}
 for ds in $(cat panel_queue.txt); do ./panel_run.sh $ds || true; done
 PANEL_DIR=panel_runs PANEL_OUT=panel python3 panel_analysis.py
