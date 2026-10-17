@@ -1,5 +1,5 @@
 """Shared loading + metrics for AIDA/HLCA/lupus, same readout path as hlca_classifier_readout.py.
-Imports hlca_classifier_readout.py and statistical_arms.py unmodified (sets M27_HL before import so its ARMS/_fn/_base pick up
+Imports hlca_classifier_readout.py and statistical_augmentations.py unmodified (sets M27_HL before import so its ARMS/_fn/_base pick up
 the right cache dir). Does NOT edit either file.
 """
 import os, sys, glob, numpy as np
@@ -17,15 +17,15 @@ from sklearn.metrics import roc_auc_score, average_precision_score, matthews_cor
 
 def load_dataset(dataset):
     """Sets M27_HL then imports hlca_classifier_readout fresh (per-process import, so the module-level HL/ARMS/_fn
-    bind to this dataset's cache dir). Returns the module plus gene_arm/readout from statistical_arms."""
+    bind to this dataset's cache dir). Returns the module plus gene_arm/readout from statistical_augmentations."""
     D = DIRS[dataset]
     os.environ['M27_HL'] = D
     os.environ['M27_CSV'] = f'/tmp/_unused_{dataset}.csv'
     import importlib
-    if 'hlca_classifier_readout' in sys.modules:
-        del sys.modules['hlca_classifier_readout']   # force re-read of M27_HL for this process
-    import hlca_classifier_readout as H
-    from statistical_arms import readout, gene_arm
+    if 'm27_hlclf' in sys.modules:
+        del sys.modules['m27_hlclf']   # force re-read of M27_HL for this process
+    import m27_hlclf as H
+    from stat16 import readout, gene_arm
     return D, H, readout, gene_arm
 
 

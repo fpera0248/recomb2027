@@ -1,5 +1,5 @@
 """python atac_gene_activity.py : fragments -> gene-activity counts for the renal-cortex multiome (CELLxGENE 09b518f9). Venv: ~/work/jiaqi1011/venvs/atac. Resumable.
-Gene annotation = Ensembl 110 EnsDb (Bioconductor AnnotationHub) exported by p3_gene_anno.R; gene_name key = Ensembl ID so the matrix columns are ENSG ids."""
+Gene annotation = Ensembl 110 EnsDb (Bioconductor AnnotationHub) exported by ensembl_gene_annotation.R; gene_name key = Ensembl ID so the matrix columns are ENSG ids."""
 import os, re, sys, anndata as ad, snapatac2 as snap
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 D = HR_WORK + "/jiaqi1011/data/w6_atac"; FR = f"{D}/e037f157-49b6-4a1b-b34f-51a928778a27-fragment.tsv.bgz"; H5 = f"{D}/46aada24-d005-4486-9e21-866da4fdbd7a.h5ad"

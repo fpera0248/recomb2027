@@ -1,5 +1,5 @@
 """python build_ga.py --h5ad H5 --frag FRAGMENTS.tsv.bgz --gtf ensdb110_genes_idkey.gtf --data DIR : fragments of the WHITELISTED cells (DIR/whitelist.txt, from pools.py prep) -> gene-activity counts DIR/ga_counts.h5ad.
-Same recipe as the kidney pilot (code/w6/atac_gene_activity.py): Ensembl 110 gene body + 2 kb upstream, paired insertion, GRCh38 chromosome sizes, gene_name = Ensembl id. Resumable (ga_counts.h5ad = done; frag.h5ad kept).
+Same recipe as the kidney pilot (code/w6/p3_build.py): Ensembl 110 gene body + 2 kb upstream, paired insertion, GRCh38 chromosome sizes, gene_name = Ensembl id. Resumable (ga_counts.h5ad = done; frag.h5ad kept).
 New vs the pilot: barcode and contig style are detected from the fragment file head (identity / strip '-N' / sample prefix removal; chr-prefixed or not) and the cell names are mapped back to the h5ad obs names. Venv: ~/work/jiaqi1011/venvs/atac (snapATAC2)."""
 import os, re, sys, gzip, argparse, itertools, numpy as np
 sys.dont_write_bytecode = True

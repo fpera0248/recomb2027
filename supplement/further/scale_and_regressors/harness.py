@@ -5,8 +5,8 @@ HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ.update(FEATS="mkh", TARGET="pur", PYTHONDONTWRITEBYTECODE="1", R5=HR_WORK + "/r5/data", SI_H=HR_WORK + "/r5/data/hmod")
 sys.dont_write_bytecode = True
 sys.path.insert(0, HR_WORK + "/r5/code"); H = HR_WORK
-import learned_scorer as L, score_atl as S, hlib
-from rank_combination_sweep import combo
+import learn14 as L, score_atl as S, hlib
+from combo_r2 import combo
 from score_hlca import targets
 FEAT_COLS = list(range(41)); G_, A_ = L.RULES["P4_s1"]
 ROOT = {"B": f"{H}/r5/data", "A": f"{H}/ablation_donor/data"}

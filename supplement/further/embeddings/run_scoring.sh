@@ -1,7 +1,7 @@
 #!/bin/bash
 # bash run_scoring.sh [OUTDIR] : score every arm that has finished pools against PCA on their common pools (3 stages + diagnostics), then tables + figures.
 # Laptop: /usr/local/bin/python3 (sklearn 1.5.2 like the mini). Light (HGB on <1M groups); safe without the lock. Works on partial outputs.
-set -eu; export W2_OUT=${1:-${HR_WORK:-$HOME/work}/jiaqi1011/out/w2_fm}; C=${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm; PY=${PY:-/usr/local/bin/python3}
+set -eu; export W2_OUT=${1:-${HR_WORK:-$HOME/work}/jiaqi1011/out/w2_fm}; C=$(cd "$(dirname "$0")" && pwd); PY=${PY:-/usr/local/bin/python3}
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-4} PYTHONWARNINGS=ignore PYTHONDONTWRITEBYTECODE=1
 cd "$W2_OUT"
 for d in arms/*/; do

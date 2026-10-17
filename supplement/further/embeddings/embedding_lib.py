@@ -92,7 +92,7 @@ class Patch:
 
 def install(space, variant, pid=None):
     """import locked modules (env() first), patch methods.preprocess_pca, return (modules dict, Patch|None, d_expected)."""
-    import loader, seprank_variants, candidate_dump, candidate_marker_features, candidate_halo_features
+    import loader, sr2 as seprank_variants, sr3 as candidate_dump, sr3m as candidate_marker_features, sr3h as candidate_halo_features   # file names in the locked tree
     M = sys.modules["methods"]; assert seprank_variants.M is M and M.__file__.startswith(ROOT), (seprank_variants.M, M.__file__)
     if space == "pca": return dict(loader=loader, candidate_dump=candidate_dump, candidate_marker_features=candidate_marker_features, candidate_halo_features=candidate_halo_features, M=M), None, None
     if space == "pca30": p = Patch(M, "pca30", variant); M.preprocess_pca = p; return dict(loader=loader, candidate_dump=candidate_dump, candidate_marker_features=candidate_marker_features, candidate_halo_features=candidate_halo_features, M=M), p, 30

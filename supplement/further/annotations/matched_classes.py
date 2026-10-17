@@ -23,8 +23,8 @@ def bisect(count, n, lo=0.01, hi=10.0, it=18):
 def target_n(pid):
     """class count of our method (A1 of annotation_refine) per threshold, plus the scoring frame."""
     sys.path.insert(0, J + '/code/w6'); sys.path.insert(0, J + '/code/w1')
-    from label_corruption_common import CLEAN, root
-    import annotation_refine as P, harness as h
+    from w6common import CLEAN, root
+    import p2_refine as P, harness as h
     from score_hlca import targets
     G = pd.read_parquet(f'{W6}/groupP/ID__{pid}.parquet'); R = root('ID'); C = pd.read_parquet(f'{R}/cands/{pid}.cells.parquet'); cells = C.cell_id.values
     d = pd.read_parquet(f'{CLEAN}/hmod/pilots/{pid}.parquet', columns=['obs_name', 'label', 'true_type']).astype({'label': str, 'true_type': str}); si, oid = h.hlib._opaque_order(pid, d.obs_name.values)

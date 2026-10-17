@@ -16,7 +16,7 @@ if not os.path.exists(f"{R}/preds_base/m1_full/{pid}.parquet"): run(f"{HERE}/lei
 t1 = time.time() - t0
 sys.path.insert(0, HR_WORK + "/jiaqi1011/code/w1"); import harness as h                      # locked code, clean R5 env in this process
 from harness import L, S, hlib, G_, A_
-from rank_combination_sweep import combo
+from combo_r2 import combo
 from score_hlca import targets
 from sklearn.metrics import average_precision_score as AP
 MP = f"{h.H}/r5/refit_dev_nat.pkl"; MP = MP if os.path.exists(MP) else f"{h.H}/cfgen_natrare/j1004/h/si_v3/vm3_m12/r4_out/verify/v4_integ/refit_dev_nat.pkl"; M = pickle.load(open(MP, "rb"))

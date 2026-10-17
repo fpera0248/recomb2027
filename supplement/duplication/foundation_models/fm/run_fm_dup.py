@@ -14,7 +14,7 @@ pre-conventional DC, innate lymphoid cell, CD141+ mDC), RUNGS=[1,2,4,8,16,32,64,
 the 8 types per seed (bijection, reshuffled every seed), 3 seeds, donor-disjoint 80/20 train/eval
 donor split per seed. Arms: none, dup, classweight (lr/rf only), jitter (s=1.0, pooled abundant sd),
 smote (k=5); every augmented arm tops each probe type up to TARGET=128. Classifiers: lr/knn/rf/mlp
-(statistical_arms.readout, imported not copied) + a plain nearest-prototype readout (real cells only:
+(statistical_augmentations.readout, imported not copied) + a plain nearest-prototype readout (real cells only:
 augmentation cannot move a mean-based readout, so it is not re-run per arm). Two representations on the SAME cells: FM (256-dim, frozen) and
 PCA-50 of log1p-CPM (TruncatedSVD, fit per seed on that seed's real training pool).
 
@@ -35,7 +35,7 @@ warnings.filterwarnings('ignore', category=RuntimeWarning, module='sklearn.linea
 os.environ.setdefault('OMP_NUM_THREADS', '2'); os.environ.setdefault('MKL_NUM_THREADS', '2')
 os.environ.setdefault('OPENBLAS_NUM_THREADS', '2')
 sys.path.insert(0, HR_WORK + '/cfgen_natrare')
-from statistical_arms import dup, jitter, smote, lognorm, readout  # reused, not copied
+from stat16 import dup, jitter, smote, lognorm, readout  # reused, not copied
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import TruncatedSVD
