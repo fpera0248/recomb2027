@@ -47,7 +47,7 @@ See [ENVIRONMENTS.md](ENVIRONMENTS.md) for the Python pins and [CONTAINER.md](CO
 ./reproduce.sh paper
 ```
 
-This downloads the release assets, recomputes the Part II numbers of the 8-atlas test set plus the Part I panel and extra checks, and asserts the match. A mismatch with any asserted value fails the run. The `rerun` and `full` levels, the data, releases, notebooks and known gaps are in [REPRODUCE.md](REPRODUCE.md).
+This downloads the release assets, recomputes the Part II numbers of the 8-atlas test set plus the Part I panel and extra checks, and asserts the match. A mismatch with any asserted value fails the run. `reproduce.sh` needs a level argument (`paper`, `rerun` or `full`). `fetch_data.sh` downloads the release assets from tag `v0.1.0` by default, because the assets are attached to that release and not to the later ones; set `TAG` to use another. The `rerun` and `full` levels, the data, releases, notebooks and known gaps are in [REPRODUCE.md](REPRODUCE.md).
 
 In the container:
 
