@@ -7,7 +7,8 @@ ray/optuna/tdigest/seaborn imports) reconfigured for the V2/"95M-series" convent
 30M: special_token=True (<cls>/<eos>), model_input_size=4096, the gc95M-vocab dictionaries
 (gene_median_dictionary_gc95M.pkl / token_dictionary_gc95M.pkl / ensembl_mapping_dict_gc95M.pkl,
 vocab 20275, <pad>=0 <mask>=1 <cls>=2 <eos>=3 -- all confirmed by reading the pickles directly).
-There is no gc104M dictionary; these gc95M dicts are the ones tokenizer.py (line 37) pairs
+The Geneformer checkout used here has no gc104M dictionary (later upstream releases name the V2
+dictionaries gc104M); these gc95M dicts are the ones its tokenizer.py (line 37) pairs
 with special_token=True + model_input_size=4096 + vocab 20275, i.e. the same convention family.
 
 aida_sg.h5ad already has raw counts directly in .X and Ensembl ids directly as var_names

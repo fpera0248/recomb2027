@@ -26,7 +26,7 @@ def load_aida(d):
     return _ids(np.concatenate([a[0], b[0]]), np.concatenate([a[1], b[1]]))
 
 def load_hlca(path):
-    """m27_gen_hlca_t.py: no cell dropped (logged 'C3 cell filter dropped 0'), so obs order = cell universe."""
+    """m27_gen_hlca_t.py: its cell filter dropped no cell (logged), so obs order = cell universe."""
     return _ids(*_obs(path))
 
 def load_lupus(path, ctrl_cap=12000):
