@@ -219,8 +219,7 @@ for seed in SEEDS:
     Zev=pca.transform(Xn[ev_idx]); yev=yall[ev_idx]
 
     # ---- scDesign3 arm: same training cells, same targets, conditioned on cell_type only ----
-    # temp dir lives beside the script, NOT under /private/var/folders: that tree gets wiped
-    # on session teardown and took the last run's scratch with it.
+    # temp dir lives beside the script, NOT under the system temp tree, which can be wiped while a run is in progress.
     sd3=None; sd3_drop=None   # scDesign3 arms dropped, see docstring
 
 

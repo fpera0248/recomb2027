@@ -94,7 +94,7 @@ attribute, and classes as rare as n=1)
      `augment(..., P=P)`, reused across all 8 probe classes -- the group
      split only ever depends on argmax(P), never on k or c beyond indexing.
 
-# ponytail: the reference model is a converged LogisticRegression standing in
+# Known limit: the reference model is a converged LogisticRegression standing in
 # for JM1's early-stopped ERM net (adaptation #1 above); ceiling is that on a
 # very well-separated / high-capacity feature space it could start fitting
 # even the rarest classes, silently sending every probe class down the

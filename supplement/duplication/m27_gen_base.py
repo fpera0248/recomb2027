@@ -258,8 +258,7 @@ for seed in SEEDS:
             Ctr=Ctr,Cev=Cev,Ltr=Ctr.sum(1).astype(np.float32),Lev=Cev.sum(1).astype(np.float32))
 
     # ---- scDesign3 arm: same training cells, same targets, conditioned on cell_type only ----
-    # temp dir lives beside the script, NOT under /private/var/folders: that tree gets wiped
-    # on session teardown and took the last run's scratch with it.
+    # temp dir lives beside the script, NOT under the system temp tree, which can be wiped while a run is in progress.
     os.makedirs('m27_sd3_tmp',exist_ok=True)
     def run_sd3(drop, tag):
         """Fit scDesign3 on the training cells whose class is not in `drop`. Returns (arm, err)."""

@@ -25,7 +25,7 @@ import os, sys, json, warnings, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 warnings.filterwarnings('ignore', category=RuntimeWarning, module='sklearn.utils.extmath')
 warnings.filterwarnings('ignore', category=RuntimeWarning, module='sklearn.linear_model._linear_loss')
-# ponytail: TruncatedSVD's randomized power-iteration step, and LogisticRegression(class_weight=
+# Known limit: TruncatedSVD's randomized power-iteration step, and LogisticRegression(class_weight=
 # 'balanced') on a near-quasi-separable n=1 class, can overflow float32 in an intermediate lbfgs
 # step before regularization + re-normalization pulls the final answer back to something finite
 # (verified by hand: 256-dim synthetic 1-vs-100 case above converges, predict_proba all finite,
