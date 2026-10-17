@@ -1,4 +1,4 @@
-"""E1-metrics-ovr main driver. For one dataset (aida/hlca/lupus): every cached arm x 4 classifiers x
+"""Main driver for the one-versus-rest metrics. For one dataset (aida/hlca/lupus): every cached arm x 4 classifiers x
 {multiclass, ovr(probe types only)} x {default, matched} threshold, full metric suite.
   python3 run_e1.py aida     -> j1004/metrics/aida_full.csv
 """

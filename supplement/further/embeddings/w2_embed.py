@@ -3,7 +3,7 @@ scvi  : methods.scvi_latent copy (locked one cannot early-stop): same 2000 HVG (
         early_stopping=True (official, validation ELBO), wall cap 15 min via Lightning max_time (cap hit => stops at that epoch, recorded), 3 threads. Pipeline venv.
 scgpt : official scgpt.tasks.embed_data, whole-human ckpt, the SAME 2000 HVG as the PCA arm (toolin/r pool = a[:, _hvg_genes]), symbols from var.feature_name,
         max_length=2001 so no gene sampling, batch 64, seeds 0. cls embedding (embed_data L2-normalises). Tools venv (no loader needed). env SCGPT_CKPT, --device.
-gf    : Geneformer V1-10M (gf-6L-30M-i2048), the C18 pipeline of ~/work/gf6l_emb/src (real tokenizer, gc30M dictionaries, mean over non-padding tokens of hidden_states[5]).
+gf    : Geneformer V1-10M (gf-6L-30M-i2048), the foundation-model duplication pipeline of ~/work/gf6l_emb/src (real tokenizer, gc30M dictionaries, mean over non-padding tokens of hidden_states[5]).
         Laptop python3 (transformers); model_version V1 = gc30M dictionaries with vocab asserted == 25426.
 noise : planted random embedding (64-d N(0,1)) for the leakage / plumbing gate."""
 import os, sys, time, argparse
@@ -12,7 +12,7 @@ import numpy as np, pandas as pd
 
 ap = argparse.ArgumentParser(); ap.add_argument("space"); ap.add_argument("pids", nargs="*"); ap.add_argument("--device", default=os.environ.get("W2_DEVICE", "cpu"))
 ap.add_argument("--toolin"); ap.add_argument("--subsample", type=int, default=0, help="plumbing test only: first N cells (output goes to space+_sub)")
-ap.add_argument("--ckpt", default=os.environ.get("SCGPT_CKPT", f"{W.HOME}/work/r5/tools/scgpt_ckpt")); o = ap.parse_args()
+ap.add_argument("--ckpt", default=os.environ.get("SCGPT_CKPT", f"{W.HR_WORK}/r5/tools/scgpt_ckpt")); o = ap.parse_args()
 pids = o.pids or W.pools()
 
 
@@ -48,7 +48,7 @@ def embed_scgpt(pid):
 
 def embed_gf(pid):
     import shutil, tempfile, torch, anndata as ad, scipy.sparse as sp
-    GFS = f"{W.HOME}/work/gf6l_emb/src"; sys.path.insert(0, GFS); import gfcfg as C
+    GFS = f"{W.HR_WORK}/gf6l_emb/src"; sys.path.insert(0, GFS); import gfcfg as C
     import gfload, types, importlib.util
     def make_tokenizer():
         """gfload.make_tokenizer, but the REAL tokenizer.py is exec'd with ONE in-memory change (pandas>=3 removed positional fallback in Series[int array]):

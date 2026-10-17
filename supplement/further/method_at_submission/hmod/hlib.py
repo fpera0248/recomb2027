@@ -1,23 +1,23 @@
 """load_pilot(pilot_id) -> (AnnData, true_type) for a hidden-rare pilot built
-by stage3_build.py / manifest.csv. The AnnData carries only what a blind
+by the pilot pool builder (not included) / manifest.csv. The AnnData carries only what a blind
 detection method is allowed to see (raw counts, visible label, donor); the
 true cell type comes back as a separate Series so nothing passes it by
-accident. See h/manifest.csv for pilot_id -> (design, dataset, rare_type, ...).
+accident. See $R5/hmod/manifest.csv for pilot_id -> (design, dataset, rare_type, ...).
 
-Leaks fixed here:
- - (2026-10-04, H1b-fix-leaks) raw_adata() returns the source slice UNCHANGED
+Leak guards:
+ - raw_adata() returns the source slice UNCHANGED
    (including its obsm/uns/varm/layers/var columns) whenever the source h5ad
-   has no .raw. Fixed: load_pilot always strips those slots itself.
- - (2026-10-04, H5-design-fix) stage3_build.py writes every pilot parquet
+   has no .raw, so load_pilot always strips those slots itself.
+ - the pilot pool builder writes every pilot parquet
    sorted by TRUE type (D1: [m1 block][m2 block][rare block], always in that
    order; D2: one contiguous block per true type), AND obs_names are the
    source h5ad's own row index, so a source file sorted by cell type would
-   let obs_name itself encode truth. A FIXED-SEED shuffle (this file's
-   previous fix) does not close this: RandomState(seed).permutation(n)
+   let obs_name itself encode truth. A FIXED-SEED shuffle would not
+   close this: RandomState(seed).permutation(n)
    depends only on n and the seed, so it is the SAME permutation for every
    pilot of a given size and is trivially invertible by anyone who knows
-   hlib's seed -- it still lets a method's own code exploit row position.
-   Fixed properly: rows are reordered by sort(sha1(pilot_id + source
+   hlib's seed -- it would still let a method's own code exploit row position.
+   So rows are reordered by sort(sha1(pilot_id + source
    obs_name)), a permutation that depends on data a method never sees (the
    source obs_name) combined with the pilot_id, so it cannot be recomputed
    or inverted from anything a method has access to. obs_names are replaced
@@ -28,13 +28,14 @@ Leaks fixed here:
    attached to the AnnData a method receives.
 """
 import os
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import hashlib
 import numpy as np
 import pandas as pd
 import scanpy as sc
 from rawutil import raw_adata
 
-R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 H = os.path.join(R5, "hmod")
 PILOTS_DIR = os.path.join(H, "pilots")
 

@@ -4,6 +4,7 @@ Arms: A0 broad label | A1 broad + ours (groups with P>=t, greedy by P desc then 
 A2s broad + Leiden small subclusters (<10% of label, as stored) | A2f broad + full silhouette partition | A3 A1 + Leiden small subclusters on the residual | A4 size-matched random control of A1.
 Scores vs fine truth (true_type): ARI, NMI (whole pool), target-pair F1 (best match and one-to-one Hungarian), all-type F1 secondary."""
 import os, sys, json, glob, pickle, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True; HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from w6common import *
 from scipy.optimize import linear_sum_assignment
 from sklearn.metrics import adjusted_rand_score as ARI, normalized_mutual_info_score as NMI
@@ -66,7 +67,7 @@ def calibrate(grid=None):
     json.dump(dict(t_cal=best, curve=S.round(4).to_dict(), rule="max atlas-mean macro best-match target F1 of A1 on set A; ties -> larger t"), open(f"{OUT}/p2_t_cal.json", "w"), indent=1); print(S.round(4).to_dict(), "t_cal", best)
 
 def apply(maxp=2):
-    ts = json.load(open(f"{OUT}/p2_t_cal.json"))["t_cal"]; rows = []; sys.path.insert(0, f"{HOME}/work/jiaqi1011/code/w1"); import harness as h
+    ts = json.load(open(f"{OUT}/p2_t_cal.json"))["t_cal"]; rows = []; sys.path.insert(0, f"{HR_WORK}/jiaqi1011/code/w1"); import harness as h
     from score_hlca import targets
     for pid in pools().query("pool <= @maxp").pilot_id:
         g = f"{OUT}/groupP/ID__{pid}.parquet"; u = f"{OUT}/units/ID__{pid}.csv"
@@ -87,6 +88,6 @@ def apply(maxp=2):
     R = pd.DataFrame(rows); R["arm_"] = R.arm.str.replace(r"_\d$", "", regex=True); R.to_csv(f"{OUT}/p2_pool.csv", index=False); print(R.groupby(["thr", "arm_"])[["F1_bm", "F1_oo", "ARI", "NMI", "n_classes"]].mean().round(3))
 
 if __name__ == "__main__":
-    if sys.argv[1] == "calibrate_ext": sys.path.insert(0, f"{HOME}/work/jiaqi1011/code/w1"); calibrate([0.0, 0.02, 0.05, 0.075])
-    elif sys.argv[1] == "calibrate": sys.path.insert(0, f"{HOME}/work/jiaqi1011/code/w1"); calibrate()
+    if sys.argv[1] == "calibrate_ext": sys.path.insert(0, f"{HR_WORK}/jiaqi1011/code/w1"); calibrate([0.0, 0.02, 0.05, 0.075])
+    elif sys.argv[1] == "calibrate": sys.path.insert(0, f"{HR_WORK}/jiaqi1011/code/w1"); calibrate()
     else: apply(int(sys.argv[2]) if len(sys.argv) > 2 else 2)

@@ -1,10 +1,11 @@
-"""Marker-specificity features for every sr3 candidate group (DEV 2026-10-07). Real cell types carry genes detected in most of their
+"""Marker-specificity features for every sr3 candidate group (dev). Real cell types carry genes detected in most of their
 cells and few cells of the rest of their label; over-split fragments of one population do not. Blind: uses counts + visible labels only.
 Detection = count > 0, on genes detected in >= 1% of the pilot's cells. delta_g = pct_in(g) - pct_out(g), out = rest of the same label.
   python sr3m.py PILOT_ID -> $SI/cands/<pid>.markers.parquet (row-aligned with <pid>.groups.parquet)"""
 import os, sys, time
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS"): os.environ.setdefault(v, "2")
-SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 import numpy as np, pandas as pd, scipy.sparse as sp
 import loader
 

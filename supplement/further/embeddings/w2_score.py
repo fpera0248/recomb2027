@@ -4,7 +4,7 @@ Scores three arms of the experiment for every ARM on the SAME pools (intersectio
   frozen   : the shipped scorer (learn14 predict, FEATS=mkh, P4_s1) applied as is; 'sc' = scorer alone, 'bl' = blend 0.75/0.25 with m1 in the same space
   retrain  : scorer retrained leave-one-atlas-out inside set B (fit on the groups of the other atlases' pools in this space, predict the held-out atlas); same blend
 Metrics: union_AP (primary) and E1_union per pool. Diagnostics (DIAG.csv, truth used only here at evaluation): number of candidate groups, g/l split,
-best Jaccard of any candidate group with each target, l-groups duplicating a g group. Uses the W1 harness for features, predictions, blend and metrics (copy: harness.py)."""
+best Jaccard of any candidate group with each target, l-groups duplicating a g group. Uses the scoring harness for features, predictions, blend and metrics (copy: harness.py)."""
 import os, sys, glob, argparse, pickle, numpy as np, pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import w2lib as W
 import harness as Hn
@@ -12,8 +12,8 @@ from harness import L, S, hlib
 
 ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("diag"); ap.add_argument("arms", nargs="+"); ap.add_argument("--pools"); ap.add_argument("--model")
 o = ap.parse_args()
-MODEL = o.model or next(p for p in (os.environ.get("R5_MODEL", ""), f"{W.HOME}/work/r5/refit_dev_nat.pkl",
-        f"{W.HOME}/work/cfgen_natrare/j1004/h/si_v3/vm3_m12/r4_out/verify/v4_integ/refit_dev_nat.pkl") if p and os.path.exists(p))
+MODEL = o.model or next(p for p in (os.environ.get("R5_MODEL", ""), f"{W.HR_WORK}/r5/refit_dev_nat.pkl",
+        f"{W.HR_WORK}/cfgen_natrare/j1004/h/si_v3/vm3_m12/r4_out/verify/v4_integ/refit_dev_nat.pkl") if p and os.path.exists(p))
 frozen = pickle.load(open(MODEL, "rb")); print("model", MODEL, flush=True)
 atlas = lambda pid: pid.split("_")[1]
 

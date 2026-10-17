@@ -5,7 +5,7 @@ PAPER
     Generalization by Group Interpolation", arXiv:2210.12195 (extended
     version of the NeurIPS 2021 Workshop on Distribution Shifts paper,
     https://neurips.cc/virtual/2021/35437).
-    Fetched 2026-09-24 via curl (public pages, no login):
+    Public pages (no login):
         https://arxiv.org/abs/2210.12195           (abstract/metadata)
         https://arxiv.org/html/2210.12195v1        (full text, method + appendix)
 
@@ -49,8 +49,8 @@ METHOD, AS THE PAPER STATES IT
 
 ADAPTATIONS (this setting has no images/text, no SGD loop, no spurious
 attribute, and classes as rare as n=1)
-  1. No neural net / no epochs -> no "identification epoch T". The task
-     spec pins the identification (reference) model to
+  1. No neural net / no epochs -> no "identification epoch T". The
+     identification (reference) model is
      sklearn.linear_model.LogisticRegression(max_iter=2000), the same
      family as the downstream classifier. We use that at C=1 (matching the
      downstream classifier's C=1, since JM1's own weight-decay values are
@@ -94,7 +94,7 @@ attribute, and classes as rare as n=1)
      `augment(..., P=P)`, reused across all 8 probe classes -- the group
      split only ever depends on argmax(P), never on k or c beyond indexing.
 
-# ponytail: the reference model is a converged LogisticRegression standing in
+# Known limit: the reference model is a converged LogisticRegression standing in
 # for JM1's early-stopped ERM net (adaptation #1 above); ceiling is that on a
 # very well-separated / high-capacity feature space it could start fitting
 # even the rarest classes, silently sending every probe class down the

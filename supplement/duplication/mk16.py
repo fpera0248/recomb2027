@@ -16,7 +16,7 @@ def lfc(mc, mr): return np.log2((np.expm1(np.maximum(mc, 0)) + 1e-9) / (np.expm1
 
 def stat_arms(b, seed, T):
     """jitter / smote_k5 built in gene space on the real training cells and renormalized (stat16.gene_arm):
-    the same normalizer every generator's cells went through (Jiaqi 2026-09-28)."""
+    the same normalizer every generator's cells went through."""
     return {name: {c: v[0] for c, v in gene_arm(name, b['Xtr'], b['ytr'], b['probe'], b['n_c'], seed, T).items()}
             for name in ('jitter_s0.5', 'jitter_s1.0', 'jitter_s2.0', 'jitternz_s1.0', 'smote_k5')}
 

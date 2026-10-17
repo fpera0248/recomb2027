@@ -3,11 +3,12 @@ Data: ~/work/jiaqi1011/out/w1_scale/scale.csv (time, memory), out/w2_fm/res_{pca
 out/w6_annot_atac/p1_summary.csv + p1_atlas_union_AP.csv (random label errors).
 Run: OMP_NUM_THREADS=4 nice -n 10 python3 figS_further.py"""
 import sys, os, itertools, numpy as np, pandas as pd
-sys.path.insert(0, '/Users/fperaltacastro/work/recomb27/v2/figs'); sys.path.insert(0, '/Users/fperaltacastro/work/recomb27/rev1015/figaudit'); sys.dont_write_bytecode = True
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, HR_WORK + '/recomb27/v2/figs'); sys.path.insert(0, HR_WORK + '/recomb27/rev1015/figaudit'); sys.dont_write_bytecode = True
 import matplotlib.pyplot as plt
 from paperstyle import *
 apply_style()
-J = os.path.expanduser('~/work/jiaqi1011/out/')
+J = HR_WORK + '/jiaqi1011/out/'
 ok = lambda x, v, d: abs(x - v) < 0.5 * 10 ** -d + 1e-9   # x equals printed v at d decimals
 def pflip(x):   # exact two-sided sign-flip over atlas values
     s = [abs(sum(g * v for g, v in zip(c, x))) for c in itertools.product([1, -1], repeat=len(x))]
@@ -15,6 +16,8 @@ def pflip(x):   # exact two-sided sign-flip over atlas values
 
 # ---- (a) time ----
 S = pd.read_csv(J + 'w1_scale/scale.csv'); S = S[(S.status == 'ok') & (S.seed == 0)]
+# step ids as stored in scale.csv: sr3 = candidate groups, sr3m = marker features, sr3h = halo features, m1_leiden_sub = Leiden subclustering,
+# learn14_predict = learned scorer, frozen4 = final blend (our method)
 steps = ['sr3', 'sr3m', 'sr3h', 'm1_leiden_sub', 'learn14_predict', 'frozen4']
 W = S[S.step.isin(steps)].pivot(index='n', columns='step', values='wall_s'); M = S[S.step.isin(steps)].pivot(index='n', columns='step', values='max_rss_mb')
 ns = [5000, 10000, 20000, 50000, 100000, 200000]; assert list(W.index) == ns and not W.isna().any().any()
@@ -73,7 +76,7 @@ for k, x in xs.items():
     b.plot(x, R[k].mean(), 'D', color=co, ms=5, mec='black', mew=.5, zorder=3)
 b.axhline(0, color='black', ls='--', lw=LW_THIN); b.set_xlim(-.5, 1.5); b.set_xticks([0, 1]); b.set_xticklabels(['scVI', 'scGPT'])
 b.set_ylabel('Change in AP from PCA'); b.margins(y=.1)
-for k, x in xs.items(): b.text(x, b.get_ylim()[1], f'{R[k].mean():+.3f}'.replace('-', '−'), ha='center', va='top', fontsize=FS_MIN, color=co)
+for k, x in xs.items(): b.text(x, b.get_ylim()[1], f'{R[k].mean():+.3f}'.replace('-', '\u2212'), ha='center', va='top', fontsize=FS_MIN, color=co)
 for k, col, mk in [('ours', co, 'o'), ('leiden', cl, '^')]:
     c.errorbar(range(4), m[k], yerr=A[k + '_se'], fmt='-' + mk, color=col, ms=3.5, lw=LW, label='Our method' if k == 'ours' else 'Leiden subclustering', zorder=3)
 c.set_xticks(range(4)); c.set_xticklabels([f'{r}%' for r in rates]); c.set_xlim(-.2, 3.2)

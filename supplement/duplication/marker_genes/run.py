@@ -1,4 +1,4 @@
-"""E4 (J13/N20): marker / DE recovery of every augmentation arm, re-derived from the SAVED per-unit outputs.
+"""Marker genes: marker / DE recovery of every augmentation arm, re-derived from the SAVED per-unit outputs.
 README: python3 run.py [DIR_WITH_mk16.csv_and_m27_de.csv] [OUT_DIR]   (seconds, 1 core, <200 MB)
 Inputs  : p1data/mk16.csv (top-50 by log2FC of arm means, genes detected in >=25% of truth cells; truth = held-out-donor
           eval cells of the type vs real train cells of other types) and p1data/m27_de.csv (Wilcoxon + Welch, BH<0.05 & lfc>0.25,
@@ -21,7 +21,8 @@ REPORTING RULE (fixed before re-deriving; NOT a pre-registration, all numbers we
 Output  : OUT/e4_markers.csv (one row per arm x metric), printed table.
 """
 import sys, os, itertools, numpy as np, pandas as pd
-D = sys.argv[1] if len(sys.argv) > 1 else '/Users/fperaltacastro/work/recomb27/rev1015/p1data'
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+D = sys.argv[1] if len(sys.argv) > 1 else HR_WORK + '/recomb27/rev1015/p1data'
 O = sys.argv[2] if len(sys.argv) > 2 else os.path.dirname(os.path.abspath(__file__))
 S = np.array(list(itertools.product((-1, 1), repeat=8)))
 

@@ -46,6 +46,8 @@ removed. If the first aborts and the second succeeds, the singleton is the cause
 1-cell class kills synthesis for the other 30 classes too.
 """
 import sys, os, subprocess, tempfile, numpy as np, pandas as pd, torch, anndata as ad, scanpy as sc, time, warnings, pathlib
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 import scipy.io, scipy.sparse
 import scvi
 from sdiff_mod import build_sdiff, sample_sdiff
@@ -64,7 +66,7 @@ HVG=400 if '--smoke' in sys.argv else 2000
 NEV=50 if '--smoke' in sys.argv else 200
 LAT=50; EDIM=20; BS=256; NS=128
 CAP=150 if '--smoke' in sys.argv else 500   # control classes capped so scDesign3 can run at all
-RS_BIN='/Users/fperaltacastro/work/envs/scdesign3/bin/Rscript'
+RS_BIN=HR_WORK + '/envs/scdesign3/bin/Rscript'
 SD3_CORES=8   # mem_patch.R (SD3_MEM=1) strips the per-fit env capture, so 8 forks fit in RAM: 2000 genes in 1086s, cache 31 MB
 AE_EPOCHS = 2 if SMOKE else 30
 SCVI_EPOCHS = 2 if SMOKE else 60
@@ -80,7 +82,7 @@ PROBE=['double negative T regulatory cell','CD141-positive myeloid dendritic cel
        'plasmacytoid dendritic cell','mature B cell',
        'CD16-negative, CD56-bright natural killer cell, human']   # the 8 rarest types in AIDA
 if '--smoke' in sys.argv: PROBE=PROBE[:4]
-D='/Users/fperaltacastro/data/pilots/aida/'
+D=SUPP_DATA + '/pilots/aida/'
 t0=time.time()
 
 # ---- data: union of the two pools, counts, HVG ----
@@ -250,8 +252,7 @@ for seed in SEEDS:
             comp=pca.components_,pmean=pca.mean_,genes=np.array(A.var_names).astype(str))
 
     # ---- scDesign3 arm: same training cells, same targets, conditioned on cell_type only ----
-    # temp dir lives beside the script, NOT under /private/var/folders: that tree gets wiped
-    # on session teardown and took the last run's scratch with it.
+    # temp dir lives beside the script, NOT under the system temp tree, which can be wiped while a run is in progress.
     os.makedirs('sd3_tmp',exist_ok=True)
     def run_sd3(drop, tag):
         """Fit scDesign3 on the training cells whose class is not in `drop`. Returns (arm, err)."""
@@ -442,8 +443,8 @@ for seed in SEEDS:
 
     # ---- scDiffusion: a third family, and a third conditioning mechanism ----------
     # CFGen conditions by label embedding in the flow, scVI by a decoder covariate,
-    # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer, per
-    # rare-class-lost-in-flow-not-decoder: Adam with coupled weight decay cripples their VAE.
+    # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer is used, because
+    # Adam with coupled weight decay cripples their VAE.
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,
                    vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/g16_s{seed}_{VAE_STEPS}.pt')

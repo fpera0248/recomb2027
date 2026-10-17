@@ -1,13 +1,14 @@
 """python fit_worker.py TAG KIND NPILOTS SEED : fit one model on a pilot subset of train_xy.npz in a fresh process; writes models/TAG.pkl + models/TAG.json (fit time, peak RSS, n_iter, size, predict time per 100k groups)."""
 import os, sys, time, json, pickle, resource, numpy as np
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ["OMP_NUM_THREADS"] = "4"; os.environ["OPENBLAS_NUM_THREADS"] = "4"
 from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor, ExtraTreesRegressor, GradientBoostingRegressor
 from sklearn.linear_model import Ridge
 from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-tag, kind, npil, seed = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]); OUT = os.path.expanduser("~/work/jiaqi1011/out/w1/models"); os.makedirs(OUT, exist_ok=True)
-D = os.path.expanduser("~/work/jiaqi1011/out/w1/npy"); X, y, pid = np.load(D+"/X.npy", mmap_mode="r"), np.load(D+"/y.npy"), np.load(D+"/pid.npy"); u = np.unique(pid)  # npz decompressed once to .npy so peak RSS reflects only the rows used
+tag, kind, npil, seed = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]); OUT = HR_WORK + "/jiaqi1011/out/w1/models"; os.makedirs(OUT, exist_ok=True)
+D = HR_WORK + "/jiaqi1011/out/w1/npy"; X, y, pid = np.load(D+"/X.npy", mmap_mode="r"), np.load(D+"/y.npy"), np.load(D+"/pid.npy"); u = np.unique(pid)  # npz decompressed once to .npy so peak RSS reflects only the rows used
 if npil < len(u): keep = np.random.RandomState(seed).choice(u, npil, replace=False); m = np.isin(pid, keep); X, y = X[m], y[m]
 else: X = np.array(X)
 if kind == "gbr200k": i = np.sort(np.random.RandomState(seed).choice(len(y), 200000, replace=False)); X, y = X[i], y[i]

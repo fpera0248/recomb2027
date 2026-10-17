@@ -49,6 +49,8 @@ removed. If the first aborts and the second succeeds, the singleton is the cause
 1-cell class kills synthesis for the other 30 classes too.
 """
 import sys, os, subprocess, tempfile, numpy as np, pandas as pd, torch, anndata as ad, scanpy as sc, time, warnings, pathlib
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 import scipy.io, scipy.sparse
 import scvi
 from sdiff_mod import build_sdiff, sample_sdiff
@@ -67,8 +69,8 @@ HVG=400 if '--smoke' in sys.argv else 2000
 NEV=50 if '--smoke' in sys.argv else 200
 LAT=50; EDIM=20; BS=256; NS=128
 CAP=150 if '--smoke' in sys.argv else 500   # control classes capped so scDesign3 can run at all
-RS_BIN='/Users/fperaltacastro/work/envs/scdesign3/bin/Rscript'
-SD3_CORES=8   # m27: machine shared with 2 other jobs, capped per HARD RULES
+RS_BIN=HR_WORK + '/envs/scdesign3/bin/Rscript'
+SD3_CORES=8   # scDesign3 fork count (capped to leave cores for other jobs)
 AE_EPOCHS = 2 if SMOKE else 30
 SCVI_EPOCHS = 2 if SMOKE else 60
 SDIFF_EP = (2,2,2) if SMOKE else (40,60,30)   # VAE, diffusion, classifier
@@ -82,15 +84,14 @@ SEEDS=[0] if SMOKE else [0,1,2]
 # same-type fraction among held-out cells (m27_step1_sep.csv) -- i.e. least separable from a
 # neighbour type. These are common types overall (2,330-10,795 cells AIDA-wide) so rung 128 in
 # training + 200 held-out eval cells survive the donor-disjoint split with wide margin (checked:
-# /tmp/m27_probe_check.py, 9-12% of donors needed for eval at all 3 seeds). Separability here is
+# 9-12% of donors needed for eval at all 3 seeds). Separability here is
 # driven by ontology coarseness (unspecified parent labels vs specific child subtypes), not by
 # raw rarity -- unlike gen16's physically-rare probes, which turned out to be the MORE separable
 # half of AIDA's 31 types (m27_step1_report.txt).
-# 2026-09-28 (Opus check): the coarse set above was 6 annotator "unknown" bins (T_unknown, B_unknown, ...)
-# whose nearest type is their own child and which hold ~all of India's coarse-only annotation, so it
-# measured label depth + site, not mixing. Replaced by a Cell-Ontology LEAF set, neighbour-disjoint (no
-# probe is another probe's kNN neighbour, so every neighbour stays abundant at CAP), and the 6 unknown
-# bins are dropped from train AND eval. Coarse version kept at jobs tmp m27_gen_hard.py.coarse.bak.
+# PROBE is a Cell-Ontology LEAF set, neighbour-disjoint (no probe is another probe's kNN neighbour, so
+# every neighbour stays abundant at CAP). The 6 annotator "unknown" bins (UNKNOWN_BINS: T_unknown,
+# B_unknown, ...) have their own child as nearest type and hold ~all of India's coarse-only annotation,
+# so probes drawn from them would measure label depth + site, not mixing. They are dropped from train AND eval.
 UNKNOWN_BINS=['T cell','CD4-positive, alpha-beta T cell','CD8-positive, alpha-beta T cell',
               'natural killer cell','B cell','myeloid cell']
 PROBE=['central memory CD4-positive, alpha-beta T cell','memory B cell',
@@ -98,7 +99,7 @@ PROBE=['central memory CD4-positive, alpha-beta T cell','memory B cell',
        'CD16-positive, CD56-dim natural killer cell, human','CD4-positive, alpha-beta cytotoxic T cell',
        'naive B cell','gamma-delta T cell']
 if '--smoke' in sys.argv: PROBE=PROBE[:4]
-D='/Users/fperaltacastro/data/pilots/aida/'
+D=SUPP_DATA + '/pilots/aida/'
 t0=time.time()
 
 # ---- data: union of the two pools, counts, HVG ----
@@ -269,8 +270,7 @@ for seed in SEEDS:
             comp=pca.components_,pmean=pca.mean_,genes=np.array(A.var_names).astype(str))
 
     # ---- scDesign3 arm: same training cells, same targets, conditioned on cell_type only ----
-    # temp dir lives beside the script, NOT under /private/var/folders: that tree gets wiped
-    # on session teardown and took the last run's scratch with it.
+    # temp dir lives beside the script, NOT under the system temp tree, which can be wiped while a run is in progress.
     os.makedirs('m27_sd3_tmp',exist_ok=True)
     def run_sd3(drop, tag):
         """Fit scDesign3 on the training cells whose class is not in `drop`. Returns (arm, err)."""
@@ -461,8 +461,8 @@ for seed in SEEDS:
 
     # ---- scDiffusion: a third family, and a third conditioning mechanism ----------
     # CFGen conditions by label embedding in the flow, scVI by a decoder covariate,
-    # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer, per
-    # rare-class-lost-in-flow-not-decoder: Adam with coupled weight decay cripples their VAE.
+    # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer is used, because
+    # Adam with coupled weight decay cripples their VAE.
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,
                    vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/m27hard_s{seed}_{VAE_STEPS}.pt')

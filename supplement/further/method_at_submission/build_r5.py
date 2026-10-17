@@ -1,22 +1,24 @@
-"""Round-5 pool builder (PREREG_ATLAS5 sections 3, 4, 5). Reuses build_atlas5.pools (round-4 engine) and its pilot / slim-h5ad format unchanged.
+"""Test-pool builder for the second set of atlases. Reuses build_atlas5.pools and its pilot / slim-h5ad format unchanged.
 Structure only: reads obs, raw counts and truth labels (targets), never any score. Env R5 = data root (outputs), R5_WORK = static inputs (default ~/work/r5).
   python build_r5.py build NAME [NAME ...]      NAME = 8-char dataset id of an ATL entry; atlas file $R5/atlas/<dataset_id>.h5ad
-  python build_r5.py r4 luad                    round-4 config regression (no round-5 drops, 24 pools max, split test4)
+  python build_r5.py r4 luad                    regression check against the first set's config (no drops, 24 pools max, split test4)
   python build_r5.py promote                    BC1-BC4 statuses -> primary / alternate decision (atlas5_final.csv)
   python build_r5.py donors NAME                donor checks from the API cache only (no download)
 Outputs ($R5): slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv, leak5/ (log_<name>.csv, labels_<name>.csv,
 targets_<name>.csv, ../leak5_log.csv), build5/status_<name>.json."""
 import os, sys, re, json, glob, time, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 from anndata.io import sparse_dataset
 os.environ.setdefault("SI_H", os.path.join(os.path.dirname(os.path.abspath(__file__)), "hmod"))   # hlib / rprec for score_hlca without copying them to $R5/hmod
-import build_atlas5 as b          # round-4 engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
+import build_atlas5 as b          # pool engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
 
 R5, N, MAXP = b.R5, b.N, 8
-W = os.environ.get("R5_WORK") or os.path.expanduser("~/work/r5")
+W = os.environ.get("R5_WORK") or HR_WORK + "/r5"
 LK, ST = f"{R5}/leak5", f"{R5}/build5"
 SPLIT = "test5"
 
-# ---- section 4: atlas config. name = dataset id[:8]; (dataset_id, coarse = visible label col, fine = truth col, stratum, role, order)
+# ---- atlas config. name = dataset id[:8]; (dataset_id, coarse = visible label col, fine = truth col, stratum, role, order)
 _T = [("6f9de485-58cd-4342-bfc4-b3d3dd223aa8", "author_cell_type", "cell_state", "tumour", "primary", 1),
       ("1c53ef1e-45c7-4498-be59-6797f3950875", "broad_anno", "fine_anno", "tumour", "primary", 2),
       ("fe067858-1282-46ea-9553-b8cd19167266", "author_cell_type", "author_sub_cell_type", "tumour", "primary", 3),
@@ -30,16 +32,16 @@ _T = [("6f9de485-58cd-4342-bfc4-b3d3dd223aa8", "author_cell_type", "cell_state",
       ("c3bf8bcf-abb7-4d71-8491-bd4901b474cf", "main_cell_type", "subtype", "non-tumour", "primary", 5),
       ("551ad2bc-2e82-4541-8aab-849988d43752", "annotation_level0", "annotation_level2", "non-tumour", "alternate", 1)]
 ATL = {t[0][:8]: dict(zip(("id", "lab", "fine", "stratum", "role", "order"), t)) for t in _T}
-R4 = {"luad": ("author_cell_type_level_1", "author_cell_type_level_2")}     # round-4 regression config (build_atlas6.CFG["luad"]), no drops
+R4 = {"luad": ("author_cell_type_level_1", "author_cell_type_level_2")}     # regression config for luad, no drops
 
-# donors dropped by decision before lock (section 4); every one has an exact string match in the reference set
+# donors dropped by decision before the test; every one has an exact string match in the reference set
 DROP_PRE = {
     "fe067858": "CV0902 CV0904 CV0911 CV0915 CV0917 CV0926 CV0929 CV0934 CV0939 CV0940 CV0944 "
                 "MH8919176 MH8919177 MH8919178 MH8919179 MH8919226 MH8919227 MH8919282 MH8919283 MH8919332 MH8919333 newcastle65 newcastle74 A35 A36".split(),
-    "551ad2bc": "582C 583B 591C 621B 640C 398B 343B 367C 411C".split()}      # 411C added 2026-10-09 (amendment 3): norm match to psccolon 411c, alias match to "A32 (411C)" in panel file 80a2c5b6 and the CBTM siblings
-# check 4b mechanical rule (amendment 3): all non-primary cells of these atlases are dropped before pooling (meta-atlas with generic-id donors whose source cannot be found)
+    "551ad2bc": "582C 583B 591C 621B 640C 398B 343B 367C 411C".split()}      # 411C: norm match to psccolon 411c, alias match to "A32 (411C)" in panel file 80a2c5b6 and the CBTM siblings
+# mechanical rule: all non-primary cells of these atlases are dropped before pooling (meta-atlas with generic-id donors whose source cannot be found)
 NPDROP = {"fe067858"}
-# section 5 CELLDROP (ii): visible OR truth label, lower-cased and stripped, equals one of these
+# CELLDROP: visible OR truth label, lower-cased and stripped, equals one of these
 LABDROP = re.compile(r"^(doublets?|unassigned|unclassified|unknown|undefined|low[ _]?quality|removed|nan|none|na|-)$")
 GEN = {"p", "h", "d", "s", "donor", "patient", "subject", "sample", "pt", "ctrl", "control", "case", "individual"}
 GENID = re.compile(r"^(?:%s)?[-_ ]?\d+$" % "|".join(sorted(GEN, key=len, reverse=True)))
@@ -47,7 +49,7 @@ STUDIES = "zilionis qian azizi karaayvaz hlca jerby ma durante sole gestilinger 
 TAG = re.compile(r"^([A-Za-z]+?)(?:LUAD|LUSC|BRCA|CRC|Ov|OV|PBMC|MEL|HCC|UVM|SKCM|GBM|PAAD|HNSC|RCC|BLCA)_")
 
 
-# ---------------------------------------------------------------- donor / leak helpers (section 3)
+# ---------------------------------------------------------------- donor / leak helpers
 def cohort_norm(d):
     s = d.strip().lower(); m = re.match(r"^([a-z]+)(?=[0-9_\-]|$)", s); pre = ""
     if m and len(m.group(1)) >= 3 and m.group(1) not in GEN: pre = m.group(1); s = s[len(pre):]
@@ -82,7 +84,7 @@ def _jload(p):
 
 def reference(refresh=False):
     """{'donors': [(donor, source)], 'corpus': lowercase text of donor ids + titles + citations + collection names of the used collections}.
-    Sources: API donor lists of the 672 datasets in tmp/opus_check/ds, the panel files' obs donor_id, the round 1-4 manifest pool names. Cached in $R5/leak5/ref.json."""
+    Sources: API donor lists of the 672 datasets, the panel files' obs donor_id, the manifest pool names of the earlier atlas sets. Cached in $R5/leak5/ref.json."""
     cp = f"{LK}/ref.json"
     if os.path.exists(cp) and not refresh: return _jload(cp)
     don, text = [], []
@@ -95,7 +97,7 @@ def reference(refresh=False):
         text += [str(x.get("citation", "")), str(x.get("title", ""))]
     for c in colls:
         if c["collection_id"][:8] in used: text += [c.get("name") or "", c.get("doi") or ""]
-    pf = glob.glob(os.path.expanduser("~/data/cellxgene/panel/*.h5ad"))
+    pf = glob.glob(SUPP_DATA + "/cellxgene/panel/*.h5ad")
     for f in pf:                                   # obs only; skipped (and logged) if unreadable
         try:
             with h5py.File(f, "r") as h:
@@ -103,7 +105,7 @@ def reference(refresh=False):
                 v = read_elem(h["obs/donor_id"]); v = v.astype(str) if hasattr(v, "astype") else v
                 for d in pd.unique(np.asarray(v)): don.append((str(d), "panel:" + os.path.basename(f)[:-5]))
         except Exception as e: don.append(("", f"panel_unreadable:{os.path.basename(f)}:{type(e).__name__}"))
-    for f in glob.glob(os.path.expanduser("~/work/cfgen_natrare/j1004/h/si_v3/vm3_m12/r_all/atlas_manifest_*.csv")):
+    for f in glob.glob(HR_WORK + "/cfgen_natrare/j1004/h/si_v3/vm3_m12/r_all/atlas_manifest_*.csv"):
         for nm in pd.read_csv(f, usecols=["block"]).block.astype(str):
             t = nm.split("+")
             if len(nm) >= 200: t = t[:-1]          # the last name may be cut at 200 characters
@@ -146,7 +148,7 @@ def raw_ok(f, xk):
 
 # ---------------------------------------------------------------- prep: obs + drops (shared with the twin builder)
 def prep(name, log=None, ref=None):
-    """Load obs of the atlas, apply donor drops and CELLDROP. Returns dict(o, pos, f, xk, var, on, cfg, ...). `log(check,item,detail)` collects section-3 evidence."""
+    """Load obs of the atlas, apply donor drops and CELLDROP. Returns dict(o, pos, f, xk, var, on, cfg, ...). `log(check,item,detail)` collects donor and leak check evidence."""
     r4 = name in R4; log = log or (lambda *a: None)
     if r4: lab, fine = R4[name]; f = f"{b.AT}/{name}.h5ad"
     else: c = ATL[name]; lab, fine = c["lab"], c["fine"]; f = f"{b.AT}/{c['id']}.h5ad"
@@ -165,7 +167,7 @@ def prep(name, log=None, ref=None):
     P = dict(name=name, f=f, xk=xk, var=var, genemap=gm, on=on, lab=lab, fine=fine, r4=r4, n_raw=len(o), donors_raw=sorted(o.donor_id.unique()), labels=lr)
     keep = np.ones(len(o), bool)
     if r4: return _finish(P, o, keep)
-    # (i) assay rule (a)
+    # assay rule (a)
     if assay is not None:
         non10 = ~pd.Series(assay).str.startswith("10x").values; keep &= ~non10
         log("celldrop_assay", "non-10x", json.dumps(pd.Series(assay[non10]).value_counts().to_dict()))
@@ -182,13 +184,13 @@ def prep(name, log=None, ref=None):
         P["study_hits"] = sorted({d for d, k, _, _ in rows if k == "study"} - dd)
         # undeclared strong match = BC1 FAIL until a human line (drop_donor, or accept_donor / accept_study with a reason) exists; nothing is dropped silently
         P["undeclared_strong"] = sorted(strong - dd - acc - (set(P["study_hits"]) if acc_study else set()))
-        # (iv) 4b: is_primary_data. Non-primary cells are logged per donor; mechanical rule NPDROP drops ALL non-primary cells of the listed atlases
+        # is_primary_data. Non-primary cells are logged per donor; mechanical rule NPDROP drops ALL non-primary cells of the listed atlases
         npm = pd.Series(~prim).groupby(o.donor_id.values).sum(); npm = npm[npm > 0]
         log("is_primary_data", "obs", f"non-primary cells {int((~prim).sum())} of {len(prim)}; donors carrying them {len(npm)}")
         for d, n in npm.items(): log("is_primary_data_donor", d, f"{int(n)} non-primary cells; strong match={d in strong}; generic-only match={d in {x[0] for x in rows} - strong}")
         sd = ~prim if name in NPDROP else np.zeros(len(o), bool); keep &= ~sd; P["np_dropped"] = int(sd.sum())
         log("celldrop_4b", "non-primary cells dropped by NPDROP rule" if name in NPDROP else "no NPDROP rule for this atlas", str(int(sd.sum())))
-    # (ii) label rule on visible OR truth label
+    # label rule on visible OR truth label
     bad = np.zeros(len(o), bool)
     for c in (lab, fine): bad |= o[c].astype(object).fillna("nan").astype(str).str.strip().str.lower().map(lambda s: bool(LABDROP.match(s))).values
     P["labdrop"] = int((bad & keep).sum()); keep &= ~bad
@@ -201,7 +203,7 @@ def _finish(P, o, keep):
 
 
 def packs(P):
-    """Donor packs in the round-4 seeded order: [(donor list, local row indices)]; trailing partial pack discarded. Same order / accumulation as b.pools."""
+    """Donor packs in the seeded order of the first atlas set: [(donor list, local row indices)]; trailing partial pack discarded. Same order / accumulation as b.pools."""
     o = P["o"]; order = np.random.RandomState(0).permutation(sorted(o.donor_id.unique())); by = o.groupby("donor_id").indices
     out, cur, names = [], [], []
     for d in order:
@@ -211,7 +213,7 @@ def packs(P):
 
 
 def write_pool(P, pn, pid, r, split, extra_src=None):
-    """Round-4 writer (build_atlas5.build), unchanged format. r = local row indices into P['o'] (sorted)."""
+    """Pool writer (build_atlas5.build), unchanged format. r = local row indices into P['o'] (sorted)."""
     rows = P["pos"][r]
     with h5py.File(P["f"], "r") as h: X = sparse_dataset(h[P["xk"]])[rows]
     X = sp.csr_matrix(X).astype(np.float32)
@@ -242,7 +244,7 @@ def build(name, force=False):
     P["labels"][P["labels"].celldrop].to_csv(f"{LK}/labels_{name}.csv", index=False)       # realised CELLDROP list: fixed rule intersected with the atlas's labels (pre-drop counts)
     st.update(n_cells_raw=P["n_raw"], n_cells=P["n_cells"], donors_raw=len(P["donors_raw"]), donors=len(P["donors"]), labdrop=P.get("labdrop", 0),
               np_dropped=P.get("np_dropped", 0), undeclared_strong=P.get("undeclared_strong", []))
-    os.makedirs(f"{R5}/genemap", exist_ok=True); P["genemap"].to_csv(f"{R5}/genemap/{name}.csv", index=False)      # Ensembl id -> symbol, structure only, so the atlas download can be deleted (section 9)
+    os.makedirs(f"{R5}/genemap", exist_ok=True); P["genemap"].to_csv(f"{R5}/genemap/{name}.csv", index=False)      # Ensembl id -> symbol, structure only, so the atlas download can be deleted
     log("summary", "cells/donors", f"{P['n_cells']} cells of {P['n_raw']}; {len(P['donors'])} donors of {len(P['donors_raw'])}")
     # BC1 additions: check 3 study flags, check 5 raw counts, donors >= 8
     if not r4:
@@ -253,7 +255,7 @@ def build(name, force=False):
         if len(P["donors"]) < 8: bc["BC1"] = bc.get("BC1") or f"FAIL F4/check 4: {len(P['donors'])} donors after drops (<8)"
     pk, _ = packs(P); maxp = 24 if r4 else MAXP
     pools = [(("+".join(n))[:200], r) for n, r in pk]
-    chk = b.pools(o, "pack", "donor_id", np.random.RandomState(0))           # round-4 engine: sampled rows of every pack
+    chk = b.pools(o, "pack", "donor_id", np.random.RandomState(0))           # pool engine: sampled rows of every pack
     assert [x[0] for x in chk] == [p[0] for p in pools], "pack bookkeeping differs from build_atlas5.pools"
     sel = chk[:maxp]; st.update(n_packs=len(chk), n_pools=len(sel))
     if not r4 and (len(sel) < 2 or P["n_cells"] < 60000): bc["BC2"] = f"FAIL: {len(chk)} packs, {P['n_cells']} cells (need >=2 pools of {N} and >=60000 cells)"
@@ -303,7 +305,7 @@ def _save(name, st, L):
     print(json.dumps({k: v for k, v in st.items() if k != "undeclared_strong"}, default=str)); return st
 
 
-# ---------------------------------------------------------------- alternates (section 4 build-check rule)
+# ---------------------------------------------------------------- alternates (build-check rule)
 def decide(status):
     """status: {name: 'PASS'|'FAIL'|None}. Per stratum: primaries in order; a failed primary is replaced by the next unused alternate, at most 2 per stratum;
     underpowered if < 4 atlases remain. Returns (final dict stratum -> names, need_build list, notes)."""

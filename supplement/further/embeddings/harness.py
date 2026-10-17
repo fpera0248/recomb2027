@@ -1,9 +1,10 @@
-"""W1 harness: rebuild scorer predictions (learn14.predict, FEATS=mkh, P4_s1) + blend (combo_r2, 0.75/0.25 with m1_leiden_sub) + union AP / E1 (score_atl) for any regressor.
+"""Scoring harness: rebuild scorer predictions (learn14.predict, FEATS=mkh, P4_s1) + blend (combo_r2, 0.75/0.25 with m1_leiden_sub) + union AP / E1 (score_atl) for any regressor.
 Read-only use of ~/work/r5/code (locked). Set B = r5/data (57 test pools, manifest split==test5), set A = ablation_donor/data (69 pools)."""
 import os, sys, glob, pickle, numpy as np, pandas as pd
-os.environ.update(FEATS="mkh", TARGET="pur", PYTHONDONTWRITEBYTECODE="1", R5=os.path.expanduser("~/work/r5/data"), SI_H=os.path.expanduser("~/work/r5/data/hmod"))
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+os.environ.update(FEATS="mkh", TARGET="pur", PYTHONDONTWRITEBYTECODE="1", R5=HR_WORK + "/r5/data", SI_H=HR_WORK + "/r5/data/hmod")
 sys.dont_write_bytecode = True
-sys.path.insert(0, os.path.expanduser("~/work/r5/code")); H = os.path.expanduser("~/work")
+sys.path.insert(0, HR_WORK + "/r5/code"); H = HR_WORK
 import learn14 as L, score_atl as S, hlib
 from combo_r2 import combo
 from score_hlca import targets

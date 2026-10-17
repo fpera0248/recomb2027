@@ -40,7 +40,7 @@ def run(space, variant, pid):
     W.log_time("feat", arm, pid, t2 - t0, groups=len(G), g=int((G.space == "g").sum()), l=int((G.space == "l").sum()), dim_g=(patch.dim_g if patch else 50))
     W.log_time("m1", arm, pid, t3 - t2)
     print(arm, pid, round(t2 - t0, 1), round(t3 - t2, 1), len(G), flush=True)
-    # ponytail: files are written non-atomically per file; halo.parquet + m1 are written last and gate the skip test above
+    # Known limit: files are written non-atomically per file; halo.parquet + m1 are written last and gate the skip test above
 
 
 if __name__ == "__main__":

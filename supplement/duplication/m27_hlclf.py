@@ -2,8 +2,8 @@
 log1p-CPM, from SAVE_GENE=m27_hl python3 m27_gen_hlca.py) re-read under stat16's four readouts
 (lr/knn/rf/mlp), plus jitter_s1.0 and smote_k5 built in gene space and renormalized (stat16.gene_arm), then the same PCA. rec200 uses the per-class NEVc saved by m27_gen_hlca.py (hlca fallback: a
 probe type with < 200 held-out cells is scored at its own held-out count, not 200).
-  python3 m27_sd3clf.py run      -> m27_hlclf.csv
-  python3 m27_sd3clf.py report
+  python3 m27_hlclf.py run      -> m27_hlclf.csv
+  python3 m27_hlclf.py report
 """
 import sys, os, glob, numpy as np, pandas as pd
 HL = os.environ.get('M27_HL', 'm27_hl'); CSV = os.environ.get('M27_CSV', 'm27_hlclf.csv')   # panel run: per-dataset dirs
@@ -21,7 +21,7 @@ def _base(seed):
 
 def _rec_tie(p, t, k):
     """rec200 with ties at the cutoff split evenly (expected value under random tie-breaking); argsort's
-    arbitrary order among P==0 ties can decide rec200 under RF/MLP at n=1 (Opus, 2026-09-29)."""
+    arbitrary order among P==0 ties can decide rec200 under RF/MLP at n=1."""
     thr = np.sort(p)[::-1][k - 1]; hi = p > thr; tie = p == thr
     return float((t[hi].sum() + t[tie].mean() * (k - hi.sum())) / k)
 
@@ -38,7 +38,7 @@ def _score(Z, y, Zev, yev, cts, n_c, probe, NEVc, seed, arm):
                              rec200=float(t[np.argsort(-P[:, c])[:nevc]].mean()),
                              rec200_tie=_rec_tie(P[:, c], t, nevc),
                              rec_argmax=float((pred[t] == c).mean()),
-                             ncall=int((pred == c).sum())))   # eval cells called c at argmax: tests the threshold reading (Opus 2026-09-30)
+                             ncall=int((pred == c).sum())))   # eval cells called c at argmax: tests the threshold reading
     return rows
 
 def fit(seed, arm):
@@ -49,7 +49,7 @@ def fit(seed, arm):
 
 def fit_noise(seed, arm):
     """jitter_s1.0 / smote_k5 built in gene space on the real training cells, renormalized, then projected
-    with the same PCA as every generator arm (stat16.gene_arm; Jiaqi 2026-09-28)."""
+    with the same PCA as every generator arm (stat16.gene_arm)."""
     b, comp, pmean, Ztr, ytr, Zev, yev = _base(seed)
     n_c, probe = b['n_c'], b['probe']
     up = np.load(f'{HL}/s{seed}_upsample.npz'); T = int(n_c[probe[0]] + (up['y'] == probe[0]).sum())

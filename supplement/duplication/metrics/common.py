@@ -1,10 +1,11 @@
-"""E1-metrics-ovr: shared loading + metrics for AIDA/HLCA/lupus, same readout path as m27_hlclf.py.
+"""Shared loading + metrics for AIDA/HLCA/lupus, same readout path as m27_hlclf.py.
 Imports m27_hlclf.py and stat16.py unmodified (sets M27_HL before import so its ARMS/_fn/_base pick up
 the right cache dir). Does NOT edit either file.
 """
 import os, sys, glob, numpy as np
-sys.path.insert(0, '/Users/fperaltacastro/work/cfgen_natrare')
-os.chdir('/Users/fperaltacastro/work/cfgen_natrare')   # m27_hlclf._base/_fn use paths relative to this dir
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, HR_WORK + '/cfgen_natrare')
+os.chdir(HR_WORK + '/cfgen_natrare')   # m27_hlclf._base/_fn use paths relative to this dir
 os.environ.setdefault('OMP_NUM_THREADS', '2')
 os.environ.setdefault('MKL_NUM_THREADS', '2')
 os.environ.setdefault('OPENBLAS_NUM_THREADS', '2')
@@ -34,7 +35,7 @@ def n_seeds(D):
 
 NOISE_ARMS = ('jitter_s1.0', 'jitternz_s1.0', 'smote_k5')   # built on the fly (gene_arm), never saved as npz,
 # so they never show up in H.ARMS' glob of s*_*.npz -- m27_hlclf.py's own run block adds them as a
-# separate hardcoded job list; same fix needed here or they'd silently be missing (caught 2026-10-04).
+# separate hardcoded job list; same fix needed here or they'd silently be missing.
 
 def arm_list(H):
     return sorted(set(H.ARMS) | {'real'} | set(NOISE_ARMS))

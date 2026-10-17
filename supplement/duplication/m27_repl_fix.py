@@ -1,4 +1,4 @@
-"""m27_repl fix-up after the Opus check: rerun section A's distribution metrics in a form that can judge
+"""m27_repl fix-up: rerun section A's distribution metrics in a form that can judge
 duplication. m27_repl.py's gamma grid (0.1..100) is ~0 between distinct cells in unscaled PCA-50, so it
 counted exact copies. Here: one RBF kernel at the reference's own median squared distance (median
 heuristic, fixed per type so every arm is scored by the same kernel), CFGen's widest kernel gamma=0.01
@@ -11,7 +11,7 @@ ARMS = ['real', 'jitter_s1.0', 'upsample', 'sd3_nosingle', 'nb', 'synth_w1', 'sy
         'scvi', 'sdiff', 'lat_boot', 'lat_gauss']
 T = 256
 
-def jitter_s1(b, seed):   # gene space + renormalized (stat16.gene_arm; Jiaqi 2026-09-28)
+def jitter_s1(b, seed):   # gene space + renormalized (stat16.gene_arm)
     return {c: v[0] for c, v in gene_arm('jitter_s1.0', b['Xtr'], b['ytr'], b['probe'], b['n_c'], seed, T).items()}
 
 d2 = lambda A, B: ((A[:, None] - B[None]) ** 2).sum(-1)

@@ -1,12 +1,13 @@
-"""Item 12: annotation improvement at a matched number of classes. Per pool, Leiden subclustering of every broad label at the single global resolution, bisected so the total class count equals (within 1) the class count of our method (A1 of p2_refine, at each threshold), scored with the p2_refine metrics.
+"""Annotation improvement at a matched number of classes. Per pool, Leiden subclustering of every broad label at the single global resolution, bisected so the total class count equals (within 1) the class count of our method (A1 of p2_refine, at each threshold), scored with the p2_refine metrics.
   python r3c_matched.py targets PID  (clean env, as score)                                   -> out/small/matched/targets_<PID>.json: our class count per threshold
   python r3c_matched.py grid PID     (env R5, SI_H, SLIM_DIR = data/w6/ID, as run_unit.py)  -> grid_<PID>.parquet (one partition per threshold) + gridinfo_<PID>.json; per threshold the global resolution is bisected (log scale) until the total class count is within 1 of ours
   python r3c_matched.py score PID    (clean env, as p2_refine apply)                         -> out/small/matched/score_<PID>.csv
   python r3c_matched.py summary                                                              -> out/small/matched_summary.csv, matched_pool.csv
   python r3c_matched.py demo         (synthetic, <=1,500 cells)"""
 import os, sys, json, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
-HOME = os.path.expanduser('~'); J = HOME + '/work/jiaqi1011'; OUT = J + '/out/small/matched'; W6 = J + '/out/w6_annot_atac'
+HOME = os.path.expanduser('~'); J = HR_WORK + '/jiaqi1011'; OUT = J + '/out/small/matched'; W6 = J + '/out/w6_annot_atac'
 MIN_LABEL_N = 20; THR = ('tcal', 't0.3', 't0.5', 't0.7')
 
 def bisect(count, n, lo=0.01, hi=10.0, it=18):
@@ -37,7 +38,7 @@ def targets_cmd(pid):
 
 def grid(pid):
     """per pool and threshold: the global Leiden resolution (bisected) whose total class count matches ours within 1; needs targets PID first."""
-    sys.path.insert(0, os.environ['SI_H']); sys.path.insert(0, HOME + '/work/r5/code')
+    sys.path.insert(0, os.environ['SI_H']); sys.path.insert(0, HR_WORK + '/r5/code')
     import loader, methods as M
     a, _ = loader.load_pilot(pid); X, _h = M.preprocess_pca(a); ids = a.obs_names.values; labels = a.obs['label'].astype(str).values; T = json.load(open(f'{OUT}/targets_{pid}.json'))
     idx = {lab: np.where(labels == lab)[0] for lab in pd.unique(labels)}; cache = {}

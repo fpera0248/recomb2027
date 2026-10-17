@@ -47,7 +47,7 @@ See [ENVIRONMENTS.md](ENVIRONMENTS.md) for the Python pins and [CONTAINER.md](CO
 ./reproduce.sh paper
 ```
 
-This downloads the release assets, recomputes the Part II numbers of the 8-atlas test set plus the Part I panel and extra checks, and asserts the match. A mismatch with any asserted value fails the run. The `rerun` and `full` levels, the data, releases, notebooks and known gaps are in [REPRODUCE.md](REPRODUCE.md).
+This downloads the release assets, recomputes the Part II numbers of the 8-atlas test set plus the Part I panel and extra checks, and asserts the match. A mismatch with any asserted value fails the run. `reproduce.sh` needs a level argument (`paper`, `rerun` or `full`). `fetch_data.sh` downloads the release assets from tag `v0.1.0` by default, because the assets are attached to that release and not to the later ones; set `TAG` to use another. The `rerun` and `full` levels, the data, releases, notebooks and known gaps are in [REPRODUCE.md](REPRODUCE.md).
 
 In the container:
 
@@ -55,6 +55,31 @@ In the container:
 docker run -v "$PWD/out":/out ghcr.io/fpera0248/recomb2027-hiddenrare:v0.1.2 \
     env ASSETS=/out/assets OUT=/out/reproduce_out reproduce paper
 ```
+
+## Data
+
+[`ATLAS_MANIFEST.csv`](ATLAS_MANIFEST.csv) lists every CELLxGENE dataset we used. It has 123 rows for 122 datasets, because AIDA appears in two sets. Each row gives the download URL, size and md5 where we recorded them. The `set` column maps to the paper as follows.
+
+| `set` | Rows | Size | In the paper |
+|---|---|---|---|
+| `test8` | 8 | 22.3 GB | Hidden-subtype study: the 8-atlas test set (69 subsamples) |
+| `test10` | 10 | 29.3 GB | Hidden-subtype study: the 10-atlas test set (57 subsamples) |
+| `panel` | 90 | 443.7 GB | Duplication study: the dataset panel, including AIDA and lupus. Four rows are also the extra atlases of the 12-atlas null test |
+| `part1` | 2 | not recorded | Duplication study: the AIDA and HLCA files, with no download URL |
+| `development` | 10 | 90.3 GB | Training and tuning before the test. Three rows are also in the duplication-study panel |
+| `analysis` | 3 | 1.0 GB | Other datasets: the chromatin accessibility pilot and two biology checks |
+
+The duplication-study panel queued 93 datasets (90 `panel` rows and 3 `development` rows). The 88 that pass the preflight check form the panel.
+
+What each level downloads:
+
+| Level | Downloads | Cells |
+|---|---|---|
+| `paper` | 1.2 GB of release assets: the 69 subsample definitions of the 8-atlas test set, the saved scores of every method and the duplication-study result tables | The definitions list 1,380,000 cells by id, label and donor. They hold no expression counts |
+| `rerun` | 1.05 GB of release assets: the same definitions, the saved scores of our method and the baselines, and the frozen candidate tables | The same 1,380,000 cells, without counts |
+| `full` | The 10 `test10` atlases from CELLxGENE (29.3 GB) | 2.31 million cells. `full` builds 57 subsamples of 20,000 cells (1,140,000 cells) and reruns our method, Leiden subclustering and, with `TOOLS=1`, the published tools. We have not run it end to end |
+
+No level downloads the other sets. The 8-atlas results are recomputed from saved scores, not rebuilt from counts, because no script builds its 69 subsamples from the atlases. To use any other row, download it from its URL (see [REPRODUCE.md](REPRODUCE.md#atlases)).
 
 ## Citation
 

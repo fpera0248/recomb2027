@@ -1,8 +1,9 @@
-"""python aggregate.py [--out OUT] : R1 tables and figure from OUT/<dataset>/arms/units/*.csv (run_unit.py output) and OUT/selection.csv (partial results are fine).
+"""python aggregate.py [--out OUT] : tables and figure from OUT/<dataset>/arms/units/*.csv (run_unit.py output) and OUT/selection.csv (partial results are fine).
 Methods: our method (blend, arm bl), scorer alone (sc), Leiden subclustering (m1), chance (pool prevalence of the target cells). Arms: rna, ga, gak (GA with coarse labels re-derived by kNN).
 Per pool and per dataset (mean over pools) union AP; across datasets (units = datasets, <dataset>__pilot excluded): paired differences with exact two-sided sign-flip p; the kidney regression rerun (<dataset>__pilot) vs p3_union_ap_by_arm.csv.
 Writes OUT/aggregate/{pool_union_ap,dataset_means,tests,kidney_regression}.csv and atac_all_union_ap.{pdf,png}. Descriptive, post hoc."""
 import os, sys, glob, itertools, argparse, tempfile, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
 HOME = os.path.expanduser("~"); NAME = {"bl": "our method", "sc": "scorer alone", "m1": "Leiden subclustering", "chance": "chance"}
 COL = {"our method": "#1f5fa8", "scorer alone": "#6aa6d8", "Leiden subclustering": "#d9822b", "chance": "#b9b9b9"}
@@ -61,7 +62,7 @@ def main(out):
     dm.to_csv(f"{out}/aggregate/dataset_means.csv", index=False); T = tests(dm).assign(subset="all datasets")
     if "zero_shot" in dm: z = dm[dm.zero_shot == "zero-shot"]; T = pd.concat([T, tests(z).assign(subset="zero-shot datasets only")]) if len(z) else T
     T.to_csv(f"{out}/aggregate/tests.csv", index=False); print(T.to_string(index=False)); figure(dm, T, f"{out}/aggregate/atac_all_union_ap")
-    P = L[L.dataset.str.endswith("__pilot")]; ref = f"{HOME}/work/jiaqi1011/out/w6_annot_atac/p3_union_ap_by_arm.csv"
+    P = L[L.dataset.str.endswith("__pilot")]; ref = f"{HR_WORK}/jiaqi1011/out/w6_annot_atac/p3_union_ap_by_arm.csv"
     if len(P) and os.path.exists(ref):
         r = pd.read_csv(ref); r = r.assign(method=r.arm.map(NAME)).drop(columns="arm"); r = r.rename(columns={"variant": "arm", "mean": "published"}); m = P.groupby(["arm", "method"]).ap.mean().reset_index().rename(columns={"ap": "rerun"})
         K = m.merge(r[["arm", "method", "published"]], on=["arm", "method"], how="left"); K["diff"] = K.rerun - K.published; K.to_csv(f"{out}/aggregate/kidney_regression.csv", index=False); print(K.to_string(index=False))
@@ -87,4 +88,4 @@ def demo():
 
 if __name__ == "__main__":
     if len(sys.argv) == 1: demo(); print("demo ok"); sys.exit(0)
-    p = argparse.ArgumentParser(); p.add_argument("--out", default=f"{HOME}/work/jiaqi1011/out/atac_all"); main(p.parse_args().out)
+    p = argparse.ArgumentParser(); p.add_argument("--out", default=f"{HR_WORK}/jiaqi1011/out/atac_all"); main(p.parse_args().out)

@@ -2,8 +2,9 @@
 (preds_base/m1_full) and a kNN-disagreement score (share of 15 global-PCA neighbours with another visible label). Writes preds_base/m1_leiden_sub in the locked format.
 One-line diff vs locked code: extra outputs only; scoring path is the same calls in the same order."""
 import os, sys
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
-sys.path.insert(0, os.environ["SI_H"]); sys.path.insert(0, os.path.expanduser("~/work/r5/code"))
+sys.path.insert(0, os.environ["SI_H"]); sys.path.insert(0, HR_WORK + "/r5/code")
 import numpy as np, pandas as pd, loader, methods as M
 from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors

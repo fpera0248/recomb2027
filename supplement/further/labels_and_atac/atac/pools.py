@@ -4,8 +4,9 @@ prep : donor-disjoint pools (greedy by donor size to K = min(3, floor(cells / 80
 roots: after build_ga.py (DATA/ga_counts.h5ad): pipeline roots DATA/roots/{clean,rna,ga,gak} (rna only for multiome with integer counts; gak = coarse labels re-derived by cross-fit kNN in GA PCA-50), same
        recipe as the kidney pilot (code/w6/p3_pools.py); rewrites OUT/pools.json with final pairs on cells that have fragments. pid = atc_<dataset8>_p<k>."""
 import os, sys, json, shutil, argparse, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True; HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from select_ds import targets, DROP
-CODE_R5 = os.path.expanduser("~/work/r5/code"); CAP = 20000; K_NN = 15
+CODE_R5 = HR_WORK + "/r5/code"; CAP = 20000; K_NN = 15
 
 def split_donors(don, k):
     """greedy donor-disjoint split balanced by cells (kidney-pilot rule): donors by size, each to the currently smallest pool."""

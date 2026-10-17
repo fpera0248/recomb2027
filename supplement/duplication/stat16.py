@@ -1,6 +1,6 @@
 """Jiaqi's statistical upsampling arms on gen16's exact donor-disjoint split (cached by replay16.py).
 Every arm tops each probe type up to TARGET cells, built in the shared gene space (log1p-CPM) and renormalized,
-then projected with the cache's PCA (gene_arm; Jiaqi 2026-09-28, same processing + encoder for every arm); readout is gen16's
+then projected with the cache's PCA (gene_arm; same processing + encoder for every arm); readout is gen16's
 LogisticRegression(max_iter=2000) and rec200. Soft-labelled rows carry sample_weight (sums to k per type).
   python3 stat16.py run 0 20     fit every arm on seeds 0..19
   python3 stat16.py report       paired analysis vs upsample, memorization (DCR) table
@@ -55,7 +55,7 @@ def renorm(X):
     return np.log1p(E / np.where(S > 0, S, 1) * 1e4).astype(np.float32)
 
 def gene_arm(name, X, y, probe, n_c, seed, T=TARGET, extra=None):
-    """Jiaqi 2026-09-28, same processing for every arm: the statistical arms are built on the real training
+    """Same processing for every arm: the statistical arms are built on the real training
     cells in the shared gene space (log1p-CPM, 2000 HVGs), clipped at 0 and renormalized, so they reach
     every encoder exactly like a generator's cells. Same rng seeding and probe order as fit_arm."""
     f = arms(X, y, seed)[name]; rng = np.random.default_rng([seed, sum(map(ord, name))]); out = {}

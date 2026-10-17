@@ -1,6 +1,5 @@
 """m27_de: differential-expression marker recovery for every augmentation arm, on gen16's exact
-donor-disjoint split and mk16's saved arm cells (2000 HVGs, log1p-CPM). Answers the 9/27 meeting
-question: does duplication (or scDesign3, or anything) recover better marker genes for rare types
+donor-disjoint split and mk16's saved arm cells (2000 HVGs, log1p-CPM). Question: does duplication (or scDesign3, or anything) recover better marker genes for rare types
 than the real cells alone, and does any method inflate significance (pseudoreplication)?
 
 Group = the probe type's n_c real training cells + that arm's added cells (identical across arms
@@ -37,7 +36,7 @@ def lfc(mc, mr):
 
 
 def stat_arms(b, seed, T):
-    """jitter_s1.0 / smote_k5 built in gene space and renormalized (stat16.gene_arm; Jiaqi 2026-09-28)."""
+    """jitter_s1.0 / smote_k5 built in gene space and renormalized (stat16.gene_arm)."""
     return {name: {c: v[0] for c, v in gene_arm(name, b['Xtr'], b['ytr'], b['probe'], b['n_c'], seed, T).items()}
             for name in ('jitter_s1.0', 'jitternz_s1.0', 'smote_k5')}
 

@@ -1,6 +1,7 @@
 import os, glob, json, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np, pandas as pd, matplotlib, matplotlib.ticker; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-H = os.path.expanduser("~/work/jiaqi1011"); O = f"{H}/out/w1"; F = f"{H}/figs/w1"; os.makedirs(F, exist_ok=True)
+H = HR_WORK + "/jiaqi1011"; O = f"{H}/out/w1"; F = f"{H}/figs/w1"; os.makedirs(F, exist_ok=True)
 plt.rcParams.update({"font.size": 11, "axes.spines.top": False, "axes.spines.right": False, "figure.dpi": 150, "savefig.bbox": "tight"})
 def save(fig, n): [fig.savefig(f"{F}/{n}.{e}") for e in ("pdf", "png")]; plt.close(fig)
 meta = pd.DataFrame([json.load(open(f)) for f in sorted(glob.glob(f"{O}/models/*.json"))])

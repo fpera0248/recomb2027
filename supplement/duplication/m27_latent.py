@@ -10,7 +10,7 @@ A duplicated cell's latent is EXACTLY the encoder output of the real cell it cop
 are deterministic functions of input, and upsample's added rows are copies of real rows, so no
 special-casing is needed -- this script just runs every arm's saved cells through each encoder.
 
-Same processing for every arm (Jiaqi 2026-09-28): every arm's saved cells go through the shared
+Same processing for every arm: every arm's saved cells go through the shared
 normalizer (stat16.renorm: expm1 -> rows to 1e4 -> log1p; a no-op to ~1e-6 for arms already made from
 counts, a real fix for sdiff, whose decoder output was never renormalized). jitter_s1.0 / smote_k5 are
 built ONCE per seed in gene space on the real training cells (stat16.gene_arm), so all three encoders
@@ -33,7 +33,7 @@ import stat16
 import polh
 torch.set_num_threads(int(os.environ.get('M27_THREADS', 8)))
 # M27_PSEUDO_ALL=1: for scVI, EVERY arm's added cells (upsample included) go through the same pseudo-count path,
-# so no arm gets real counts while another gets resampled library sizes (verifier 2026-09-28: the path alone moves rf +0.03-0.05)
+# so no arm gets real counts while another gets resampled library sizes (the path alone moves rf by +0.03-0.05)
 PSEUDO_ALL = os.environ.get('M27_PSEUDO_ALL') == '1'
 # M27_LIB=anchor: cells built from a real cell (jitter/jitternz/smote) enter scVI with THAT cell's library,
 # so upsample (real counts) and its noised variants share one count path; sdiff has no source cell (random draw)

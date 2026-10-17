@@ -1,15 +1,16 @@
-"""m12 DEV variants of seprank (2026-10-07). Developed on the already-seen D1/D2 pilots; HLCA is the held-out test.
-Diagnosis (diag_m11.py): on D2 only 25% of rare cells sit in ANY m1 candidate group, so carving, not ranking, is the bottleneck.
+"""Dev variants of seprank. Developed on the already-seen D1/D2 pilots; HLCA is the held-out test.
+Diagnosis of the seprank baseline: on D2 only 25% of rare cells sit in ANY Leiden-subcluster candidate group, so carving, not ranking, is the bottleneck.
 Every variant: per visible label, candidate groups = Leiden subclusters with share < MAX_SHARE and >= MIN_GROUP_SIZE cells;
-cell score = max d' over the candidate groups holding it (-1 if none) + 1e-3 * within-label isolation rank (same tie-break as m11).
-  g_sil   : global PCA-50, m1's silhouette-picked resolution          (= m11 re-implemented; sanity row)
+cell score = max d' over the candidate groups holding it (-1 if none) + 1e-3 * within-label isolation rank (same tie-break as the seprank baseline).
+  g_sil   : global PCA-50, the Leiden baseline's silhouette-picked resolution   (= seprank re-implemented; sanity row)
   g_multi : global PCA-50, every resolution in RES_ALL (no silhouette pick)
   l_sil   : per-label HVG + PCA-50 (standard subclustering), silhouette-picked resolution
   l_multi : per-label HVG + PCA-50, every resolution in RES_ALL
   python sr2.py VARIANT PILOT_ID -> $SI_PREDS/<VARIANT>/<pid>.parquet   (call column left False; TAU is calibrated after the freeze)"""
 import os, sys, time
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"): os.environ.setdefault(v, "2")
-SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 import numpy as np, pandas as pd, scanpy as sc
 import loader, split_island_v2 as S2
 from sklearn.neighbors import NearestNeighbors

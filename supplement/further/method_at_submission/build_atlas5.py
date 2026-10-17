@@ -1,21 +1,22 @@
-"""Natural-hierarchy pools from full CELLxGENE atlases (2026-10-07). Same pilot format as build_hlca.py; one tier per atlas:
+"""Natural-hierarchy pools from full CELLxGENE atlases. Same pilot format as build_hlca.py; one tier per atlas:
 label = the atlas's coarser author/CL annotation (what a user would have), true_type = its finer annotation. Raw counts from raw/X.
 Pools of 20,000 cells (seed 0). mode "block": one pool per value of the block column (min 2,000 cells); mode "pack": donors shuffled and packed
 until >= 20,000 cells, each pack one pool (donor-disjoint). At most MAXP pools per atlas, in shuffled order (the cap is logged).
-TEST atlases are md5-parity-1 datasets never used to train m12/m13; DEV atlases are parity 0.
-  python build_atlas.py NAME [NAME ...] -> slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv"""
+TEST atlases are md5-parity-1 datasets never used to train the learned scorer; DEV atlases are parity 0.
+  python build_atlas5.py NAME [NAME ...] -> slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv"""
 import os, sys, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 from anndata.io import sparse_dataset
-R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data"); SI = R5; AT = f"{R5}/atlas"; OUT = f"{SI}/slim_atlas"; PIL = f"{SI}/hmod/pilots"
-N, MINP, MAXP = 20000, 2000, 24   # round 3: up to 24 pools per atlas (power)
-CFG = {  # name: (label col, finer col, mode, block col, split). Round 3 (2026-10-08): parity-1 atlases accepted in the round-2 Opus+Fable scouting.
+R5 = os.environ.get("R5") or HR_WORK + "/r5/data"; SI = R5; AT = f"{R5}/atlas"; OUT = f"{SI}/slim_atlas"; PIL = f"{SI}/hmod/pilots"
+N, MINP, MAXP = 20000, 2000, 24   # up to 24 pools per atlas (power)
+CFG = {  # name: (label col, finer col, mode, block col, split). Parity-1 atlases accepted after scouting.
     "pbmc": ("cell_type", "annotation_detailed", "pack", "donor_id", "test3"),
     "covid5": ("Cell.group", "Cell.class", "pack", "donor_id", "test3"),
     "combat": ("cell_type_original", "major_subset", "pack", "donor_id", "test3"),
     "mi": ("cell_type", "final_cluster", "pack", "donor_id", "test3"),
 }
 DROP = {}
-CELLDROP = {"pbmc": lambda o: (o.cell_type == "natural killer cell") & (o.annotation_detailed == "B n-sw mem")}   # curation error: B cells labelled NK (checker)
+CELLDROP = {"pbmc": lambda o: (o.cell_type == "natural killer cell") & (o.annotation_detailed == "B n-sw mem")}   # curation error: B cells labelled NK
 
 
 def pools(o, mode, col, rng):

@@ -140,7 +140,7 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - `tools/`: wrappers of the published detectors, their pinned repositories and commits (`sources.txt`) and `fetch_sources.sh`, which clones them ([tools/README.md](tools/README.md)).
 - `part1/`: the study of known rare types, duplication against generators ([part1/README.md](part1/README.md)).
 - `combination/`: the hidden-type calls plus duplication experiment ([combination/README.md](combination/README.md)).
-- `supplement/`: unchanged copies of the scripts behind the supplement analyses that no level runs ([supplement/README.md](supplement/README.md)).
+- `supplement/`: copies of the scripts behind the supplement analyses that no level runs, with only comments, docstrings, path defaults and one escaped string literal edited ([supplement/README.md](supplement/README.md)).
 - `docker/`: the two image definitions (see `CONTAINER.md`).
 - `.github/workflows/`: CI (self-tests on every push, no level run), the image builds and the manual container check (`paper` and `rerun` levels in the published image).
 

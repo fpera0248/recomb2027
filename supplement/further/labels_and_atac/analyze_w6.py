@@ -1,10 +1,11 @@
-"""python analyze_w6.py : final tables + figures for W6 from whatever outputs exist (partial outputs are fine).
+"""python analyze_w6.py : final tables + figures for the label-corruption analysis from whatever outputs exist (partial outputs are fine).
 Reads OUT/units/*.csv (P1), OUT/p2_pool.csv + p2_t_cal.json (P2), OUT/p3/units/*.csv + p3_pools.json (P3). Writes OUT/*.csv and ~/work/jiaqi1011/figs/w6_annot_atac/*.{pdf,png}.
 Everything here is post hoc on spent test atlases. Text uses 'our method' and 'Leiden subclustering'."""
 import os, sys, json, glob, itertools, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from w6common import OUT, HOME
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-FIG = f"{HOME}/work/jiaqi1011/figs/w6_annot_atac"; os.makedirs(FIG, exist_ok=True)
+FIG = f"{HR_WORK}/jiaqi1011/figs/w6_annot_atac"; os.makedirs(FIG, exist_ok=True)
 COL = {"ours": "#1f5fa8", "leiden": "#d9822b", "scorer": "#6aa6d8", "knn": "#7a7a7a", "ctrl": "#b9b9b9"}
 plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False, "figure.dpi": 130})
 def save(fig, name): fig.savefig(f"{FIG}/{name}.pdf", bbox_inches="tight"); fig.savefig(f"{FIG}/{name}.png", bbox_inches="tight", dpi=200); plt.close(fig)
@@ -59,7 +60,7 @@ def p1():
     for fam, gs in (("random", ["R05", "R10", "R20"]), ("boundary", ["B05", "B10", "B20"])):
         m = T.group.isin(gs)
         for c in ("p_D", "p_level", "p_retained", "p_cc_retained"):
-            if m.any(): T.loc[m, c + "_holm"] = holm(T.loc[m, c].fillna(1).values)   # Holm over the 3 rates within each family; HEADLINE = D(r) (pre-registered DESIGN 1.4), level gap co-reported
+            if m.any(): T.loc[m, c + "_holm"] = holm(T.loc[m, c].fillna(1).values)   # Holm over the 3 rates within each family; HEADLINE = D(r) (fixed before the runs), level gap co-reported
     T.to_csv(f"{OUT}/p1_summary.csv", index=False); print(T.round(3).to_string())
     # figure 1: union AP vs corruption rate
     fig, ax = plt.subplots(1, 3, figsize=(11, 3.4), sharey=True)
@@ -86,15 +87,15 @@ def p1():
         a.plot(x, S2.prevalence, "k_", ms=14, label="chance (prevalence)"); a.set_xticks(x); a.set_xticklabels(S2.index, rotation=45, fontsize=7); a.set_ylabel("AP for detecting relabelled cells"); a.legend(frameon=False, fontsize=7); save(fig, "fig_w6_p1_mislabel_detection")
     # extras: decoy capture, non-relabelled AP, MERGE both target sets, runtime
     X = U[U.metric.isin(["decoy_capture", "AP_nonrelabelled_pos", "union_AP_recomputed", "union_AP"]) & U.arm.isin(["bl", "m1", "sc"])].groupby(["group", "arm", "metric"]).value.mean().unstack("metric"); X.to_csv(f"{OUT}/p1_extras.csv")
-    tls = glob.glob(os.path.expanduser("~/work/jiaqi1011/data/w6/transfer_log*.csv"))
+    tls = glob.glob(HR_WORK + "/jiaqi1011/data/w6/transfer_log*.csv")
     if tls: L = pd.concat([pd.read_csv(t) for t in tls]).drop_duplicates(["pid", "variant"]); L.groupby("variant")[["acc", "frac_changed"]].mean().to_csv(f"{OUT}/p1_label_transfer_accuracy.csv")
     # reproduction check ID rerun vs stored predictions
-    st = f"{HOME}/work/r5/code/scores_preds_frozen4.csv"
+    st = f"{HR_WORK}/r5/code/scores_preds_frozen4.csv"
     if os.path.exists(st):
         s = pd.read_csv(st); s = s[s.metric == "union_AP"].set_index("pilot_id").rprec; r = ap[(ap.variant == "ID") & (ap.arm == "bl")].set_index("pid").value
         pd.DataFrame(dict(rerun=r, stored=s.reindex(r.index))).assign(diff=lambda d: d.rerun - d.stored).to_csv(f"{OUT}/p1_repro_check_ID_vs_stored.csv"); print("ID rerun vs stored, mean abs diff", (r - s.reindex(r.index)).abs().mean())
     # permuted-score sanity (planted violation): permuted positives must give AP near prevalence
-    # (done in p1_planted_check.py with real cands; see DESIGN)
+    # (done in p1_planted_check.py with real cands)
 
 # ------------------------------------------------------------------ P2
 def p2():

@@ -1,6 +1,6 @@
 """m27_hard's saved arm cells (m27_hard/, PCA-50 via each seed's own base.npz comp/pmean) re-read
 under stat16's four readouts (lr, knn, rf, mlp), PLUS jitter_s1.0 and smote_k5 built in gene space,
-renormalized, then the same PCA (stat16.gene_arm). Unlike sd3clf16.py, this does NOT depend on rep16_seed*.npz (that
+renormalized, then the same PCA (stat16.gene_arm). Unlike our earlier scDesign3 classifier readout (not included), this does NOT depend on rep16_seed*.npz (that
 cache belongs to gen16's OLD 8-probe split); m27_hard/s{seed}_base.npz alone supplies the real
 train/eval cells and the PCA basis for this split.
   python3 m27_hardclf.py run      -> m27_hardclf.csv
@@ -17,7 +17,7 @@ def fit(seed, arm):
     b = np.load(f'{D}/s{seed}_base.npz')
     Ztr, ytr, cts, n_c, probe = b['Ztr'], b['ytr'], b['cts'], b['n_c'], b['probe']
     Zev = (b['Xev'] - b['pmean']) @ b['comp'].T; yev = b['yev']
-    if arm in STAT_ARMS:   # gene space + renormalized, then the same PCA (stat16.gene_arm; Jiaqi 2026-09-28)
+    if arm in STAT_ARMS:   # gene space + renormalized, then the same PCA (stat16.gene_arm)
         A = gene_arm(arm, b['Xtr'], ytr, probe, n_c, seed)
         Z = np.vstack([Ztr] + [(v[0] - b['pmean']) @ b['comp'].T for v in A.values()]); y = np.concatenate([ytr] + [v[1] for v in A.values()])
     else:

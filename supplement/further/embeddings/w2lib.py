@@ -1,11 +1,12 @@
-"""W2 shared helpers: data root, representation patch, embedding IO. Locked code in ~/work/r5/code is imported read-only, never edited.
+"""Shared helpers for the embedding analysis: data root, representation patch, embedding IO. Locked code in ~/work/r5/code is imported read-only, never edited.
 The swap is ONE monkeypatch of methods.preprocess_pca (sr3 g and l spaces, sr3h halo centroid and m1 all call it); no locked file is changed."""
 import os, sys, time, csv, shutil, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 HOME = os.path.expanduser("~")
-R5D = os.environ.get("R5SRC", f"{HOME}/work/r5/data")                  # locked set B data (read only)
-CODE = os.environ.get("R5CODE", f"{HOME}/work/r5/code")                 # locked code (read only)
-ROOT = os.environ.get("W2_ROOT", f"{HOME}/work/jiaqi1011/data/w2_fm")   # NEW data root: hmod copy + symlinks to inputs
-OUT = os.environ.get("W2_OUT", f"{HOME}/work/jiaqi1011/out/w2_fm")
+R5D = os.environ.get("R5SRC", f"{HR_WORK}/r5/data")                  # locked set B data (read only)
+CODE = os.environ.get("R5CODE", f"{HR_WORK}/r5/code")                 # locked code (read only)
+ROOT = os.environ.get("W2_ROOT", f"{HR_WORK}/jiaqi1011/data/w2_fm")   # NEW data root: hmod copy + symlinks to inputs
+OUT = os.environ.get("W2_OUT", f"{HR_WORK}/jiaqi1011/out/w2_fm")
 POOLS = os.environ.get("W2_POOLS") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "pools_phase1.txt")
 
 

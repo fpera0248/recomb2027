@@ -1,7 +1,8 @@
 """python p3_build.py : fragments -> gene-activity counts for the renal-cortex multiome (CELLxGENE 09b518f9). Venv: ~/work/jiaqi1011/venvs/atac. Resumable.
 Gene annotation = Ensembl 110 EnsDb (Bioconductor AnnotationHub) exported by p3_gene_anno.R; gene_name key = Ensembl ID so the matrix columns are ENSG ids."""
 import os, re, sys, anndata as ad, snapatac2 as snap
-D = os.path.expanduser("~/work/jiaqi1011/data/w6_atac"); FR = f"{D}/e037f157-49b6-4a1b-b34f-51a928778a27-fragment.tsv.bgz"; H5 = f"{D}/46aada24-d005-4486-9e21-866da4fdbd7a.h5ad"
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+D = HR_WORK + "/jiaqi1011/data/w6_atac"; FR = f"{D}/e037f157-49b6-4a1b-b34f-51a928778a27-fragment.tsv.bgz"; H5 = f"{D}/46aada24-d005-4486-9e21-866da4fdbd7a.h5ad"
 CS = dict(zip(["chr" + str(i) for i in range(1, 23)] + ["chrX", "chrY", "chrM"], [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973, 145138636, 138394717, 133797422, 135086622, 133275309,
           114364328, 107043718, 101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468, 156040895, 57227415, 16569]))   # GRCh38 primary assembly lengths
 if os.path.exists(f"{D}/ga_counts.h5ad"): sys.exit(0)

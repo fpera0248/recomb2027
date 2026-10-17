@@ -1,6 +1,7 @@
 """python run_unit.py VARIANT PID : features (sr3, sr3m, sr3h) + Leiden subclustering (m1_full) + frozen scorer + blend on the variant labels, scored against CLEAN-label targets.
 Writes OUT/units/<variant>__<pid>.csv (long metric table) and OUT/groupP/<variant>__<pid>.parquet. Resumable (unit csv = done). Targets are asserted equal to the clean target list."""
 import os, sys, subprocess, time, pickle, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True; HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from w6common import *
 v, pid = sys.argv[1], sys.argv[2]
 CLEAN = os.environ.get("W6_CLEAN", CLEAN); OUT = os.environ.get("W6_OUT", OUT); os.makedirs(f"{OUT}/units", exist_ok=True); os.makedirs(f"{OUT}/groupP", exist_ok=True)
@@ -13,7 +14,7 @@ for nm, ext in (("sr3", "groups"), ("sr3m", "markers"), ("sr3h", "halo")):
     if not os.path.exists(f"{R}/cands/{pid}.{ext}.parquet"): run(f"{CODE_R5}/{nm}.py", pid)
 if not os.path.exists(f"{R}/preds_base/m1_full/{pid}.parquet"): run(f"{HERE}/m1_full.py", pid)
 t1 = time.time() - t0
-sys.path.insert(0, os.path.expanduser("~/work/jiaqi1011/code/w1")); import harness as h                      # locked code, clean R5 env in this process
+sys.path.insert(0, HR_WORK + "/jiaqi1011/code/w1"); import harness as h                      # locked code, clean R5 env in this process
 from harness import L, S, hlib, G_, A_
 from combo_r2 import combo
 from score_hlca import targets

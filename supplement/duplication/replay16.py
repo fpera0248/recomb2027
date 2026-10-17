@@ -1,13 +1,14 @@
 """Replay gen16.py's data prep + donor-disjoint split + PCA-50 and cache each seed to rep16_seed<s>.npz.
-Logic copied from pol16_features.py (verified bit-exact against gen16 for seeds 0-2).
+Logic copied from an earlier feature-extraction script (not included), verified bit-exact against gen16 for seeds 0-2.
 Seeds 0-2 are checked against gen16.log/gen16.csv; every seed is checked for 0 donor overlap,
 exact rungs, and >= NEV eval cells per probe type. Any mismatch stops the run.
 Usage: python3 replay16.py 0 20
 """
 import os, sys, time, numpy as np, pandas as pd, anndata as ad, scanpy as sc
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 from sklearn.decomposition import PCA
 
-D = '/Users/fperaltacastro/data/pilots/aida/'
+D = SUPP_DATA + '/pilots/aida/'
 HVG, NEV, CAP = 2000, 200, 500
 RUNGS = np.array([1, 2, 4, 8, 16, 32, 64, 128])
 PROBE = ['double negative T regulatory cell', 'CD141-positive myeloid dendritic cell',

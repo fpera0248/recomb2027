@@ -3,9 +3,10 @@ timing.csv and qa.csv. Works on partial outputs. Everything is POST HOC / explor
 Primary: arm 3 (scorer retrained leave-one-atlas-out inside the set), full method, variant F, each space vs PCA retrained; union AP per atlas (mean over its pools),
 exact two-sided sign-flip over atlases, Holm over the primary family. Everything else is descriptive with raw p."""
 import os, sys, glob, itertools, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("W2_OUT", os.path.expanduser("~/work/jiaqi1011/out/w2_fm"))
-FIG = os.environ.get("W2_FIG", os.path.expanduser("~/work/jiaqi1011/figs/w2_fm")); os.makedirs(FIG, exist_ok=True)
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("W2_OUT", HR_WORK + "/jiaqi1011/out/w2_fm")
+FIG = os.environ.get("W2_FIG", HR_WORK + "/jiaqi1011/figs/w2_fm"); os.makedirs(FIG, exist_ok=True)
 NAME = {"pca": "PCA", "pca30": "PCA (30 comp.)", "scgpt": "scGPT", "scvi": "scVI", "gf": "Geneformer V1-10M", "noise": "random noise"}
 VAR = {"F": "global and within-label spaces swapped", "H": "global space swapped, within-label = PCA", "P": "both swapped, global cut to 50 dims"}
 STAGE = [("leiden", "Leiden subclustering alone", "union_AP"), ("frozen", "Our method, trained scorer as is", "bl_union_AP"), ("retrain", "Our method, scorer retrained (leave-one-atlas-out)", "bl_union_AP")]

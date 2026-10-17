@@ -8,5 +8,5 @@ gtf <- data.frame(seqname = g$seq_name, source = "EnsDb110", feature = "gene", s
                   strand = ifelse(g$seq_strand == 1, "+", "-"), frame = ".",
                   attr = sprintf('gene_id "%s"; gene_name "%s"; gene_type "%s"; transcript_id "%s";', g$gene_id, g$gene_name, g$gene_biotype, g$gene_id))
 tr <- gtf; tr$feature <- "transcript"
-write.table(rbind(gtf, tr), path.expand("~/work/jiaqi1011/data/w6_atac/ensdb110_genes.gtf"), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(rbind(gtf, tr), file.path(Sys.getenv("HR_WORK", path.expand("~/work")), "jiaqi1011/data/w6_atac/ensdb110_genes.gtf"), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 cat("genes", nrow(g), "\n")

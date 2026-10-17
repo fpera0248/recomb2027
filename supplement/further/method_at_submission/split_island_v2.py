@@ -1,4 +1,4 @@
-"""m10 v2 split-island blind hidden-rare detector (2026-10-06, see PREREG_v2.md and DECISIONS.md).
+"""m10 v2 split-island blind hidden-rare detector.
 adata (raw integer counts, obs label/donor) -> dict(score, call, groups, ablations); same contract as methods.py.
 Per thinning t (N_THIN of them, seeds RNG+t):
  1. Binomial thinning of the full counts into halves A, B (eps 0.5). HVGs chosen on A ONLY.
@@ -8,10 +8,11 @@ Per thinning t (N_THIN of them, seeds RNG+t):
     Ablation A-only: the same d' on half A (no replication). Cohesion Tn (kNN, ceiling-corrected) feeds the m1-rerank ablation.
  4. Cell score = max S over surviving islands containing it (-1 if none) + 1e-3 * isolation rank (tie-break only).
 Final score = mean over thinnings. call = score >= TAU (one global constant, calibrated on held-out D1null pilots, never per pilot).
-Removed vs v1: the simulated one-population null (it could not absorb native subtypes), full-count HVGs, saturating T.
+No simulated one-population null is used (it could not absorb native subtypes), HVGs do not come from full counts, and T does not saturate.
 No truth is read; nothing is tuned per pilot."""
 import os, sys
-sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or os.path.expanduser("~/work/r5/data"), "hmod"))
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or HR_WORK + "/r5/data", "hmod"))
 import numpy as np, pandas as pd, scipy.sparse as sp, igraph as ig, random
 import anndata as ad
 from sklearn.neighbors import NearestNeighbors
@@ -22,7 +23,7 @@ MIN_PARENT, MIN_ISLAND, MAX_SHARE = 50, 10, 0.10
 RES_GRID = tuple(M.RES_GRID) + (2.0, 4.0)
 MIN_EFF_DONORS, DON_MARGIN = 2.0, 0.20     # donor filter (skipped when the parent itself has < MIN_EFF_DONORS)
 NONE_SCORE = -1.0
-TAU = 4.0   # FROZEN 2026-10-06: smallest grid value (0.5..6 step .25) with median calls <= 40 and any_group <= 0.6 on the 60 calibration D1null pilots (results/calibration.txt)
+TAU = 4.0   # fixed: smallest grid value (0.5..6 step .25) with median calls <= 40 and any_group <= 0.6 on the 60 calibration D1null pilots (results/calibration.txt)
 
 
 def _knn(Z, k=K):

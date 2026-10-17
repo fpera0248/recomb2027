@@ -1,14 +1,15 @@
-"""m12 DEV, stage 2 (2026-10-07): dump every candidate group once, so ranking rules can be compared offline without re-clustering.
-Why: sr2 dev sweep showed more candidates alone buy nothing (dev mean l_multi 0.231 vs m11 0.230); the open question is how to ORDER them
+"""Dev stage 2: dump every candidate group once, so ranking rules can be compared offline without re-clustering.
+Why: sr2 dev sweep showed more candidates alone buy nothing (dev mean l_multi 0.231 vs the seprank baseline 0.230); the open question is how to ORDER them
 (10-30-cell groups lose every top slot to larger high-d' groups; HLCA targets have median 31 cells).
 Per visible label (>= MIN_PARENT cells) and space (g = global PCA-50, l = the label's own HVG + PCA-50):
   candidates = Leiden subclusters at every RES_ALL value with MIN_GROUP_SIZE <= size and share < MIN_SHARE (deduplicated per space);
   group features: size, share, d', kNN cohesion (share of members' K-NN inside the group), donor count and top-donor share;
-  cell features: within-label isolation rank (m11's tie-break) and LOF (n_neighbors 20) in each space.
+  cell features: within-label isolation rank (the seprank baseline's tie-break) and LOF (n_neighbors 20) in each space.
   python sr3.py PILOT_ID -> $SI/cands/<pid>.groups.parquet + <pid>.cells.parquet   (blind: truth is never loaded into the method)"""
 import os, sys, time
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS"): os.environ.setdefault(v, "2")
-SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 import numpy as np, pandas as pd
 import loader, split_island_v2 as S2
 from sklearn.neighbors import NearestNeighbors, LocalOutlierFactor
