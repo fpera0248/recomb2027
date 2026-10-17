@@ -256,7 +256,7 @@ def build(name, force=False):
     pk, _ = packs(P); maxp = 24 if r4 else MAXP
     pools = [(("+".join(n))[:200], r) for n, r in pk]
     chk = b.pools(o, "pack", "donor_id", np.random.RandomState(0))           # pool engine: sampled rows of every pack
-    assert [x[0] for x in chk] == [p[0] for p in pools], "pack bookkeeping differs from build_atlas5.pools"
+    assert [x[0] for x in chk] == [p[0] for p in pools], "pack bookkeeping differs from build_atlas_pools.pools"
     sel = chk[:maxp]; st.update(n_packs=len(chk), n_pools=len(sel))
     if not r4 and (len(sel) < 2 or P["n_cells"] < 60000): bc["BC2"] = f"FAIL: {len(chk)} packs, {P['n_cells']} cells (need >=2 pools of {N} and >=60000 cells)"
     import score_hlca as sh
