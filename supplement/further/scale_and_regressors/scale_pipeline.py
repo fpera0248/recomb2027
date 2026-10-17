@@ -11,6 +11,8 @@ E = os.environ.get; R5 = E("R5", ""); OUT = E("OUT", HR_WORK + "/jiaqi1011/out/w
 ATLAS_DIR = E("ATLAS_DIR", f"{H}/data/atlas")
 SIZES = [(int(a), int(b)) for a, b in (x.split(":") for x in E("SIZES", "5000:0,10000:0,20000:0,20000:1,20000:2,50000:0,100000:0,200000:0").split(","))]
 MEM_MIN, CAP_MB = float(E("MEM_FREE_MIN", "25")), float(E("RSS_CAP_GB", "18")) * 1024
+# step ids (saved in scale.csv): sr3 = candidate groups, sr3m = marker features, sr3h = halo features, m1_leiden_sub = Leiden subclustering,
+# learn14_predict = learned scorer, frozen4 = final blend (our method)
 STEPS = ["build", "sr3", "sr3m", "sr3h", "m1_leiden_sub", "learn14_predict", "frozen4"]
 BASE_MB = {"build": 3000, "sr3": 3209, "sr3m": 3209, "sr3h": 3209, "m1_leiden_sub": 3053, "learn14_predict": 312, "frozen4": 115}   # 20k medians, ~/work/r5/runtime_all.csv; first-size prediction only
 COLS = ["n", "seed", "step", "status", "wall_s", "cpu_s", "load1", "max_rss_mb", "out_bytes", "exit", "pred_rss_mb", "machine", "n_cells", "note"]
