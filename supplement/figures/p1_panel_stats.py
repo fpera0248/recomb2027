@@ -8,7 +8,7 @@ Inputs (read only):
 Outputs: data/panel_tab.csv (per dataset x method x classifier), data/panel_across.csv, data/panel_p2.csv (max-T per dataset)."""
 import os, sys, glob
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
-H = HR_WORK + '/recomb27/rev1015/p1data'; sys.path.insert(0, H); sys.dont_write_bytecode = True
+H = HR_WORK + '/recomb27/rev1015/p1data'; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'duplication')); sys.dont_write_bytecode = True
 import pandas as pd, numpy as np
 import panel_analysis as P
 E = pd.read_csv(f'{H}/panel_eligible.csv').set_index('dataset_id'); S = []

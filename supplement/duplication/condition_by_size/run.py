@@ -15,7 +15,7 @@ import os, sys, argparse
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ.setdefault("OMP_NUM_THREADS", "4")
 import numpy as np, pandas as pd
-R = os.environ.get("R8", HR_WORK + "/recomb2027-r8i3wt")
+R = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 sys.path.insert(0, R)
 from part1.signflip import signflip_p
 from statsmodels.stats.multitest import multipletests

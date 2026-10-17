@@ -1,5 +1,5 @@
 """One-versus-rest classifiers: does the published-generator-versus-duplication verdict hold under one-versus-rest?
-Reads the saved per-row metrics (mini j1004/metrics/{aida,hlca,lupus}_full.csv, copied here).
+Reads the saved per-row metrics ({aida,hlca,lupus}_full.csv, written by ../metrics/run_e1.py; not in the repository, set J21_METRICS to their folder).
 Same rows and conventions as our earlier one-versus-rest versus multiclass comparison
 (not included): probe types only, zero-call precision
 scored 0, lupus drops sdiff (invalid cells), n=1 rows kept apart (n2plus is the tested group),
@@ -13,7 +13,7 @@ this script or set J21_METRICS to the folder that holds them. No other input is 
 import itertools, os, numpy as np, pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-IN = os.environ.get('J21_METRICS', HERE)
+IN = os.environ.get('J21_METRICS', os.path.join(HERE, '..', 'metrics'))
 _miss = [f for f in ('aida', 'hlca', 'lupus') if not os.path.exists(f'{IN}/{f}_full.csv')]
 if _miss:
     raise SystemExit(f'missing {IN}/{{{",".join(_miss)}}}_full.csv: write them with duplication/metrics/run_e1.py or set J21_METRICS')
