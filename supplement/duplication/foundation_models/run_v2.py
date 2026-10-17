@@ -12,7 +12,7 @@ import run_fm_dup as R
 
 H = os.path.dirname(os.path.abspath(__file__))
 POOL = os.environ.get('POOL', 'mean')
-EMB = os.environ.get('EMB', 'emb_v2_316m')  # emb_scgpt for the scGPT backbone (VM, same 12,719 cells)
+EMB = os.environ.get('EMB', 'emb_v2_316m')  # emb_scgpt for the scGPT backbone (embedded on a rented cloud GPU machine, same 12,719 cells)
 R.OUT = os.path.join(H, POOL if EMB == 'emb_v2_316m' else f'{EMB}_{POOL}'); os.makedirs(R.OUT, exist_ok=True)
 N_OBS = 355046
 
