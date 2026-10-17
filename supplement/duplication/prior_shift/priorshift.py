@@ -2,10 +2,10 @@
   REP=<path>/rep16t CLF=lr,knn,rf,mlp python3 priorshift.py run S0 S1 [OUT.csv]
   python3 priorshift.py report OUT.csv           (share, bootstrap CI, signflip, verdict per classifier)
   REP=... python3 priorshift.py selfcheck [seed]  (parity with statistical_augmentations.fit_arm + shift invariants, LR)
-Env: STAT16_DIR (dir with statistical_augmentations.py and polh.py, default: the duplication folder of this repository), POLH_DIR (dir of polh.py, default STAT16_DIR), NJ (joblib workers over seeds, default 1). Output: new csv only, never an existing file."""
+Env: STAT_AUG_DIR (dir with statistical_augmentations.py and polh.py, default: the duplication folder of this repository), POLH_DIR (dir of polh.py, default STAT_AUG_DIR), NJ (joblib workers over seeds, default 1). Output: new csv only, never an existing file."""
 import sys, os
-STAT16_DIR = os.environ.get('STAT16_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-sys.path.insert(0, STAT16_DIR)
+STAT_AUG_DIR = os.environ.get('STAT_AUG_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.insert(0, STAT_AUG_DIR)
 import numpy as np, pandas as pd
 import statistical_augmentations as S
 from sklearn.neighbors import KNeighborsClassifier
@@ -59,7 +59,7 @@ def run(a, b, out):
     df = pd.DataFrame([r for x in res for r in x]); df.insert(0, 'cache', os.path.basename(S.REP)); df.to_csv(out, index=False); print('wrote', out, len(df))
 
 def report(path, B=2000):
-    sys.path.insert(0, os.environ.get('POLH_DIR', STAT16_DIR)); import polh
+    sys.path.insert(0, os.environ.get('POLH_DIR', STAT_AUG_DIR)); import polh
     df = pd.read_csv(path); rng = np.random.default_rng(0)
     for cache, dc in df.groupby('cache'):
         print(f'\n## {cache}: {dc.seed.nunique()} seeds, {dc.name_.nunique()} types, {len(dc)//3//dc.clf.nunique()} units per classifier')
