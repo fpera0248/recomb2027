@@ -44,6 +44,34 @@ Headings follow the supplement. Paths are relative to this folder.
 
 We did not copy third-party code. CFGen, scDiffusion and Geneformer load from clones of the authors' repositories. scGPT and scvi-tools come from pip, and scDesign3 and snapATAC2 are installed packages.
 
+## Modules and scripts loaded from locked external trees
+
+The scripts below load code by its original file name from working trees that are not part of this repository. They fail without those trees. Where a released copy exists here, it has a descriptive name and the earlier name is in the table at the end.
+
+| Script | Tree it reads | Names it loads |
+|---|---|---|
+| `further/embeddings/harness.py`, `further/scale_and_regressors/harness.py` | `HR_WORK/r5/code` | `learn14` (released as `learned_scorer.py`), `hlib` (in `r5/code/hmod`), and `score_atl` (released with its name) |
+| `further/embeddings/embedding_lib.py` | `R5CODE`, default `HR_WORK/r5/code` | `loader`, `sr2` (released as `seprank_variants.py`), `sr3`, `sr3m`, `sr3h` |
+| `further/scale_and_regressors/scale_pipeline.py` | `HR_WORK/r5/code` | imports `build_r5` (released as `build_second_atlas_set.py`) and runs `sr3.py`, `sr3m.py`, `sr3h.py`, `run_m1_only.py` (released as `run_leiden_sub_only.py`), `learn14.py` and `frozen4.py` (released as `our_method.py`) as subprocesses |
+| `further/queues/scale_queue.sh` | `HR_WORK/jiaqi1011/code/w1` | runs the external copy `scale_pipeline.py` of that tree, not the file released in `further/scale_and_regressors/`. The two share a purpose and the released file is the copy of the script we ran, but the queue as released does not call it. We did not change this |
+| `further/queues/atac_all.sh` | `HR_WORK/r5/code`, `HR_WORK/jiaqi1011/code/w1` | checks that `sr3`, `sr3m`, `sr3h`, `sr2`, `split_island_v2`, `loader`, `learn14`, `rescore`, `score_atl`, `score_hlca`, `combo_r2`, `hmod/*` and `w1/harness.py` exist before it starts |
+| `further/labels_and_atac/run_unit.py`, `annotation_refine.py`, `make_variants.py` | `HR_WORK/jiaqi1011/code/w1`, `HR_WORK/r5/code` | `harness` (the `w1` copy, not the released `further/embeddings/harness.py`), `hlib`, and `sr3.py`, `sr3m.py`, `sr3h.py` run as subprocesses |
+| `further/annotations/matched_classes.py` | `HR_WORK/jiaqi1011/code/w6` and `w1` | `w6common`, `p2_refine`, `harness`, `score_hlca` |
+| `further/scale_and_regressors/run_fits.sh` | `HR_WORK/jiaqi1011/code/w1` | runs from that folder |
+| `further/queues/fm_queue_gf.sh`, `fm_plumbing_check.sh` | `HR_WORK/jiaqi1011/code/w2_fm` | re-run themselves through `laptop_lock_run.sh` of that tree when `W2_LOCKED` is unset |
+| `duplication/metrics/common.py` | `HR_WORK/cfgen_natrare` | `m27_hlclf` (released as `hlca_classifier_readout.py`) and `stat16` (released as `statistical_augmentations.py`) |
+| `duplication/foundation_models/fm/run_fm_dup.py` | `HR_WORK/cfgen_natrare` | `stat16` |
+| `duplication/donor_resampling/donor_boot.py` | `STAT16_DIR` and `M27_SRC` | `stat16`, `polh` and `m27_hlclf` |
+| `duplication/clip_chain.sh`, `duplication/clip_jitter_chain.sh`, `duplication/metrics/run_hlca_then_lupus.sh` | `HR_WORK/cfgen_natrare` | change into that tree and call scripts there by the file names written in the chain, so the released scripts must be copied into that folder first. They also call scripts that are not released (`m27_sd3clf.py`, `sd3clf16.py`) |
+
+`duplication/prior_shift/priorshift.py` is not in this list. It imports the released `statistical_augmentations.py` and `polh.py` from the `duplication` folder, and `STAT16_DIR` can point to another folder that holds both files.
+
+Names that stay because saved outputs or the trees above use them:
+
+- Output folders and files `preds_m14p/m14p_frozen/`, `preds_frozen4/frozen4/` and `scores_preds_frozen4.csv`, which `further/method_at_submission/our_method.py`, `further/scale_and_regressors/parity.py` and `further/labels_and_atac/analyze_label_corruption.py` read or write. Saved results and the external `frozen4.py` use these paths.
+- Step ids `sr3`, `sr3m`, `sr3h`, `m1_leiden_sub`, `learn14_predict` and `frozen4` in `scale.csv`, which `figures/figS_further.py` reads.
+- Environment variables `STAT16_DIR`, `M27_SRC`, `M27_HL`, `M27_CSV`, `M27_LIB`, `M27_TAG`, `W2_LOCKED`, `W2_OUT`, `W6_ROOT`, `W6_CLEAN`, `W6_OUT` and `W6_OOD` (and the other `M27_*`, `W2_*` and `W6_*` names), which the run lines in this README and the external modules set or read.
+
 ## Earlier file names
 
 | Earlier name | Current name |
