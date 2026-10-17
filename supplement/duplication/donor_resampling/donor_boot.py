@@ -2,13 +2,13 @@
   python3 donor_boot.py run  --ds aida8|lupus|hlca [--clf lr[,knn,..]] [--B 1000] [--seeds 0:20] [--evdir D] [--out D]
   python3 donor_boot.py report --ds .. [--clf lr] [--out D]      (aggregates every per-seed file in --out)
   python3 donor_boot.py selfcheck
-Per seed: fit 'real' (no augmentation) and 'upsample' (dup to 256 cells, stat16.gene_arm) with stat16.readout, keep per-cell
+Per seed: fit 'real' (no augmentation) and 'upsample' (dup to 256 cells, statistical_augmentations.gene_arm) with statistical_augmentations.readout, keep per-cell
 scores P and calls, resample the seed's EVAL DONORS with replacement (B draws, same draws for both arms and all types), recompute
 each probe type's argmax recall and rec200 (k = true eval cells of the type in the resample; cells of a drawn donor count with
 multiplicity), take d = upsample - real, average over probe types and seeds per draw. Report percentile 95% interval next to the
 type-level exact sign-flip p (polh.signflip_p, as in the paper tables).
 Env: REPDIR (rep16t npz), LUPUS_BASE / HLCA_BASE (m27_*_t dirs: s<seed>_base.npz, s<seed>_upsample.npz), STAT16_DIR, M27_SRC
-(dir of m27_hlclf.py + polh.py). New outputs only: boot_df_<ds>_<clf>_s<seed>.npz, boot_df_<ds>_<clf>_summary.csv/_pertype.csv."""
+(dir of m27_hlclf.py, the file released here as hlca_classifier_readout.py, and polh.py). New outputs only: boot_df_<ds>_<clf>_s<seed>.npz, boot_df_<ds>_<clf>_summary.csv/_pertype.csv."""
 import os, sys, glob, numpy as np, pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__)); E = os.path.expanduser
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
@@ -58,7 +58,7 @@ def draw_union(donors_per_seed, B):
 
 # ---------- per-seed fits ----------
 def fit_scores(ds, seed):
-    """-> dict arm -> (P, pred) per clf, plus Zev/yev/probe/cts. Same matrices as stat16.fit_arm / m27_hlclf.fit."""
+    """-> dict arm -> (P, pred) per clf, plus Zev/yev/probe/cts. Same matrices as statistical_augmentations.fit_arm / hlca_classifier_readout.fit."""
     import stat16
     if ds == 'aida8':
         d = np.load(f"{E(os.environ.get('REPDIR', W + '/monday_q/donorfix/data'))}/rep16t_seed{seed}.npz")

@@ -1,4 +1,4 @@
-"""Offline ranking rules over sr3 candidate dumps (DEV only: the truth columns here are for evaluation/training, never a method input).
+"""Offline ranking rules over candidate_dump candidate dumps (DEV only: the truth columns here are for evaluation/training, never a method input).
   python rescore.py feats IDS OUT.parquet   -> one row per candidate group: scale-free features + stability + (offline) recall/purity vs the hidden type
   python rescore.py eval  IDS RULES OUT.csv -> matched-k rprec per (pilot, rule); RULES is a python file defining RULES = {name: f(G, C) -> cell score}
 Cell score from group scores: max over the groups holding the cell (groups overlap across resolutions); cells in no group get -1 + 1e-3 * tie-break."""

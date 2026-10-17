@@ -50,7 +50,7 @@ def load_panel():
 
 def load_aida():
     """Three AIDA-31 sets. m27_base: lr, F1, sdiff DROPPED (pre-clip). anchor: pca latent, 4 clf, recall only, post-clip,
-    all arms incl sdiff and scDesign3. stat16: lr+knn/rf/mlp, 20 seeds, F1, noise and SMOTE."""
+    all arms incl sdiff and scDesign3. statistical_augmentations: lr+knn/rf/mlp, 20 seeds, F1, noise and SMOTE."""
     d = pd.read_csv(f'{AIDA}/m27_base.csv'); d = d[d.arm != 'sdiff']
     d['clf'] = 'lr'; d['nev'] = 200; d['ncall'] = d.called
     assert (d.groupby(['seed', 'arm']).called.sum() == 6200).all()

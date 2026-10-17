@@ -1,6 +1,6 @@
 """CELLxGENE panel analysis. Specified before any panel dataset had finished; revised once, still before any panel result was read.
 
-Inputs: <PANEL_DIR>/<dataset>/clf.csv (m27_hlclf, every arm x 4 readouts) + real.csv (no augmentation), for
+Inputs: <PANEL_DIR>/<dataset>/clf.csv (hlca_classifier_readout, every arm x 4 readouts) + real.csv (no augmentation), for
 datasets with a 'done' marker. Probe rows only. Unit of analysis = dataset; inside a dataset the unit is the
 probe type (8 per dataset), averaged over the 3 seeds (rungs rotate across seeds).
 

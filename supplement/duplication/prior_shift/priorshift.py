@@ -1,12 +1,13 @@
-"""Prior-shift control for duplication (declared in advance). stat16 and polh are imported unchanged.
-  REP=<path>/rep16t STAT16_DIR=<dir with stat16.py,polh.py> CLF=lr,knn,rf,mlp python3 priorshift.py run S0 S1 [OUT.csv]
+"""Prior-shift control for duplication (declared in advance). statistical_augmentations and polh are imported unchanged.
+  REP=<path>/rep16t CLF=lr,knn,rf,mlp python3 priorshift.py run S0 S1 [OUT.csv]
   python3 priorshift.py report OUT.csv           (share, bootstrap CI, signflip, verdict per classifier)
-  REP=... python3 priorshift.py selfcheck [seed]  (parity with stat16.fit_arm + shift invariants, LR)
-Env: POLH_DIR (dir of polh.py, default STAT16_DIR), NJ (joblib workers over seeds, default 1). Output: new csv only, never an existing file."""
+  REP=... python3 priorshift.py selfcheck [seed]  (parity with statistical_augmentations.fit_arm + shift invariants, LR)
+Env: STAT_AUG_DIR (dir with statistical_augmentations.py and polh.py, default: the duplication folder of this repository), POLH_DIR (dir of polh.py, default STAT_AUG_DIR), NJ (joblib workers over seeds, default 1). Output: new csv only, never an existing file."""
 import sys, os
-sys.path.insert(0, os.environ.get('STAT16_DIR', '.'))
+STAT_AUG_DIR = os.environ.get('STAT_AUG_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.insert(0, STAT_AUG_DIR)
 import numpy as np, pandas as pd
-import stat16 as S
+import statistical_augmentations as S
 from sklearn.neighbors import KNeighborsClassifier
 
 def shift_probs(P, ratio):
@@ -58,7 +59,7 @@ def run(a, b, out):
     df = pd.DataFrame([r for x in res for r in x]); df.insert(0, 'cache', os.path.basename(S.REP)); df.to_csv(out, index=False); print('wrote', out, len(df))
 
 def report(path, B=2000):
-    sys.path.insert(0, os.environ.get('POLH_DIR', os.environ.get('STAT16_DIR', '.'))); import polh
+    sys.path.insert(0, os.environ.get('POLH_DIR', STAT_AUG_DIR)); import polh
     df = pd.read_csv(path); rng = np.random.default_rng(0)
     for cache, dc in df.groupby('cache'):
         print(f'\n## {cache}: {dc.seed.nunique()} seeds, {dc.name_.nunique()} types, {len(dc)//3//dc.clf.nunique()} units per classifier')
@@ -93,7 +94,7 @@ def selfcheck(seed):
     P = np.array([[.5, .5, 0.], [.1, .1, .8]]); Q = shift_probs(P, np.array([1., 4., 1.]))
     assert np.allclose(Q.sum(1), 1) and Q[0].argmax() == 1 and Q[1].argmax() == 2
     CL = os.environ.get('CLF', 'lr,knn,rf,mlp').split(',')
-    os.environ['CLF'] = ','.join(CL)   # stat16.fit_arm reads CLF at call time
+    os.environ['CLF'] = ','.join(CL)   # statistical_augmentations.fit_arm reads CLF at call time
     rows = pd.DataFrame(fit_both(seed, CL)); ref, _ = S.fit_arm(seed, 'real'); refu, _ = S.fit_arm(seed, 'upsample')
     for arm, rf in (('real', ref), ('upsample', refu)):
         R = pd.DataFrame(rf)
@@ -104,7 +105,7 @@ def selfcheck(seed):
     for k in CL:
         sh = rows[(rows.arm == 'shift') & (rows.clf == k)]; re = rows[(rows.arm == 'real') & (rows.clf == k)]
         assert (sh.rec200.values == re.rec200.values).all() and (sh.called.values >= 0).all(), k
-    print('selfcheck OK: parity with stat16.fit_arm (real/upsample) for', CL, '; shift rec200 == real, knn vote argmax == pred;', len(rows), 'rows')
+    print('selfcheck OK: parity with statistical_augmentations.fit_arm (real/upsample) for', CL, '; shift rec200 == real, knn vote argmax == pred;', len(rows), 'rows')
 
 def donors(src, out):
     """Per-rung donor table from m27_donor.csv (AIDA rep16, 20 seeds x 8 types): median donors, mean top-donor share, mean total-variation

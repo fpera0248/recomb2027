@@ -64,7 +64,7 @@ def build(n, seed):
 
 
 def pick_atlas():
-    """largest set-B atlas by n_obs (backed read); set B = build_r5.ATL ids present in ATLAS_DIR; SCALE_NAME overrides (laptop test: luad)."""
+    """largest set-B atlas by n_obs (backed read); set B = build_second_atlas_set.ATL ids present in ATLAS_DIR; SCALE_NAME overrides (laptop test: luad)."""
     sys.path.insert(0, CODE); import anndata as ad, build_r5 as br
     if E("SCALE_NAME"): n = E("SCALE_NAME"); return n, None
     best = None

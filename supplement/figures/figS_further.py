@@ -16,8 +16,8 @@ def pflip(x):   # exact two-sided sign-flip over atlas values
 
 # ---- (a) time ----
 S = pd.read_csv(J + 'w1_scale/scale.csv'); S = S[(S.status == 'ok') & (S.seed == 0)]
-# step ids as stored in scale.csv: sr3 = candidate groups, sr3m = marker features, sr3h = halo features, m1_leiden_sub = Leiden subclustering,
-# learn14_predict = learned scorer, frozen4 = final blend (our method)
+# step ids as stored in scale.csv: candidate_dump = candidate groups, candidate_marker_features = marker features, candidate_halo_features = halo features, m1_leiden_sub = Leiden subclustering,
+# learn14_predict = learned scorer, our_method = final blend (our method)
 steps = ['sr3', 'sr3m', 'sr3h', 'm1_leiden_sub', 'learn14_predict', 'frozen4']
 W = S[S.step.isin(steps)].pivot(index='n', columns='step', values='wall_s'); M = S[S.step.isin(steps)].pivot(index='n', columns='step', values='max_rss_mb')
 ns = [5000, 10000, 20000, 50000, 100000, 200000]; assert list(W.index) == ns and not W.isna().any().any()
