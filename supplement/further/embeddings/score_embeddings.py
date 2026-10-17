@@ -1,12 +1,12 @@
-"""python w2_score.py OUT.csv DIAG.csv ARM [ARM ...]   (arms = directories under $W2_OUT/arms; first ARM is only a pool-set anchor if --pools is not given)
+"""python score_embeddings.py OUT.csv DIAG.csv ARM [ARM ...]   (arms = directories under $W2_OUT/arms; first ARM is only a pool-set anchor if --pools is not given)
 Scores three arms of the experiment for every ARM on the SAME pools (intersection of finished pools unless --pools FILE):
   leiden   : m1 Leiden subclustering in that space alone
-  frozen   : the shipped scorer (learn14 predict, FEATS=mkh, P4_s1) applied as is; 'sc' = scorer alone, 'bl' = blend 0.75/0.25 with m1 in the same space
+  frozen   : the shipped scorer (learned_scorer predict, FEATS=mkh, P4_s1) applied as is; 'sc' = scorer alone, 'bl' = blend 0.75/0.25 with m1 in the same space
   retrain  : scorer retrained leave-one-atlas-out inside set B (fit on the groups of the other atlases' pools in this space, predict the held-out atlas); same blend
 Metrics: union_AP (primary) and E1_union per pool. Diagnostics (DIAG.csv, truth used only here at evaluation): number of candidate groups, g/l split,
 best Jaccard of any candidate group with each target, l-groups duplicating a g group. Uses the scoring harness for features, predictions, blend and metrics (copy: harness.py)."""
 import os, sys, glob, argparse, pickle, numpy as np, pandas as pd
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import w2lib as W
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import embedding_lib as W
 import harness as Hn
 from harness import L, S, hlib
 

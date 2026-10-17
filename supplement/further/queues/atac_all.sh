@@ -13,8 +13,8 @@ trap 'rc=$?; [ $rc -ne 0 ] && echo "exit $rc $(date)" > $OUT/FAILED' EXIT
 # ---- files that must already be on the mini (rsync from the laptop; none is written by this script) ----
 need=""; for f in \
   $CAND $GTF $PY $SNAP ${HR_WORK:-$HOME/work}/r5/refit_dev_nat.pkl ${HR_WORK:-$HOME/work}/r5/used_datasets.csv ${HR_WORK:-$HOME/work}/ablation_donor/out/train_xy.npz \
-  ${HR_WORK:-$HOME/work}/r5/code/{sr3,sr3m,sr3h,sr2,split_island_v2,loader,learn14,rescore,score_atl,score_hlca,combo_r2}.py ${HR_WORK:-$HOME/work}/r5/code/hmod/{hlib,methods,rawutil,rprec}.py ${HR_WORK:-$HOME/work}/r5/data/hmod/{hlib,methods,rawutil,rprec}.py \
-  $J/code/w1/harness.py $CODE/{run_unit,w6common,m1_full}.py $AA/{select_ds,pools,build_ga,aggregate,qhelp}.py; do [ -e "$f" ] || need="$need $f"; done
+  ${HR_WORK:-$HOME/work}/r5/code/{candidate_dump,candidate_marker_features,candidate_halo_features,seprank_variants,split_island_detector,loader,learned_scorer,rescore,score_atl,score_hlca,rank_combination_sweep}.py ${HR_WORK:-$HOME/work}/r5/code/hmod/{hlib,methods,rawutil,rprec}.py ${HR_WORK:-$HOME/work}/r5/data/hmod/{hlib,methods,rawutil,rprec}.py \
+  $J/code/w1/harness.py $CODE/{run_unit,label_corruption_common,leiden_sub_full}.py $AA/{select_ds,pools,build_ga,aggregate,qhelp}.py; do [ -e "$f" ] || need="$need $f"; done
 [ -z "$need" ] || { echo "missing:$need" | tee $OUT/NEEDS_FILES; exit 2; }
 $PY -c 'import igraph, leidenalg, scanpy, sklearn, pyarrow, anndata' && $SNAP -c 'import snapatac2' || { echo "missing python imports (igraph leidenalg scanpy sklearn pyarrow anndata | snapatac2)" | tee $OUT/NEEDS_FILES; exit 2; }
 [ -f $OUT/not_zero_shot.csv ] || echo "WARN no $OUT/not_zero_shot.csv (kidney study-overlap override)"

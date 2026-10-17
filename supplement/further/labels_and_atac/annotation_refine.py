@@ -1,11 +1,11 @@
-"""P2: can the annotation be refined? python p2_refine.py calibrate   -> threshold t on SET A (macro best-match F1 of arm A1), written to OUT/p2_t_cal.json BEFORE any set B F1 is computed
-                                python p2_refine.py apply [pidmax]  -> arms A0..A4 on clean set-B pools (ID variant outputs of run_unit), OUT/p2_pool.csv
+"""P2: can the annotation be refined? python annotation_refine.py calibrate   -> threshold t on SET A (macro best-match F1 of arm A1), written to OUT/p2_t_cal.json BEFORE any set B F1 is computed
+                                python annotation_refine.py apply [pidmax]  -> arms A0..A4 on clean set-B pools (ID variant outputs of run_unit), OUT/p2_pool.csv
 Arms: A0 broad label | A1 broad + ours (groups with P>=t, greedy by P desc then size desc, overlapping cells keep first assignment, >=10 cells left)
 A2s broad + Leiden small subclusters (<10% of label, as stored) | A2f broad + full silhouette partition | A3 A1 + Leiden small subclusters on the residual | A4 size-matched random control of A1.
 Scores vs fine truth (true_type): ARI, NMI (whole pool), target-pair F1 (best match and one-to-one Hungarian), all-type F1 secondary."""
 import os, sys, json, glob, pickle, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
-sys.dont_write_bytecode = True; HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from w6common import *
+sys.dont_write_bytecode = True; HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); from label_corruption_common import *
 from scipy.optimize import linear_sum_assignment
 from sklearn.metrics import adjusted_rand_score as ARI, normalized_mutual_info_score as NMI
 GRID = [round(x, 2) for x in np.arange(0.10, 0.81, 0.05)]; MING = 10

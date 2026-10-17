@@ -8,6 +8,6 @@ for d in arms/*/; do
   a=$(basename "$d"); [ "$a" = pca ] && continue
   case $a in noise*) [ "${W2_NOISE:-0}" = 1 ] || continue;; esac
   n=$(ls "$d"cands/*.halo.parquet 2>/dev/null | wc -l | tr -d ' '); [ "$n" -ge 1 ] || continue
-  echo "== $a ($n pools with candidates)"; $PY $C/w2_score.py "$W2_OUT/res_$a.csv" "$W2_OUT/diag_$a.csv" pca "$a" > "$W2_OUT/score_$a.log" 2>&1 || { tail -20 "$W2_OUT/score_$a.log"; echo "SCORING FAILED for $a" >&2; exit 1; }; tail -2 "$W2_OUT/score_$a.log"
+  echo "== $a ($n pools with candidates)"; $PY $C/score_embeddings.py "$W2_OUT/res_$a.csv" "$W2_OUT/diag_$a.csv" pca "$a" > "$W2_OUT/score_$a.log" 2>&1 || { tail -20 "$W2_OUT/score_$a.log"; echo "SCORING FAILED for $a" >&2; exit 1; }; tail -2 "$W2_OUT/score_$a.log"
 done
-$PY $C/w2_analyze.py "$W2_OUT" > "$W2_OUT/analyze.log" 2>&1 || { tail -20 "$W2_OUT/analyze.log"; exit 1; }; grep -v -i warn "$W2_OUT/analyze.log"
+$PY $C/analyze_embeddings.py "$W2_OUT" > "$W2_OUT/analyze.log" 2>&1 || { tail -20 "$W2_OUT/analyze.log"; exit 1; }; grep -v -i warn "$W2_OUT/analyze.log"

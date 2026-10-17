@@ -1,4 +1,4 @@
-"""python w2_embed.py SPACE [pid ...]   SPACE: scvi | scgpt | gf | noise.  Blind (no truth). Writes $W2_OUT/emb/<space>/<pid>.npy (+ .ids.txt) and timing.csv. Resumable.
+"""python embed.py SPACE [pid ...]   SPACE: scvi | scgpt | gf | noise.  Blind (no truth). Writes $W2_OUT/emb/<space>/<pid>.npy (+ .ids.txt) and timing.csv. Resumable.
 scvi  : methods.scvi_latent copy (locked one cannot early-stop): same 2000 HVG (methods._hvg_genes), n_latent 30, NO batch key, seed 0, max_epochs 400 with
         early_stopping=True (official, validation ELBO), wall cap 15 min via Lightning max_time (cap hit => stops at that epoch, recorded), 3 threads. Pipeline venv.
 scgpt : official scgpt.tasks.embed_data, whole-human ckpt, the SAME 2000 HVG as the PCA arm (toolin/r pool = a[:, _hvg_genes]), symbols from var.feature_name,
@@ -7,7 +7,7 @@ gf    : Geneformer V1-10M (gf-6L-30M-i2048), the foundation-model duplication pi
         Laptop python3 (transformers); model_version V1 = gc30M dictionaries with vocab asserted == 25426.
 noise : planted random embedding (64-d N(0,1)) for the leakage / plumbing gate."""
 import os, sys, time, argparse
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import w2lib as W
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import embedding_lib as W
 import numpy as np, pandas as pd
 
 ap = argparse.ArgumentParser(); ap.add_argument("space"); ap.add_argument("pids", nargs="*"); ap.add_argument("--device", default=os.environ.get("W2_DEVICE", "cpu"))

@@ -1,5 +1,5 @@
-"""python m1_full.py PID (env R5/SI_H/SLIM_DIR = variant root). Same logic as methods.m1_leiden_sub (locked, imported pieces) but also saves the FULL silhouette-chosen partition
-(preds_base/m1_full) and a kNN-disagreement score (share of 15 global-PCA neighbours with another visible label). Writes preds_base/m1_leiden_sub in the locked format.
+"""python leiden_sub_full.py PID (env R5/SI_H/SLIM_DIR = variant root). Same logic as methods.m1_leiden_sub (locked, imported pieces) but also saves the FULL silhouette-chosen partition
+(preds_base/leiden_sub_full) and a kNN-disagreement score (share of 15 global-PCA neighbours with another visible label). Writes preds_base/m1_leiden_sub in the locked format.
 One-line diff vs locked code: extra outputs only; scoring path is the same calls in the same order."""
 import os, sys
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))

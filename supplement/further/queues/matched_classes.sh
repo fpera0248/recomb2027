@@ -8,8 +8,8 @@ while ! mkdir $H/.laptop_lock 2>/dev/null; do sleep 60; done
 trap 'rmdir $H/.laptop_lock 2>/dev/null || true' EXIT
 export OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMBA_NUM_THREADS=2 PYTHONWARNINGS=ignore PYTHONDONTWRITEBYTECODE=1
 PIDS=$(ls $H/out/w6_annot_atac/groupP | sed -n 's/^ID__\(.*\)\.parquet$/\1/p')
-for p in $PIDS; do [ -f $O/targets_$p.json ] || python3 -W ignore $C/r3c_matched.py targets $p >> $LOG 2>&1; done
-echo "$PIDS" | xargs -S 1024 -P 2 -I{} bash -c "[ -f $O/grid_{}.parquet ] || R5=$ID SI_H=$ID/hmod SLIM_DIR=$ID/slim_atlas $G python3 -W ignore $C/r3c_matched.py grid {}" >> $LOG 2>&1
-for p in $PIDS; do [ -f $O/score_$p.csv ] || python3 -W ignore $C/r3c_matched.py score $p >> $LOG 2>&1; done
-python3 -W ignore $C/r3c_matched.py summary >> $LOG 2>&1
+for p in $PIDS; do [ -f $O/targets_$p.json ] || python3 -W ignore $C/matched_classes.py targets $p >> $LOG 2>&1; done
+echo "$PIDS" | xargs -S 1024 -P 2 -I{} bash -c "[ -f $O/grid_{}.parquet ] || R5=$ID SI_H=$ID/hmod SLIM_DIR=$ID/slim_atlas $G python3 -W ignore $C/matched_classes.py grid {}" >> $LOG 2>&1
+for p in $PIDS; do [ -f $O/score_$p.csv ] || python3 -W ignore $C/matched_classes.py score $p >> $LOG 2>&1; done
+python3 -W ignore $C/matched_classes.py summary >> $LOG 2>&1
 touch $O/DONE

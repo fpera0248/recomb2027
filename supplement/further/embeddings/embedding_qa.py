@@ -1,8 +1,8 @@
-"""python w2_qa.py SPACE [pid ...] : blind embedding QA -> $W2_OUT/qa.csv. 15-NN agreement on the VISIBLE broad labels (an input, not hidden truth):
+"""python embedding_qa.py SPACE [pid ...] : blind embedding QA -> $W2_OUT/qa.csv. 15-NN agreement on the VISIBLE broad labels (an input, not hidden truth):
 mean over cells of the share of the 15 nearest neighbours (cosine on E; Euclidean on PCA-50) that carry the cell's own label; PCA-50 of the same pool is the reference.
 Also: row-order check against the loader, finiteness, per-dimension SD range (a collapsed or constant embedding shows up here)."""
 import os, sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import w2lib as W; W.env()
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import embedding_lib as W; W.env()
 import numpy as np, pandas as pd, loader, methods as M
 from sklearn.neighbors import NearestNeighbors
 

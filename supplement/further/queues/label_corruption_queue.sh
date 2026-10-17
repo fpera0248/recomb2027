@@ -1,6 +1,6 @@
 #!/bin/bash
 # Label-corruption reruns, part 1, on the laptop (single machine so ID/variant pairs share one numerical environment).
-# usage: w6_p1.sh [POOL_INDEX_MAX=2] [WORKERS=2] ; units ordered pool-index major so partial results cover all atlases early. Resumable.
+# usage: label_corruption_queue.sh [POOL_INDEX_MAX=2] [WORKERS=2] ; units ordered pool-index major so partial results cover all atlases early. Resumable.
 # Timing: ~1.3-1.5 h for the first pass (150 units), ~4.5 h of lock time for all 435 units + make_variants.
 set -eu
 H=${HR_WORK:-$HOME/work}/jiaqi1011; C=$H/code/w6; OUT=$H/out/w6_annot_atac; LOG=$H/logs/w6_p1.log; MAXP=${1:-2}; NW=${2:-2}; G=$H/laptop_queue/memgate.sh

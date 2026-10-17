@@ -3,7 +3,7 @@ Also W/relabel/<variant>/<pid>.parquet (obs_name, new_label, changed) and W/tran
 import os, sys, shutil, hashlib, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from w6common import *
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from label_corruption_common import *
 K = 15
 
 def knn_votes(X, y_codes, nlab, k=K, Xq=None):

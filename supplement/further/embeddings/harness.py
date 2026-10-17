@@ -1,12 +1,12 @@
-"""Scoring harness: rebuild scorer predictions (learn14.predict, FEATS=mkh, P4_s1) + blend (combo_r2, 0.75/0.25 with m1_leiden_sub) + union AP / E1 (score_atl) for any regressor.
+"""Scoring harness: rebuild scorer predictions (learned_scorer.predict, FEATS=mkh, P4_s1) + blend (rank_combination_sweep, 0.75/0.25 with m1_leiden_sub) + union AP / E1 (score_atl) for any regressor.
 Read-only use of ~/work/r5/code (locked). Set B = r5/data (57 test pools, manifest split==test5), set A = ablation_donor/data (69 pools)."""
 import os, sys, glob, pickle, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ.update(FEATS="mkh", TARGET="pur", PYTHONDONTWRITEBYTECODE="1", R5=HR_WORK + "/r5/data", SI_H=HR_WORK + "/r5/data/hmod")
 sys.dont_write_bytecode = True
 sys.path.insert(0, HR_WORK + "/r5/code"); H = HR_WORK
-import learn14 as L, score_atl as S, hlib
-from combo_r2 import combo
+import learned_scorer as L, score_atl as S, hlib
+from rank_combination_sweep import combo
 from score_hlca import targets
 FEAT_COLS = list(range(41)); G_, A_ = L.RULES["P4_s1"]
 ROOT = {"B": f"{H}/r5/data", "A": f"{H}/ablation_donor/data"}
@@ -29,7 +29,7 @@ def load(pid, setname):
     d = dict(X=L.featurize(G), G=G, C=C, m1=m1, df=df, tg=targets(df)); _cache[k] = d; return d
 
 def cell_scores(P, d):
-    """P4_s1 cell score, as learn14.predict (index = cell_id of C order)."""
+    """P4_s1 cell score, as learned_scorer.predict (index = cell_id of C order)."""
     return pd.Series(L.R.cell_score(d["G"], P ** G_ / d["G"]["size"].values ** A_, d["C"], "tb_g"), index=d["C"].cell_id.values)
 
 def evaluate(predict, pid, setname):

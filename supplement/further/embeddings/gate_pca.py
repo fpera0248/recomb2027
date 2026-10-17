@@ -1,7 +1,7 @@
-"""python w2_gate_pca.py pid... : PCA arm recomputed under this protocol vs the stored locked outputs ($R5SRC/cands, preds_base/m1_leiden_sub). Expected identical on the mini
+"""python gate_pca.py pid... : PCA arm recomputed under this protocol vs the stored locked outputs ($R5SRC/cands, preds_base/m1_leiden_sub). Expected identical on the mini
 (pinned venv); on a different environment (e.g. the laptop) Leiden partitions differ, which is why every contrast is computed within one machine. Writes gate_pca.txt."""
 import os, sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import w2lib as W
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import embedding_lib as W
 import numpy as np, pandas as pd
 lines = []
 for pid in sys.argv[1:]:

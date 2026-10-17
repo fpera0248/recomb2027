@@ -1,9 +1,9 @@
-"""Annotation improvement at a matched number of classes. Per pool, Leiden subclustering of every broad label at the single global resolution, bisected so the total class count equals (within 1) the class count of our method (A1 of p2_refine, at each threshold), scored with the p2_refine metrics.
-  python r3c_matched.py targets PID  (clean env, as score)                                   -> out/small/matched/targets_<PID>.json: our class count per threshold
-  python r3c_matched.py grid PID     (env R5, SI_H, SLIM_DIR = data/w6/ID, as run_unit.py)  -> grid_<PID>.parquet (one partition per threshold) + gridinfo_<PID>.json; per threshold the global resolution is bisected (log scale) until the total class count is within 1 of ours
-  python r3c_matched.py score PID    (clean env, as p2_refine apply)                         -> out/small/matched/score_<PID>.csv
-  python r3c_matched.py summary                                                              -> out/small/matched_summary.csv, matched_pool.csv
-  python r3c_matched.py demo         (synthetic, <=1,500 cells)"""
+"""Annotation improvement at a matched number of classes. Per pool, Leiden subclustering of every broad label at the single global resolution, bisected so the total class count equals (within 1) the class count of our method (A1 of annotation_refine, at each threshold), scored with the annotation_refine metrics.
+  python matched_classes.py targets PID  (clean env, as score)                                   -> out/small/matched/targets_<PID>.json: our class count per threshold
+  python matched_classes.py grid PID     (env R5, SI_H, SLIM_DIR = data/w6/ID, as run_unit.py)  -> grid_<PID>.parquet (one partition per threshold) + gridinfo_<PID>.json; per threshold the global resolution is bisected (log scale) until the total class count is within 1 of ours
+  python matched_classes.py score PID    (clean env, as annotation_refine apply)                         -> out/small/matched/score_<PID>.csv
+  python matched_classes.py summary                                                              -> out/small/matched_summary.csv, matched_pool.csv
+  python matched_classes.py demo         (synthetic, <=1,500 cells)"""
 import os, sys, json, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
@@ -21,10 +21,10 @@ def bisect(count, n, lo=0.01, hi=10.0, it=18):
     return best
 
 def target_n(pid):
-    """class count of our method (A1 of p2_refine) per threshold, plus the scoring frame."""
+    """class count of our method (A1 of annotation_refine) per threshold, plus the scoring frame."""
     sys.path.insert(0, J + '/code/w6'); sys.path.insert(0, J + '/code/w1')
-    from w6common import CLEAN, root
-    import p2_refine as P, harness as h
+    from label_corruption_common import CLEAN, root
+    import annotation_refine as P, harness as h
     from score_hlca import targets
     G = pd.read_parquet(f'{W6}/groupP/ID__{pid}.parquet'); R = root('ID'); C = pd.read_parquet(f'{R}/cands/{pid}.cells.parquet'); cells = C.cell_id.values
     d = pd.read_parquet(f'{CLEAN}/hmod/pilots/{pid}.parquet', columns=['obs_name', 'label', 'true_type']).astype({'label': str, 'true_type': str}); si, oid = h.hlib._opaque_order(pid, d.obs_name.values)

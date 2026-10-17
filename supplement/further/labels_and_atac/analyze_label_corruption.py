@@ -1,9 +1,9 @@
-"""python analyze_w6.py : final tables + figures for the label-corruption analysis from whatever outputs exist (partial outputs are fine).
+"""python analyze_label_corruption.py : final tables + figures for the label-corruption analysis from whatever outputs exist (partial outputs are fine).
 Reads OUT/units/*.csv (P1), OUT/p2_pool.csv + p2_t_cal.json (P2), OUT/p3/units/*.csv + p3_pools.json (P3). Writes OUT/*.csv and ~/work/jiaqi1011/figs/w6_annot_atac/*.{pdf,png}.
 Everything here is post hoc on spent test atlases. Text uses 'our method' and 'Leiden subclustering'."""
 import os, sys, json, glob, itertools, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
-sys.dont_write_bytecode = True; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from w6common import OUT, HOME
+sys.dont_write_bytecode = True; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from label_corruption_common import OUT, HOME
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 FIG = f"{HR_WORK}/jiaqi1011/figs/w6_annot_atac"; os.makedirs(FIG, exist_ok=True)
 COL = {"ours": "#1f5fa8", "leiden": "#d9822b", "scorer": "#6aa6d8", "knn": "#7a7a7a", "ctrl": "#b9b9b9"}

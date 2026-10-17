@@ -1,4 +1,4 @@
-"""python p3_build.py : fragments -> gene-activity counts for the renal-cortex multiome (CELLxGENE 09b518f9). Venv: ~/work/jiaqi1011/venvs/atac. Resumable.
+"""python atac_gene_activity.py : fragments -> gene-activity counts for the renal-cortex multiome (CELLxGENE 09b518f9). Venv: ~/work/jiaqi1011/venvs/atac. Resumable.
 Gene annotation = Ensembl 110 EnsDb (Bioconductor AnnotationHub) exported by p3_gene_anno.R; gene_name key = Ensembl ID so the matrix columns are ENSG ids."""
 import os, re, sys, anndata as ad, snapatac2 as snap
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))

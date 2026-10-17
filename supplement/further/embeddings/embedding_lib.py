@@ -1,5 +1,5 @@
 """Shared helpers for the embedding analysis: data root, representation patch, embedding IO. Locked code in ~/work/r5/code is imported read-only, never edited.
-The swap is ONE monkeypatch of methods.preprocess_pca (sr3 g and l spaces, sr3h halo centroid and m1 all call it); no locked file is changed."""
+The swap is ONE monkeypatch of methods.preprocess_pca (candidate_dump g and l spaces, candidate_halo_features halo centroid and m1 all call it); no locked file is changed."""
 import os, sys, time, csv, shutil, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 HOME = os.path.expanduser("~")
@@ -24,7 +24,7 @@ def ensure_root():
 
 
 def env():
-    """call BEFORE importing loader / sr3 / methods."""
+    """call BEFORE importing loader / candidate_dump / methods."""
     ensure_root(); os.environ.update(R5=ROOT, SI_H=f"{ROOT}/hmod", SLIM_DIR=f"{ROOT}/slim_atlas", PYTHONDONTWRITEBYTECODE="1")
     for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS"): os.environ.setdefault(v, "3")
     sys.dont_write_bytecode = True
@@ -85,16 +85,16 @@ class Patch:
     def check(s, d_expected):
         assert s.M.preprocess_pca is s, "patch not installed"
         if s.space == "pca30": return
-        assert s.n_glob >= 3, f"global call hit {s.n_glob} times (expect sr3, sr3h, m1)"
+        assert s.n_glob >= 3, f"global call hit {s.n_glob} times (expect candidate_dump, candidate_halo_features, m1)"
         assert s.dim_g == d_expected, (s.dim_g, d_expected)
         assert (s.n_lab + s.n_lab_orig) >= 1, "no per-label call"
 
 
 def install(space, variant, pid=None):
     """import locked modules (env() first), patch methods.preprocess_pca, return (modules dict, Patch|None, d_expected)."""
-    import loader, sr2, sr3, sr3m, sr3h
-    M = sys.modules["methods"]; assert sr2.M is M and M.__file__.startswith(ROOT), (sr2.M, M.__file__)
-    if space == "pca": return dict(loader=loader, sr3=sr3, sr3m=sr3m, sr3h=sr3h, M=M), None, None
-    if space == "pca30": p = Patch(M, "pca30", variant); M.preprocess_pca = p; return dict(loader=loader, sr3=sr3, sr3m=sr3m, sr3h=sr3h, M=M), p, 30
+    import loader, seprank_variants, candidate_dump, candidate_marker_features, candidate_halo_features
+    M = sys.modules["methods"]; assert seprank_variants.M is M and M.__file__.startswith(ROOT), (seprank_variants.M, M.__file__)
+    if space == "pca": return dict(loader=loader, candidate_dump=candidate_dump, candidate_marker_features=candidate_marker_features, candidate_halo_features=candidate_halo_features, M=M), None, None
+    if space == "pca30": p = Patch(M, "pca30", variant); M.preprocess_pca = p; return dict(loader=loader, candidate_dump=candidate_dump, candidate_marker_features=candidate_marker_features, candidate_halo_features=candidate_halo_features, M=M), p, 30
     E, ids = load_emb(space, pid); p = Patch(M, space, variant, E, ids); M.preprocess_pca = p
-    return dict(loader=loader, sr3=sr3, sr3m=sr3m, sr3h=sr3h, M=M), p, (50 if variant == "P" else E.shape[1])
+    return dict(loader=loader, candidate_dump=candidate_dump, candidate_marker_features=candidate_marker_features, candidate_halo_features=candidate_halo_features, M=M), p, (50 if variant == "P" else E.shape[1])

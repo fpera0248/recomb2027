@@ -1,4 +1,4 @@
-"""python w2_analyze.py [OUTDIR=$W2_OUT] : tables + figures from the scoring outputs res_<arm>.csv / diag_<arm>.csv (each = PCA and ONE other arm on their common pools),
+"""python analyze_embeddings.py [OUTDIR=$W2_OUT] : tables + figures from the scoring outputs res_<arm>.csv / diag_<arm>.csv (each = PCA and ONE other arm on their common pools),
 timing.csv and qa.csv. Works on partial outputs. Everything is POST HOC / exploratory (10-atlas test set, spent).
 Primary: arm 3 (scorer retrained leave-one-atlas-out inside the set), full method, variant F, each space vs PCA retrained; union AP per atlas (mean over its pools),
 exact two-sided sign-flip over atlases, Holm over the primary family. Everything else is descriptive with raw p."""

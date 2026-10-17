@@ -9,12 +9,12 @@
 set -eu
 if [ -z "${W2_LOCKED:-}" ]; then export W2_LOCKED=1; exec "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/laptop_lock_run.sh" "$0" "$@"; fi
 export W2_OUT=${HR_WORK:-$HOME/work}/jiaqi1011/out/w2_fm_lap PY=/usr/local/bin/python3 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 NUMBA_NUM_THREADS=4
-MARK=gf; source "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/w2_common.sh"; rm -f "$O/DONE_gf" "$O/FAILED_gf"
+MARK=gf; source "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/common.sh"; rm -f "$O/DONE_gf" "$O/FAILED_gf"
 P0=$(cat $C/pools_p0.txt); first=$(echo $P0 | cut -d' ' -f1)
-$PY $C/w2_embed.py gf $first --device mps
+$PY $C/embed.py gf $first --device mps
 t=$(awk -F, -v p=$first '$1=="embed" && $2=="gf" && $3==p {t=$4} END{print int(t)}' "$O/timing.csv"); echo "first pool embedding: ${t}s"
 if [ "$t" -le 480 ]; then P=$(cat $C/pools_phase1.txt); else P=$P0; fi; echo "$P" | tr ' ' '\n' > "$O/gf_pools_used.txt"
-for pid in $P; do $PY $C/w2_embed.py gf $pid --device mps; $PY $C/w2_qa.py gf $pid; done
-for pid in $P; do $PY $C/w2_cands.py pca F $pid; for v in F H P; do $PY $C/w2_cands.py gf $v $pid; done; done
+for pid in $P; do $PY $C/embed.py gf $pid --device mps; $PY $C/embedding_qa.py gf $pid; done
+for pid in $P; do $PY $C/embedding_candidates.py pca F $pid; for v in F H P; do $PY $C/embedding_candidates.py gf $v $pid; done; done
 mkdir -p "${HR_WORK:-$HOME/work}/jiaqi1011/figs/w2_fm_lap"; W2_FIG=${HR_WORK:-$HOME/work}/jiaqi1011/figs/w2_fm_lap bash $C/run_scoring.sh "$O"
 fin DONE; echo "$(date +%T) done"
