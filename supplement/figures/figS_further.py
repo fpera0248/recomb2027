@@ -73,7 +73,7 @@ for k, x in xs.items():
     b.plot(x, R[k].mean(), 'D', color=co, ms=5, mec='black', mew=.5, zorder=3)
 b.axhline(0, color='black', ls='--', lw=LW_THIN); b.set_xlim(-.5, 1.5); b.set_xticks([0, 1]); b.set_xticklabels(['scVI', 'scGPT'])
 b.set_ylabel('Change in AP from PCA'); b.margins(y=.1)
-for k, x in xs.items(): b.text(x, b.get_ylim()[1], f'{R[k].mean():+.3f}'.replace('-', '−'), ha='center', va='top', fontsize=FS_MIN, color=co)
+for k, x in xs.items(): b.text(x, b.get_ylim()[1], f'{R[k].mean():+.3f}'.replace('-', '\u2212'), ha='center', va='top', fontsize=FS_MIN, color=co)
 for k, col, mk in [('ours', co, 'o'), ('leiden', cl, '^')]:
     c.errorbar(range(4), m[k], yerr=A[k + '_se'], fmt='-' + mk, color=col, ms=3.5, lw=LW, label='Our method' if k == 'ours' else 'Leiden subclustering', zorder=3)
 c.set_xticks(range(4)); c.set_xticklabels([f'{r}%' for r in rates]); c.set_xlim(-.2, 3.2)
