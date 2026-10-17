@@ -3,7 +3,7 @@
 Inputs (read only):
   ~/work/recomb27/rev1015/p1data/panel_runs/<dataset>/clf.csv   (88 datasets; every method and classifier except no augmentation)
   ~/work/recomb27/rev1015/p1data/panel_runs/<dataset>/real.csv  (no augmentation)
-  ~/work/recomb27/rev1015/p1data/panel_analysis.py, polh.py      (the pre-specified analysis functions, imported unchanged)
+  supplement/duplication/panel_analysis.py and polh.py   (the pre-specified analysis functions, imported from the repository; they match the p1data copies except for comments)
   ~/work/recomb27/rev1015/p1data/panel_eligible.csv
 Outputs: data/panel_tab.csv (per dataset x method x classifier), data/panel_across.csv, data/panel_p2.csv (max-T per dataset)."""
 import os, sys, glob
