@@ -1,9 +1,9 @@
 """python select_ds.py [--cand CSV] [--h5ad-dir DIR | --h5ad FILE --dataset ID] --out DIR [--only ID,ID] : R1 eligibility and (coarse, fine) pair per dataset, METADATA ONLY (backed h5ad obs read).
-Rules (PLAN_1012 R1): human; fine/coarse columns picked mechanically (no method output); >=97% of each fine type inside one coarse type; coarse has fewer categories than fine;
+Rules: human; fine/coarse columns picked mechanically (no method output); >=97% of each fine type inside one coarse type; coarse has fewer categories than fine;
 pair = most whole-dataset target pairs, ties -> fewer coarse categories -> alphabetical (coarse, fine); >=3 targets, >=8,000 cells after drops, >=2 donors.
-Rule: NOTLAB also excludes model-prediction columns (label transfer, Azimuth, CellTypist, scANVI, scOMM, confidence/score) and cluster-id columns by name, because a prediction is not curated truth and favours the arm it came from. NOTLAB already goes beyond the PLAN list (library, institute, preservation, age, is_*, reported, sequenced, ...) and DROP now matches substrings (doublet, low quality) anywhere in a label.
+Rule, added before any method output and decided from kidney metadata alone: NOTLAB also excludes model-prediction columns (label transfer, Azimuth, CellTypist, scANVI, scOMM, confidence/score) and cluster-id columns by name, because a prediction is not curated truth and favours the arm it came from. NOTLAB already goes beyond the PLAN list (library, institute, preservation, age, is_*, reported, sequenced, ...) and DROP now matches substrings (doublet, low quality) anywhere in a label.
 Dataset 72a69193 got (patient_group, region), which are not cell-type columns.
-Label columns must now also have a cell-type-annotation name (CTLAB below; cell_type is exempt). Applies to all datasets; the selection was rerun and every change is logged in OUT/selection_amend2.txt.
+Label columns must also have a cell-type-annotation name (CTLAB below; cell_type is exempt). Added before any method output, from column names only; applies to all datasets; the selection was rerun and every change is logged in OUT/selection_amend2.txt.
 Optional OUT/not_zero_shot.csv (dataset_id,reason) overrides the zero-shot flag (study-level overlap the id lists miss).
 Writes OUT/selection.csv (one row per dataset) and OUT/<dataset_id>/selection.json (chosen pair, all valid pairs, donors, zero-shot status)."""
 import os, re, sys, json, argparse, glob, numpy as np, pandas as pd
@@ -12,7 +12,7 @@ HOME = os.path.expanduser("~"); BAD = {"None", "nan", "Unknown"}
 DROP = re.compile(r"^(|unknown|unassigned|unclassified|unannotated|undefined|na|n/a|nan|none|empty|-)$|doublet|low[ _.-]?quality", re.I)   # labels dropped first
 # columns that are never labels: spec list (donor, sample, batch, assay, sex, tissue, disease, development stage, ethnicity) + ontology ids + CELLxGENE technical columns
 NOTLAB = re.compile(r"_ontology_term_id$|donor|sample|batch|assay|^sex|tissue|disease|development|ethnic|library|suspension|software|reference_genome|gene_annotation|preservation|institute|primary_data|organism|intronic|sequenced|^age|^is_|reported|predict|pred_|transfer|scomm|azimuth|celltypist|singler|scanvi|popv|majority_voting|confidence|_score|_prob|cluster|leiden|louvain|seurat_clusters", re.I)
-CTLAB = re.compile(r"cell.?type|annot|class|type|lineage|subset|sub(?!ject)|major|minor|level|(^|_)l\d", re.I)   # amendment 2: label columns must be named as cell-type annotations
+CTLAB = re.compile(r"cell.?type|annot|class|type|lineage|subset|sub(?!ject)|major|minor|level|(^|_)l\d", re.I)   # label columns must be named as cell-type annotations
 NUMLIKE = re.compile(r"^-?\d+(\.\d+)?$")
 
 def targets(df):
@@ -29,7 +29,7 @@ def label_cols(obs, don):
         s = obs[c]
         if not (isinstance(s.dtype, pd.CategoricalDtype) or s.dtype == object or pd.api.types.is_string_dtype(s)): continue
         if c != "cell_type" and NOTLAB.search(c): continue
-        if c != "cell_type" and not CTLAB.search(c): continue    # amendment 2
+        if c != "cell_type" and not CTLAB.search(c): continue    # label-column name rule (see docstring)
         if c == "cell_type_ontology_term_id": continue
         cats = pd.Index(s.astype(str).unique()); nn = [x for x in cats if not NUMLIKE.match(x)]
         if not (2 <= len(nn) <= 300) or len(nn) < 0.5 * len(cats): continue    # numeric cluster ids out

@@ -1,5 +1,5 @@
 """Dev variants of seprank. Developed on the already-seen D1/D2 pilots; HLCA is the held-out test.
-Diagnosis (seprank baseline): on D2 only 25% of rare cells sit in ANY Leiden-subcluster candidate group, so carving, not ranking, is the bottleneck.
+Diagnosis of the seprank baseline: on D2 only 25% of rare cells sit in ANY Leiden-subcluster candidate group, so carving, not ranking, is the bottleneck.
 Every variant: per visible label, candidate groups = Leiden subclusters with share < MAX_SHARE and >= MIN_GROUP_SIZE cells;
 cell score = max d' over the candidate groups holding it (-1 if none) + 1e-3 * within-label isolation rank (same tie-break as the seprank baseline).
   g_sil   : global PCA-50, the Leiden baseline's silhouette-picked resolution   (= seprank re-implemented; sanity row)

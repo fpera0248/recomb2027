@@ -50,7 +50,7 @@ removed. If the first aborts and the second succeeds, the singleton is the cause
 """
 import sys, os, subprocess, tempfile, numpy as np, pandas as pd, torch, anndata as ad, scanpy as sc, time, warnings, pathlib
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
-HR_DATA = os.environ.get("HR_DATA", os.path.expanduser("~/data"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 import scipy.io, scipy.sparse
 import scvi
 from sdiff_mod import build_sdiff, sample_sdiff
@@ -70,7 +70,7 @@ NEV=50 if '--smoke' in sys.argv else 200
 LAT=50; EDIM=20; BS=256; NS=128
 CAP=150 if '--smoke' in sys.argv else 500   # control classes capped so scDesign3 can run at all
 RS_BIN=HR_WORK + '/envs/scdesign3/bin/Rscript'
-SD3_CORES=8   # m27: machine shared with 2 other jobs, capped per HARD RULES
+SD3_CORES=8   # m27: machine shared with 2 other jobs, capped because the machine was shared
 AE_EPOCHS = 2 if SMOKE else 30
 SCVI_EPOCHS = 2 if SMOKE else 60
 SDIFF_EP = (2,2,2) if SMOKE else (40,60,30)   # VAE, diffusion, classifier
@@ -100,7 +100,7 @@ PROBE=['central memory CD4-positive, alpha-beta T cell','memory B cell',
        'CD16-positive, CD56-dim natural killer cell, human','CD4-positive, alpha-beta cytotoxic T cell',
        'naive B cell','gamma-delta T cell']
 if '--smoke' in sys.argv: PROBE=PROBE[:4]
-D=HR_DATA + '/pilots/aida/'
+D=SUPP_DATA + '/pilots/aida/'
 t0=time.time()
 
 # ---- data: union of the two pools, counts, HVG ----

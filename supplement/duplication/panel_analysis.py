@@ -1,4 +1,4 @@
-"""CELLxGENE panel analysis. Specified before any panel dataset had finished and before any panel result was read.
+"""CELLxGENE panel analysis. Specified before any panel dataset had finished; revised once the same night, still before any panel result was read.
 
 Inputs: <PANEL_DIR>/<dataset>/clf.csv (m27_hlclf, every arm x 4 readouts) + real.csv (no augmentation), for
 datasets with a 'done' marker. Probe rows only. Unit of analysis = dataset; inside a dataset the unit is the

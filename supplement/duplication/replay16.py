@@ -5,10 +5,10 @@ exact rungs, and >= NEV eval cells per probe type. Any mismatch stops the run.
 Usage: python3 replay16.py 0 20
 """
 import os, sys, time, numpy as np, pandas as pd, anndata as ad, scanpy as sc
-HR_DATA = os.environ.get("HR_DATA", os.path.expanduser("~/data"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 from sklearn.decomposition import PCA
 
-D = HR_DATA + '/pilots/aida/'
+D = SUPP_DATA + '/pilots/aida/'
 HVG, NEV, CAP = 2000, 200, 500
 RUNGS = np.array([1, 2, 4, 8, 16, 32, 64, 128])
 PROBE = ['double negative T regulatory cell', 'CD141-positive myeloid dendritic cell',

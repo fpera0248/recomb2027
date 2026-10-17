@@ -8,6 +8,7 @@ Outputs ($R5): slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet,
 targets_<name>.csv, ../leak5_log.csv), build5/status_<name>.json."""
 import os, sys, re, json, glob, time, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 from anndata.io import sparse_dataset
 os.environ.setdefault("SI_H", os.path.join(os.path.dirname(os.path.abspath(__file__)), "hmod"))   # hlib / rprec for score_hlca without copying them to $R5/hmod
 import build_atlas5 as b          # pool engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
@@ -17,7 +18,7 @@ W = os.environ.get("R5_WORK") or HR_WORK + "/r5"
 LK, ST = f"{R5}/leak5", f"{R5}/build5"
 SPLIT = "test5"
 
-# ---- section 4: atlas config. name = dataset id[:8]; (dataset_id, coarse = visible label col, fine = truth col, stratum, role, order)
+# ---- atlas config. name = dataset id[:8]; (dataset_id, coarse = visible label col, fine = truth col, stratum, role, order)
 _T = [("6f9de485-58cd-4342-bfc4-b3d3dd223aa8", "author_cell_type", "cell_state", "tumour", "primary", 1),
       ("1c53ef1e-45c7-4498-be59-6797f3950875", "broad_anno", "fine_anno", "tumour", "primary", 2),
       ("fe067858-1282-46ea-9553-b8cd19167266", "author_cell_type", "author_sub_cell_type", "tumour", "primary", 3),
@@ -33,14 +34,14 @@ _T = [("6f9de485-58cd-4342-bfc4-b3d3dd223aa8", "author_cell_type", "cell_state",
 ATL = {t[0][:8]: dict(zip(("id", "lab", "fine", "stratum", "role", "order"), t)) for t in _T}
 R4 = {"luad": ("author_cell_type_level_1", "author_cell_type_level_2")}     # regression config for luad, no drops
 
-# donors dropped by decision before lock (section 4); every one has an exact string match in the reference set
+# donors dropped by decision before the test; every one has an exact string match in the reference set
 DROP_PRE = {
     "fe067858": "CV0902 CV0904 CV0911 CV0915 CV0917 CV0926 CV0929 CV0934 CV0939 CV0940 CV0944 "
                 "MH8919176 MH8919177 MH8919178 MH8919179 MH8919226 MH8919227 MH8919282 MH8919283 MH8919332 MH8919333 newcastle65 newcastle74 A35 A36".split(),
     "551ad2bc": "582C 583B 591C 621B 640C 398B 343B 367C 411C".split()}      # 411C added: norm match to psccolon 411c, alias match to "A32 (411C)" in panel file 80a2c5b6 and the CBTM siblings
-# check 4b mechanical rule (amendment 3): all non-primary cells of these atlases are dropped before pooling (meta-atlas with generic-id donors whose source cannot be found)
+# mechanical rule: all non-primary cells of these atlases are dropped before pooling (meta-atlas with generic-id donors whose source cannot be found)
 NPDROP = {"fe067858"}
-# section 5 CELLDROP (ii): visible OR truth label, lower-cased and stripped, equals one of these
+# CELLDROP: visible OR truth label, lower-cased and stripped, equals one of these
 LABDROP = re.compile(r"^(doublets?|unassigned|unclassified|unknown|undefined|low[ _]?quality|removed|nan|none|na|-)$")
 GEN = {"p", "h", "d", "s", "donor", "patient", "subject", "sample", "pt", "ctrl", "control", "case", "individual"}
 GENID = re.compile(r"^(?:%s)?[-_ ]?\d+$" % "|".join(sorted(GEN, key=len, reverse=True)))
@@ -48,7 +49,7 @@ STUDIES = "zilionis qian azizi karaayvaz hlca jerby ma durante sole gestilinger 
 TAG = re.compile(r"^([A-Za-z]+?)(?:LUAD|LUSC|BRCA|CRC|Ov|OV|PBMC|MEL|HCC|UVM|SKCM|GBM|PAAD|HNSC|RCC|BLCA)_")
 
 
-# ---------------------------------------------------------------- donor / leak helpers (section 3)
+# ---------------------------------------------------------------- donor / leak helpers
 def cohort_norm(d):
     s = d.strip().lower(); m = re.match(r"^([a-z]+)(?=[0-9_\-]|$)", s); pre = ""
     if m and len(m.group(1)) >= 3 and m.group(1) not in GEN: pre = m.group(1); s = s[len(pre):]
@@ -96,7 +97,7 @@ def reference(refresh=False):
         text += [str(x.get("citation", "")), str(x.get("title", ""))]
     for c in colls:
         if c["collection_id"][:8] in used: text += [c.get("name") or "", c.get("doi") or ""]
-    pf = glob.glob(os.path.expanduser("~/data/cellxgene/panel/*.h5ad"))
+    pf = glob.glob(SUPP_DATA + "/cellxgene/panel/*.h5ad")
     for f in pf:                                   # obs only; skipped (and logged) if unreadable
         try:
             with h5py.File(f, "r") as h:
@@ -304,7 +305,7 @@ def _save(name, st, L):
     print(json.dumps({k: v for k, v in st.items() if k != "undeclared_strong"}, default=str)); return st
 
 
-# ---------------------------------------------------------------- alternates (section 4 build-check rule)
+# ---------------------------------------------------------------- alternates (build-check rule)
 def decide(status):
     """status: {name: 'PASS'|'FAIL'|None}. Per stratum: primaries in order; a failed primary is replaced by the next unused alternate, at most 2 per stratum;
     underpowered if < 4 atlases remain. Returns (final dict stratum -> names, need_build list, notes)."""

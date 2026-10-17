@@ -1,8 +1,8 @@
 #!/bin/bash
-# R1 (PLAN_1012): chromatin accessibility on every eligible CELLxGENE dataset with fragments. MINI, sequential per dataset, resumable (done markers), at most 2 pipelines at once.
+# chromatin accessibility on every eligible CELLxGENE dataset with fragments. MINI, sequential per dataset, resumable (done markers), at most 2 pipelines at once.
 # Per dataset: fragments download (resumable curl) -> pools prep -> gene activity (snapATAC2 venv) -> pipeline roots -> arms via run_unit.py (rna if multiome with counts, ga, gak) -> markers.
 # Data: /Volumes/Files/atac/{h5ad,frag,ref,work}. Results: $OUT/<dataset>/{selection.json,pools.json,arms/units/*.csv}, $OUT/selection.csv, $OUT/aggregate/. Markers: $OUT/<dataset>/{DL,PREP,BUILD,ROOTS,ARMS}_DONE|FAILED, $OUT/DONE|FAILED.
-# Optional $OUT/pair_override.csv (dataset_id,coarse,fine) replaces the mechanical pair for listed datasets (main-session decision only). Kidney regression = dataset 09b518f9 rerun with the pilot's choices (key <id>__pilot).
+# Optional $OUT/pair_override.csv (dataset_id,coarse,fine) replaces the mechanical pair for listed datasets (a manual choice). Kidney regression = dataset 09b518f9 rerun with the pilot's choices (key <id>__pilot).
 set -u
 J=${HR_WORK:-$HOME/work}/jiaqi1011; A=/Volumes/Files/atac; CODE=$J/code/w6; AA=$CODE/atac_all; OUT=${OUT:-$J/out/atac_all}; PY=$HOME/venv/bin/python; SNAP=$J/venvs/atac/bin/python
 CAND=$J/out/w6_annot_atac/atac21_candidates.csv; GTF=$A/ref/ensdb110_genes_idkey.gtf; KID=09b518f9-da64-44cc-aec8-70a89d55611f; LOG=$J/logs/atac_all.log

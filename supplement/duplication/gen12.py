@@ -22,7 +22,7 @@ reported naively AND class clustered, since there are only 8 distinct probe type
 """
 import sys, os, subprocess, tempfile, numpy as np, pandas as pd, torch, anndata as ad, scanpy as sc, time, warnings, pathlib
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
-HR_DATA = os.environ.get("HR_DATA", os.path.expanduser("~/data"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 import scipy.io, scipy.sparse
 import scvi
 # sdiff/scvi arms dropped here: gen6 decomposes the CFGen stack, gen5 has the cross-family table
@@ -59,7 +59,7 @@ PROBE=['double negative T regulatory cell','CD141-positive myeloid dendritic cel
        'plasmacytoid dendritic cell','mature B cell',
        'CD16-negative, CD56-bright natural killer cell, human']   # the 8 rarest types in AIDA
 if '--smoke' in sys.argv: PROBE=PROBE[:4]
-D=HR_DATA + '/pilots/aida/'
+D=SUPP_DATA + '/pilots/aida/'
 t0=time.time()
 
 # ---- data: union of the two pools, counts, HVG ----

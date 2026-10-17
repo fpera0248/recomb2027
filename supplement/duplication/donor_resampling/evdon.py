@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import splits as S
 E = os.path.expanduser
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 LOGGED = {'aida8': {0: (283, 619), 1: (283, 619), 2: (290, 619)},
           'lupus': {0: (62, 261), 1: (67, 261), 2: (58, 261)}, 'hlca': {0: (24, 106), 1: (22, 106), 2: (19, 106)}}
 CFG = {  # ds: (probe, seeds, p31, cache file pattern)
@@ -18,9 +19,9 @@ CFG = {  # ds: (probe, seeds, p31, cache file pattern)
     'hlca': (S.HLCA_PROBE, range(3), False, lambda s: f"{E(os.environ.get('HLCA_BASE', HR_WORK + '/recomb27/rev1015/hvg_c3/from_mini/m27_hl_t'))}/s{s}_base.npz")}
 
 def load(ds):
-    if ds.startswith('aida'): return S.load_aida(E(os.environ.get('AIDA_DIR', '~/data/pilots/aida')))
-    if ds == 'lupus': return S.load_lupus(E(os.environ.get('LUPUS_H5', '~/data/cellxgene/lupus_perez.h5ad')))
-    return S.load_hlca(E(os.environ.get('HLCA_H5', '~/data/cellxgene/hlca_m27.h5ad')))
+    if ds.startswith('aida'): return S.load_aida(E(os.environ.get('AIDA_DIR', SUPP_DATA + '/pilots/aida')))
+    if ds == 'lupus': return S.load_lupus(E(os.environ.get('LUPUS_H5', SUPP_DATA + '/cellxgene/lupus_perez.h5ad')))
+    return S.load_hlca(E(os.environ.get('HLCA_H5', SUPP_DATA + '/cellxgene/hlca_m27.h5ad')))
 
 def idcheck(ds, seed, s, base, path):
     """Cell-identity check (hlca, lupus): recompute log1p-CPM of the replayed eval cells on the cached genes straight from the h5ad
@@ -49,7 +50,7 @@ def run(ds, out, nseeds=None, idc=False):
         assert np.array_equal(s['n_c'], d['n_c']) and np.array_equal(s['probe'], d['probe']), f'{ds} seed {seed}: n_c/probe differ'
         if 'n_ev_donors' in d.files: assert int(d['n_ev_donors']) == len(s['ev_d']), f'{ds} seed {seed}: n_ev_donors'
         if ds in LOGGED and seed in LOGGED[ds]: assert (len(s['ev_d']), len(set(dall))) == LOGGED[ds][seed], (ds, seed, len(s['ev_d']))
-        if idc: idcheck(ds, seed, s, d, E(os.environ.get('LUPUS_H5', '~/data/cellxgene/lupus_perez.h5ad')) if ds == 'lupus' else E(os.environ.get('HLCA_H5', '~/data/cellxgene/hlca_m27.h5ad')))
+        if idc: idcheck(ds, seed, s, d, E(os.environ.get('LUPUS_H5', SUPP_DATA + '/cellxgene/lupus_perez.h5ad')) if ds == 'lupus' else E(os.environ.get('HLCA_H5', SUPP_DATA + '/cellxgene/hlca_m27.h5ad')))
         evd, trd = dall[s['ev_idx']], dall[s['tr_idx']]; yev, ytr = yall[s['ev_idx']], yall[s['tr_idx']]
         assert not os.path.exists(f'{out}/evcells_df_{ds}_s{seed}.npz'), 'exists'
         np.savez_compressed(f'{out}/evcells_df_{ds}_s{seed}.npz', ev_donor=evd, yev=yev, ev_idx=s['ev_idx'])

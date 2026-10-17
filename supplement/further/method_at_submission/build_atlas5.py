@@ -1,4 +1,4 @@
-"""Natural-hierarchy pools from full CELLxGENE atlases Same pilot format as build_hlca.py; one tier per atlas:
+"""Natural-hierarchy pools from full CELLxGENE atlases. Same pilot format as build_hlca.py; one tier per atlas:
 label = the atlas's coarser author/CL annotation (what a user would have), true_type = its finer annotation. Raw counts from raw/X.
 Pools of 20,000 cells (seed 0). mode "block": one pool per value of the block column (min 2,000 cells); mode "pack": donors shuffled and packed
 until >= 20,000 cells, each pack one pool (donor-disjoint). At most MAXP pools per atlas, in shuffled order (the cap is logged).
@@ -16,7 +16,7 @@ CFG = {  # name: (label col, finer col, mode, block col, split). Parity-1 atlase
     "mi": ("cell_type", "final_cluster", "pack", "donor_id", "test3"),
 }
 DROP = {}
-CELLDROP = {"pbmc": lambda o: (o.cell_type == "natural killer cell") & (o.annotation_detailed == "B n-sw mem")}   # curation error: B cells labelled NK (checker)
+CELLDROP = {"pbmc": lambda o: (o.cell_type == "natural killer cell") & (o.annotation_detailed == "B n-sw mem")}   # curation error: B cells labelled NK
 
 
 def pools(o, mode, col, rng):

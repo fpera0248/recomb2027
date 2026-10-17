@@ -13,7 +13,7 @@ import os, sys, types, importlib.util, hashlib, argparse, subprocess, tempfile, 
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np
 HOME = os.path.expanduser("~"); HERE = os.path.dirname(os.path.abspath(__file__))
-GF = f"{HOME}/geneformer/Geneformer"; PKG = f"{GF}/geneformer"; D30 = f"{PKG}/gene_dictionaries_30m"; CKPT = f"{GF}/gf-6L-30M-i2048"
+GF = os.environ.get("GF_ROOT", f"{HOME}/geneformer/Geneformer"); PKG = f"{GF}/geneformer"; D30 = f"{PKG}/gene_dictionaries_30m"; CKPT = f"{GF}/gf-6L-30M-i2048"
 MED, TOK, MAP = (f"{D30}/{n}_gc30M.pkl" for n in ("gene_median_dictionary", "token_dictionary", "ensembl_mapping_dict"))
 STORED = f"{HR_WORK}/jiaqi1011/out/w2_fm_lap/emb/gf"; BATCH = 16; K = 15
 
