@@ -11,8 +11,9 @@ pip install -r requirements.txt    # Python 3.12
 
 - Download: 1.2 GB of release assets, about 2.5 GB on disk.
 - Time: about 4 minutes plus the download (measured on a laptop, 4 threads).
-- Success: the run prints `paper: all notebooks ran and every assertion held`.
-- The `paper` level recomputes numbers from the saved predictions and result tables. It does not refit the model. `./reproduce.sh rerun` applies a refit scorer as a consistency check, so its numbers differ a little. The container image is `v0.1.2`, and the `paper` and `rerun` levels pass in it. Reproduction problems: https://github.com/fpera0248/recomb2027/issues. More checks are in [REPRODUCE.md](REPRODUCE.md#quick-check-details).
+- Success: the run prints `paper: all notebooks ran and every assertion held`. `paper` is the default level on main. Release v0.1.2 requires the level, so pass it as shown above. It recomputes the numbers of the paper from the saved predictions and result tables. It does not rebuild the 8-atlas test set from the atlases.
+- It does not refit the model. `./reproduce.sh rerun` applies a refit scorer as a consistency check, so its numbers differ a little. The container image is `v0.1.2`, and the `paper` and `rerun` levels pass in it. Reproduction problems: https://github.com/fpera0248/recomb2027/issues. More checks are in [REPRODUCE.md](REPRODUCE.md#quick-check-details).
+- From-scratch check: Rebuilt from public files, our method reaches 0.311 against 0.202 for Leiden (+0.109, 7 of 8 atlases), within 0.03 of the reported 0.321 and 0.220, but not identical. The refit regressor accounts for 0.002 of our method's 0.010 drop, and Leiden, which has no model, falls by 0.018, so most of the gap comes with the rebuild. We did not isolate its cause. The code that rebuilds the 8-atlas pools is not yet in this repository (an open pull request).
 
 ## Paper items and code
 
@@ -47,7 +48,7 @@ See [ENVIRONMENTS.md](ENVIRONMENTS.md) for the Python pins and [CONTAINER.md](CO
 ./reproduce.sh paper
 ```
 
-This downloads the release assets, recomputes the Part II numbers of the 8-atlas test set plus the Part I panel and extra checks, and asserts the match. A mismatch with any asserted value fails the run. `reproduce.sh` needs a level argument (`paper`, `rerun` or `full`). `fetch_data.sh` downloads the release assets from tag `v0.1.0` by default, because the assets are attached to that release and not to the later ones; set `TAG` to use another. The `rerun` and `full` levels, the data, releases, notebooks and known gaps are in [REPRODUCE.md](REPRODUCE.md).
+This downloads the release assets, recomputes the Part II numbers of the 8-atlas test set plus the Part I panel and extra checks, and asserts the match. A mismatch with any asserted value fails the run. `reproduce.sh` takes a level (`paper` by default, `rerun` or `full`). `fetch_data.sh` downloads the release assets from tag `v0.1.0` by default, because the assets are attached to that release and not to the later ones; set `TAG` to use another. The `rerun` and `full` levels, the data, releases, notebooks and known gaps are in [REPRODUCE.md](REPRODUCE.md).
 
 In the container:
 

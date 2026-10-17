@@ -2,7 +2,7 @@
 
 ## Atlases
 
-The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Eight rows have no URL, and 3 of them have a note in `notes`. The other 5 are `panel` rows with no recorded version. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Two rows have no URL (`hbca`, which is not in the paper, and `hlca`), and both have a note in `notes`. The URLs of five `panel` rows (2adb1f8a, 43aa19d2, 456e8b9b, b2dda353, f7c1c579) are the version the CELLxGENE API listed on 2026-10-12, and the version the run used is not recorded. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
 
 `data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` lists the datasets used before the test.
 
@@ -152,10 +152,10 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - Figure scripts, except `supplement/figures/figS_further.py` (Supp. Fig. S5), which no level runs. No level runs the statistics script `supplement/figures/part1_panel_stats.py` either.
 - Most inputs of the supplement analyses listed in [PAPER_ITEMS.md](PAPER_ITEMS.md): the AIDA, HLCA and lupus files, the generated cells and the 10-atlas subsamples. Of these inputs, only `part1_results.tgz` and the trained regressor (`models/refit_dev_nat.pkl`) are released. Their scripts are in [`supplement/`](supplement/README.md), but no level runs them.
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
-- The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
+- The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` gives the AIDA download URL, but the HLCA file was pulled from Census 2025-11-08 and has no `dataset_version_id` recorded, see its notes) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools: only their wrappers and pinned environments are included.
 - RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
-- The code of our AnnoGCD and scGAD reimplementations and the runner of the GiniClust3 (swapped filters) rows. Notebook 02 scores the saved AnnoGCD output.
+- The code of our AnnoGCD and scGAD reimplementations (the runners were on a VM that is no longer available, so only their written declaration survives. Neither tool ran on the 10-atlas set, because both need a GPU and none was available for that round) and the runner of the GiniClust3 (swapped filters) rows. Notebook 02 scores the saved AnnoGCD output.
 - The code of the local outlier factor, isolation forest on scVI, classifier uncertainty and self-training loop baselines. `hiddenrare/baselines.py` holds only Leiden subclustering and the isolation forest on PCA.
 - The `full` level is untested, and we have not run the `recomb2027-tools` image end to end.
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no level rebuilds them.

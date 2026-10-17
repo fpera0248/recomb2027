@@ -19,9 +19,10 @@ import numpy as np, pandas as pd
 
 SMOKE = '--smoke' in sys.argv
 HERE = os.path.dirname(os.path.abspath(__file__))
-TGZ = HR_WORK + '/recomb2027-assets/part1_results.tgz'
+REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
+TGZ = os.environ.get('ASSETS', REPO + '/assets') + '/part1_results.tgz'
 J21 = HR_WORK + '/recomb27/monday_q/donorfix/build/ovr_t/ref_j21'
-sp = importlib.util.spec_from_file_location('sf', HR_WORK + '/recomb2027-r8i3wt/part1/signflip.py')
+sp = importlib.util.spec_from_file_location('sf', REPO + '/part1/signflip.py')
 sf = importlib.util.module_from_spec(sp); sp.loader.exec_module(sf)
 sfx = '_smoke' if SMOKE else ''
 
