@@ -1,4 +1,4 @@
-"""W2 shared helpers: data root, representation patch, embedding IO. Locked code in ~/work/r5/code is imported read-only, never edited.
+"""Shared helpers for the embedding analysis: data root, representation patch, embedding IO. Locked code in ~/work/r5/code is imported read-only, never edited.
 The swap is ONE monkeypatch of methods.preprocess_pca (sr3 g and l spaces, sr3h halo centroid and m1 all call it); no locked file is changed."""
 import os, sys, time, csv, shutil, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))

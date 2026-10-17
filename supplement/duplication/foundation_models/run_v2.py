@@ -1,4 +1,4 @@
-"""C18 rerun: fm/run_fm_dup.py unchanged, backbone swapped to Geneformer V2-316M (frozen).
+"""Foundation-model rerun: fm/run_fm_dup.py unchanged, backbone swapped to Geneformer V2-316M (frozen).
 Only the 12,719 cells run_seed() selects for seeds 0-2 were embedded (embed_v2.py), so FM is a
 full-cohort array that is NaN everywhere else; standardize() asserts every train/eval row is finite,
 which fails loudly if the split ever drifts from cells_needed.csv.

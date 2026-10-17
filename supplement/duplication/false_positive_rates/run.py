@@ -1,4 +1,4 @@
-"""E3 (J22a/b): cell-level FPR per Part I condition for rare (probe) types, from saved predictions. No refit.
+"""False positive rates: cell-level FPR per Part I condition for rare (probe) types, from saved predictions. No refit.
 README: python run.py [--smoke]. Outputs fpr_rows*.csv (probe31 rows), fpr_summary*.csv (probe31), fpr_panel_summary.csv,
 fpr_j21_summary.csv in this directory. Reads tgz (probe31_runs.csv, panel_runs/*/{clf,real}.csv) and ref_j21/{aida,hlca,lupus}_full.csv.
 Definitions. N_eval = sum over classes of called (probe31) or nev_used (panel; equals sum(ncall) where ncall exists).
@@ -110,7 +110,7 @@ SP['n_datasets'] = q.ds.nunique()
 SP.to_csv(f'{HERE}/fpr_panel_summary.csv', index=False)
 print('PANEL'); print(SP.drop(columns=['n_rows']).round(5).to_string())
 
-# ---- C. AIDA / HLCA / lupus generators (existing J21 refit metrics, multiclass, n>=2) ----
+# ---- C. AIDA / HLCA / lupus generators (existing one-versus-rest refit metrics, multiclass, n>=2) ----
 J = []
 for ds in ('aida', 'hlca', 'lupus'):
     x = pd.read_csv(f'{J21}/{ds}_full.csv', usecols=['dataset', 'seed', 'arm', 'clf', 'mode', 'c', 'n', 'probe', 'default_fpr', 'matched_fpr', 'default_tpr', 'matched_tpr'])

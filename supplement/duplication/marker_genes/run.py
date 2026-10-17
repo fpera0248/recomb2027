@@ -1,4 +1,4 @@
-"""E4 (J13/N20): marker / DE recovery of every augmentation arm, re-derived from the SAVED per-unit outputs.
+"""Marker genes: marker / DE recovery of every augmentation arm, re-derived from the SAVED per-unit outputs.
 README: python3 run.py [DIR_WITH_mk16.csv_and_m27_de.csv] [OUT_DIR]   (seconds, 1 core, <200 MB)
 Inputs  : p1data/mk16.csv (top-50 by log2FC of arm means, genes detected in >=25% of truth cells; truth = held-out-donor
           eval cells of the type vs real train cells of other types) and p1data/m27_de.csv (Wilcoxon + Welch, BH<0.05 & lfc>0.25,

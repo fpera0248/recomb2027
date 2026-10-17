@@ -1,5 +1,5 @@
 #!/bin/bash
-# W2 slot B (mini, CPU, 3 threads; features at 2 threads, m1 at 3, like the locked runs; critical path ~8-9 h): (0) PCA determinism gate, (1) PCA and PCA30 candidates + Leiden alone, (2) pool-major: scVI embedding (400 epochs max, early stopping, 15 min cap,
+# Embedding queue, slot B (mini, CPU, 3 threads; features at 2 threads, m1 at 3, like the locked runs; critical path ~8-9 h): (0) PCA determinism gate, (1) PCA and PCA30 candidates + Leiden alone, (2) pool-major: scVI embedding (400 epochs max, early stopping, 15 min cap,
 # 3 threads), blind QA, scVI variants F and H. Features run serially. Resumable. Marker: $W2_OUT/DONE_b | FAILED_b.
 set -eu; MARK=b; source "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/w2_common.sh"; rm -f "$O/DONE_b" "$O/FAILED_b"
 # scVI: fixed epoch budget from the full-pool plumbing run (out/w2_fm_plumb/scvi_epoch_budget.txt, copy it to $O/scvi_epoch_budget.txt before launch); wall cap 60 min is only a safety net. Share of capped pools is reported.

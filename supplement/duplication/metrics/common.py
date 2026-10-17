@@ -1,4 +1,4 @@
-"""E1-metrics-ovr: shared loading + metrics for AIDA/HLCA/lupus, same readout path as m27_hlclf.py.
+"""Shared loading + metrics for AIDA/HLCA/lupus, same readout path as m27_hlclf.py.
 Imports m27_hlclf.py and stat16.py unmodified (sets M27_HL before import so its ARMS/_fn/_base pick up
 the right cache dir). Does NOT edit either file.
 """

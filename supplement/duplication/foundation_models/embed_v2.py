@@ -1,4 +1,4 @@
-"""Step 2 (C18 V2-316M build): Geneformer V2-316M frozen cell embeddings for exactly the
+"""Step 2 (V2-316M build): Geneformer V2-316M frozen cell embeddings for exactly the
 12,719 unique cells cells_needed.csv selects (run cells_needed.py first).
 
 Reuses the proven gf6l_emb/src pipeline pattern (01_shard_tokenize.py + 02_embed.py: the REAL,
@@ -28,7 +28,7 @@ This also matches this project's OWN prior V2-316M artifacts (fm2/run_fm_dup_gf3
 docstring: "1152-dim GF-316M CLS, frozen"). The repo default is therefore CLS at the 2nd-to-
 last layer, NOT a mean over gene tokens as the task notes guessed -- BUT the finished 6L run
 (gf6l_emb/src/02_embed.py) mean-pooled in fp32, so a CLS-only V2 output would confound "model
-size" with "pooling choice" in any C18 comparison. Fixed at zero extra cost: every forward pass
+size" with "pooling choice" in any foundation-model comparison. Fixed at zero extra cost: every forward pass
 below now saves BOTH poolings (CLS and mean, excluding <cls>/<eos>) from the same hidden_states,
 so the comparison can isolate the pooling axis instead of silently mixing it with the model-size
 axis. Precision note: bf16 is the MPS-required compute dtype (see load_model()), but hidden
@@ -243,7 +243,7 @@ def embed_chunk(model, dev, idlists):
     Returns (cls_out, mean_out), each (n, HIDDEN) float32, same order, from ONE forward pass:
       cls_out:  hidden_states[LAYER_TO_QUANT][:, 0, :]        (repo default, EmbExtractor emb_mode='cls')
       mean_out: mean over non-pad, non-cls/eos positions, same layer (EmbExtractor emb_mode='cell')
-    Both are saved so a C18 comparison can isolate the pooling axis (see module docstring)."""
+    Both are saved so a foundation-model comparison can isolate the pooling axis (see module docstring)."""
     import torch
     L = max(len(a) for a in idlists)
     x = torch.zeros((len(idlists), L), dtype=torch.long)

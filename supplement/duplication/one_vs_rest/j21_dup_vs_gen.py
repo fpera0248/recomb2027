@@ -1,4 +1,4 @@
-"""J21: does the published-generator-versus-duplication verdict hold under one-versus-rest?
+"""One-versus-rest classifiers: does the published-generator-versus-duplication verdict hold under one-versus-rest?
 Reads the saved per-row metrics (mini j1004/metrics/{aida,hlca,lupus}_full.csv, copied here).
 Same rows and conventions as c2_ovr_vs_multiclass_v2.py: probe types only, zero-call precision
 scored 0, lupus drops sdiff (invalid cells), n=1 rows kept apart (n2plus is the tested group),

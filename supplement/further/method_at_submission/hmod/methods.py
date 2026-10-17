@@ -425,8 +425,7 @@ def _loop(adata, mode):
             sel = idx[cl == c]
             if len(sel) >= MIN_GROUP_SIZE:
                 groups.append(list(obs_names[sel]))
-    # else: union below MIN_GROUP_SIZE -> no group reported (fixed
-    # this used to report the whole undersized union as one
+    # else: union below MIN_GROUP_SIZE -> no group reported (fixed: this used to report the whole undersized union as one
     # group, the same floor-skipping bug as _groups_from_call above).
 
     return dict(score=pd.Series(last_score, index=obs_names),

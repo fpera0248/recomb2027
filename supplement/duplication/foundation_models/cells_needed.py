@@ -1,4 +1,4 @@
-"""Step 1 (C18 V2-316M build): reproduce run_fm_dup.py's exact cell selection for seeds 0-2
+"""Step 1 (V2-316M build): reproduce run_fm_dup.py's exact cell selection for seeds 0-2
 by IMPORTING the real function (not re-implemented), so the RNG call sequence is guaranteed
 identical to the finished 6L run. fm/run_fm_dup.py is read-only -- this only imports it.
 

@@ -1,4 +1,4 @@
-"""E2 (N15, J9): does chasing rare-type performance sacrifice the non-rare (major) types?
+"""Cost to major types: does chasing rare-type performance sacrifice the non-rare (major) types?
 README: reads SAVED per-class tables only (no refit, no ssh). For every Part I condition vs no augmentation ('real'),
 per classifier, over seeds: mean recall of non-rare types (probe==False; all have n_train=500) at the default
 threshold (rec_argmax) and at the matched point (rec200), and macro-F1 over ALL types at the default threshold.

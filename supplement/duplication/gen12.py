@@ -278,7 +278,7 @@ for seed in SEEDS:
         lgp[int(c)]=to_pca(decode_latents(ae, zp, L))
     print(f"  seed {seed} latent arms done {time.time()-t0:.0f}s",flush=True)
 
-    # ---- scVI arms: Jiaqi's #2 ------------------------------------------------------
+    # ---- scVI arms ------------------------------------------------------
     Atr=ad.AnnData(Xc[tr_idx].copy(),
                    obs=pd.DataFrame({'cell_type':pd.Categorical([cts[i] for i in ytr])}))
     sb={}; sc1={}; scm={}; scw={}; sbo={}

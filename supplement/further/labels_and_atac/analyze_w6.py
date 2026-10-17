@@ -1,4 +1,4 @@
-"""python analyze_w6.py : final tables + figures for W6 from whatever outputs exist (partial outputs are fine).
+"""python analyze_w6.py : final tables + figures for the label-corruption analysis from whatever outputs exist (partial outputs are fine).
 Reads OUT/units/*.csv (P1), OUT/p2_pool.csv + p2_t_cal.json (P2), OUT/p3/units/*.csv + p3_pools.json (P3). Writes OUT/*.csv and ~/work/jiaqi1011/figs/w6_annot_atac/*.{pdf,png}.
 Everything here is post hoc on spent test atlases. Text uses 'our method' and 'Leiden subclustering'."""
 import os, sys, json, glob, itertools, numpy as np, pandas as pd

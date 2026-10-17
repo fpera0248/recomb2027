@@ -1,4 +1,4 @@
-"""W1c: time + memory of each pipeline step vs pool size. Calls the LOCKED code in ~/work/r5/code (never copied/edited).
+"""Scaling harness: time + memory of each pipeline step vs pool size. Calls the LOCKED code in ~/work/r5/code (never copied/edited).
   $R5_PY scale_pipeline.py run          driver (needs anndata for the atlas pick, so run it with the venv python): ladder of sizes, one /usr/bin/time -l subprocess per step -> $OUT/scale.csv
   $R5_PY  scale_pipeline.py build N SEED builds one pool (called by the driver) into $R5 (scale data root)
   python3 scale_pipeline.py selftest

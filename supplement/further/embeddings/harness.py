@@ -1,4 +1,4 @@
-"""W1 harness: rebuild scorer predictions (learn14.predict, FEATS=mkh, P4_s1) + blend (combo_r2, 0.75/0.25 with m1_leiden_sub) + union AP / E1 (score_atl) for any regressor.
+"""Scoring harness: rebuild scorer predictions (learn14.predict, FEATS=mkh, P4_s1) + blend (combo_r2, 0.75/0.25 with m1_leiden_sub) + union AP / E1 (score_atl) for any regressor.
 Read-only use of ~/work/r5/code (locked). Set B = r5/data (57 test pools, manifest split==test5), set A = ablation_donor/data (69 pools)."""
 import os, sys, glob, pickle, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))

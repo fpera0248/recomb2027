@@ -1,4 +1,4 @@
-"""W6 shared paths and pool list. Set B = manifest split test5, pool index < 3 (29 pools)."""
+"""Shared paths for the label-corruption analysis and pool list. Set B = manifest split test5, pool index < 3 (29 pools)."""
 import os, glob, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 HOME = os.path.expanduser("~"); CLEAN = f"{HR_WORK}/r5/data"; W = os.environ.get("W6_DATA", f"{HR_WORK}/jiaqi1011/data/w6")

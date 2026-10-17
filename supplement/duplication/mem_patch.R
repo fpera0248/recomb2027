@@ -1,5 +1,5 @@
-# mem_patch.R -- P5: hold scDesign3's marginal_list footprint flat in N.
-# Gated on SD3_MEM=1.  Verified output-identical (see p5 validation).
+# mem_patch.R -- hold scDesign3's marginal_list footprint flat in N.
+# Gated on SD3_MEM=1.  Verified output-identical.
 #
 # Why this is needed: every fitted object keeps formula/terms whose
 # .Environment is the frame it was fitted in, which holds that gene's full

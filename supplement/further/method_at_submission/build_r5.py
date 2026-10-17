@@ -244,7 +244,7 @@ def build(name, force=False):
     P["labels"][P["labels"].celldrop].to_csv(f"{LK}/labels_{name}.csv", index=False)       # realised CELLDROP list: fixed rule intersected with the atlas's labels (pre-drop counts)
     st.update(n_cells_raw=P["n_raw"], n_cells=P["n_cells"], donors_raw=len(P["donors_raw"]), donors=len(P["donors"]), labdrop=P.get("labdrop", 0),
               np_dropped=P.get("np_dropped", 0), undeclared_strong=P.get("undeclared_strong", []))
-    os.makedirs(f"{R5}/genemap", exist_ok=True); P["genemap"].to_csv(f"{R5}/genemap/{name}.csv", index=False)      # Ensembl id -> symbol, structure only, so the atlas download can be deleted (section 9)
+    os.makedirs(f"{R5}/genemap", exist_ok=True); P["genemap"].to_csv(f"{R5}/genemap/{name}.csv", index=False)      # Ensembl id -> symbol, structure only, so the atlas download can be deleted
     log("summary", "cells/donors", f"{P['n_cells']} cells of {P['n_raw']}; {len(P['donors'])} donors of {len(P['donors_raw'])}")
     # BC1 additions: check 3 study flags, check 5 raw counts, donors >= 8
     if not r4:

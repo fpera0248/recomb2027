@@ -1,4 +1,4 @@
-"""Equality check: our W2 Geneformer embeddings vs the official geneformer EmbExtractor (OFFICIAL_CODE_AUDIT row W2).
+"""Equality check: our Geneformer embeddings vs the official geneformer EmbExtractor.
 usage: gf_equality_check.py --out DIR [--pool PID] [--subsample N] [--device cpu|mps] [--stored DIR]
 Pool default = first (alphabetical) of the 10 stored pools; all hold 20000 cells, so none is smaller.
 Pipeline = official TranscriptomeTokenizer (same args as w2_embed.py) -> official EmbExtractor(emb_mode cell, emb_layer -1, mean_pool, model_type Pretrained)

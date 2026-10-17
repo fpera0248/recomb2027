@@ -1,5 +1,5 @@
 #!/bin/bash
-# W2 slot A (mini, MPS): scGPT whole-human zero-shot embeddings of the phase-1 pools (same 2000 HVG as the PCA arm, max_length 2001 = no gene sampling, seed 0).
+# Embedding queue, slot A (mini, MPS): scGPT whole-human zero-shot embeddings of the phase-1 pools (same 2000 HVG as the PCA arm, max_length 2001 = no gene sampling, seed 0).
 # expected 13-16 min/pool (laptop probe ~9 min; mini scgpt_if measured 578 s at max_length 1200, scaled to 2001), 29 pools = 6.5-8 h (est_hours 7.5); the first pool's timing.csv row sets the real number. Resumable. Marker: $W2_OUT/DONE_a | FAILED_a.
 set -eu; MARK=a; source "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/w2_common.sh"; rm -f "$O/DONE_a" "$O/FAILED_a"
 export SCGPT_CKPT=${SCGPT_CKPT:-${HR_WORK:-$HOME/work}/r5/tools/scgpt_ckpt} PYTORCH_ENABLE_MPS_FALLBACK=1 KMP_DUPLICATE_LIB_OK=TRUE

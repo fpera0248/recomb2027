@@ -84,7 +84,7 @@ SEEDS=[0] if SMOKE else [0,1,2]
 # same-type fraction among held-out cells (m27_step1_sep.csv) -- i.e. least separable from a
 # neighbour type. These are common types overall (2,330-10,795 cells AIDA-wide) so rung 128 in
 # training + 200 held-out eval cells survive the donor-disjoint split with wide margin (checked:
-# /tmp/m27_probe_check.py, 9-12% of donors needed for eval at all 3 seeds). Separability here is
+# 9-12% of donors needed for eval at all 3 seeds). Separability here is
 # driven by ontology coarseness (unspecified parent labels vs specific child subtypes), not by
 # raw rarity -- unlike gen16's physically-rare probes, which turned out to be the MORE separable
 # half of AIDA's 31 types (m27_step1_report.txt).

@@ -1,4 +1,4 @@
-"""python aggregate.py [--out OUT] : R1 tables and figure from OUT/<dataset>/arms/units/*.csv (run_unit.py output) and OUT/selection.csv (partial results are fine).
+"""python aggregate.py [--out OUT] : tables and figure from OUT/<dataset>/arms/units/*.csv (run_unit.py output) and OUT/selection.csv (partial results are fine).
 Methods: our method (blend, arm bl), scorer alone (sc), Leiden subclustering (m1), chance (pool prevalence of the target cells). Arms: rna, ga, gak (GA with coarse labels re-derived by kNN).
 Per pool and per dataset (mean over pools) union AP; across datasets (units = datasets, <dataset>__pilot excluded): paired differences with exact two-sided sign-flip p; the kidney regression rerun (<dataset>__pilot) vs p3_union_ap_by_arm.csv.
 Writes OUT/aggregate/{pool_union_ap,dataset_means,tests,kidney_regression}.csv and atac_all_union_ap.{pdf,png}. Descriptive, post hoc."""

@@ -1,5 +1,5 @@
 #!/bin/bash
-# W2 laptop plumbing + timing on REAL full pools (not part of the experiment; outputs go to out/w2_fm_plumb). Takes the laptop lock itself; ~1 h.
+# Embedding queue, laptop plumbing + timing on REAL full pools (not part of the experiment; outputs go to out/w2_fm_plumb). Takes the laptop lock itself; ~1 h.
 # (a) noise512 (planted 512-d random embedding) through candidates F and P + QA: checks the 512-d code path and its feature timing;
 # (b) atl_luad_p0 (a set A pool, toolin pool built from atlas/luad.h5ad by run/adapt_pool.py) with real scGPT (MPS), Geneformer V1-10M (MPS) and scVI (CPU): full-pool embedding time,
 #     QA, candidates, and scoring of each space against PCA on this one pool (leiden + frozen; LOAO needs >= 2 atlases and is skipped).

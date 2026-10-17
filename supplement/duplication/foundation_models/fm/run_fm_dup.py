@@ -1,4 +1,4 @@
-"""Track E6 (C18): does duplication combined with foundation-model embeddings give a more
+"""Foundation-model duplication analysis: does duplication combined with foundation-model embeddings give a more
 effective rare-type classifier than PCA-50?
 
 Dataset: AIDA Singapore, full cohort, ~/work/aida_sg/aida_sg.h5ad
@@ -20,7 +20,7 @@ so it is not re-run per arm). Two representations on the SAME cells: FM (256-dim
 PCA-50 of log1p-CPM (TruncatedSVD, fit per seed on that seed's real training pool).
 
 Matched operating point (primary): top-NEVc eval cells by score, NEVc = that type's held-out count.
-Default threshold (secondary): argmax recall, ncall, precision, FPR (C3).
+Default threshold (secondary): argmax recall, ncall, precision, FPR.
 """
 import os, sys, json, warnings, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
@@ -231,7 +231,7 @@ def prototype_score(Z0, y0, Zev, yev, probe_ids, rung_of, nevc, seed, rep, n_c):
 
 
 def ovr_check(Z0, y0, Zev, yev, probe_ids, rung_of, nevc, seed, rep):
-    """C2 addendum: one-vs-rest LR vs the multiclass LR already scored, for arms none/dup."""
+    """One-vs-rest addendum: one-vs-rest LR vs the multiclass LR already scored, for arms none/dup."""
     rows = []
     for arm in ('none', 'dup'):
         Z, y = embed_arm(arm, Z0, y0, probe_ids, rung_of, seed, TARGET)
@@ -254,7 +254,7 @@ def standardize(Z0, Zev):
     FM embedding scale (std ~0.02, max 0.6) is far below sklearn LogisticRegression's default C=1
     regularization scale and overflowed lbfgs's line search (observed: RuntimeWarning overflow in
     sklearn linear_loss matmul on the first run); PCA-50 gets the same treatment for a fair, same-
-    processing comparison (Jiaqi's rule)."""
+    processing comparison."""
     mu, sd = Z0.mean(0), Z0.std(0); sd = np.where(sd > 1e-8, sd, 1.0)
     return ((Z0 - mu) / sd).astype(np.float32), ((Zev - mu) / sd).astype(np.float32)
 

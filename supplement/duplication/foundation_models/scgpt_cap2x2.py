@@ -1,4 +1,4 @@
-"""scGPT cap effect vs seed noise (C18 control): 2x2 of max_length {1200, 6300} x tokenizer seed {0, 1}.
+"""scGPT cap effect vs seed noise (control): 2x2 of max_length {1200, 6300} x tokenizer seed {0, 1}.
 Same cells/splits/analysis; paired on (seed, type, clf, n_train), n_train>=2, sign-flip over 8 types."""
 import os, sys, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))

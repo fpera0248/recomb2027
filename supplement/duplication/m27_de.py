@@ -1,6 +1,5 @@
 """m27_de: differential-expression marker recovery for every augmentation arm, on gen16's exact
-donor-disjoint split and mk16's saved arm cells (2000 HVGs, log1p-CPM). Answers the 9/27 meeting
-question: does duplication (or scDesign3, or anything) recover better marker genes for rare types
+donor-disjoint split and mk16's saved arm cells (2000 HVGs, log1p-CPM). Question: does duplication (or scDesign3, or anything) recover better marker genes for rare types
 than the real cells alone, and does any method inflate significance (pseudoreplication)?
 
 Group = the probe type's n_c real training cells + that arm's added cells (identical across arms

@@ -1,10 +1,10 @@
 #!/bin/bash
 # (~4 h total: 10 pools x ~16 min embedding + QA, PCA and 3 candidate variants.)
-# W2 Geneformer arm (LAPTOP, MPS; takes the laptop lock itself; launch LAST, after W3/W5/W6). Geneformer V1-10M (gf-6L-30M-i2048, gc30M dictionaries, 256-d) from the local official
+# Embedding queue, Geneformer arm (LAPTOP, MPS; takes the laptop lock itself; launch LAST). Geneformer V1-10M (gf-6L-30M-i2048, gc30M dictionaries, 256-d) from the local official
 # checkout ~/geneformer/Geneformer (no install needed: transformers 4.48 + torch MPS are in /usr/local/bin/python3). Everything for this arm runs on the laptop, including its own PCA reference
 # (laptop environment differs from the mini's pinned one, so GF is compared with PCA recomputed on the SAME machine, in a separate output tree out/w2_fm_lap). Scope rule fixed in advance:
 # p0 of each atlas (10 pools); p1 and p2 are added only if the first pool's embedding takes <= 480 s (measured probe: marginal 0.0475 s/cell = ~16 min/pool, so expect p0 only).
-# Caveat to print with any result: V1-10M is the only Geneformer that fits an overnight laptop budget and C18 found it below its quality bar (about 21% of cells hit the 2048-token cap);
+# Caveat to print with any result: V1-10M is the only Geneformer that fits an overnight laptop budget and the foundation-model duplication analysis found it below its quality bar (about 21% of cells hit the 2048-token cap);
 # a loss here does not mean foundation models lose. Marker: out/w2_fm_lap/DONE_gf | FAILED_gf.
 set -eu
 if [ -z "${W2_LOCKED:-}" ]; then export W2_LOCKED=1; exec "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/laptop_lock_run.sh" "$0" "$@"; fi

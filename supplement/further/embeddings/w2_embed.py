@@ -3,7 +3,7 @@ scvi  : methods.scvi_latent copy (locked one cannot early-stop): same 2000 HVG (
         early_stopping=True (official, validation ELBO), wall cap 15 min via Lightning max_time (cap hit => stops at that epoch, recorded), 3 threads. Pipeline venv.
 scgpt : official scgpt.tasks.embed_data, whole-human ckpt, the SAME 2000 HVG as the PCA arm (toolin/r pool = a[:, _hvg_genes]), symbols from var.feature_name,
         max_length=2001 so no gene sampling, batch 64, seeds 0. cls embedding (embed_data L2-normalises). Tools venv (no loader needed). env SCGPT_CKPT, --device.
-gf    : Geneformer V1-10M (gf-6L-30M-i2048), the C18 pipeline of ~/work/gf6l_emb/src (real tokenizer, gc30M dictionaries, mean over non-padding tokens of hidden_states[5]).
+gf    : Geneformer V1-10M (gf-6L-30M-i2048), the foundation-model duplication pipeline of ~/work/gf6l_emb/src (real tokenizer, gc30M dictionaries, mean over non-padding tokens of hidden_states[5]).
         Laptop python3 (transformers); model_version V1 = gc30M dictionaries with vocab asserted == 25426.
 noise : planted random embedding (64-d N(0,1)) for the leakage / plumbing gate."""
 import os, sys, time, argparse

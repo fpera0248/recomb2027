@@ -4,7 +4,7 @@ Scores three arms of the experiment for every ARM on the SAME pools (intersectio
   frozen   : the shipped scorer (learn14 predict, FEATS=mkh, P4_s1) applied as is; 'sc' = scorer alone, 'bl' = blend 0.75/0.25 with m1 in the same space
   retrain  : scorer retrained leave-one-atlas-out inside set B (fit on the groups of the other atlases' pools in this space, predict the held-out atlas); same blend
 Metrics: union_AP (primary) and E1_union per pool. Diagnostics (DIAG.csv, truth used only here at evaluation): number of candidate groups, g/l split,
-best Jaccard of any candidate group with each target, l-groups duplicating a g group. Uses the W1 harness for features, predictions, blend and metrics (copy: harness.py)."""
+best Jaccard of any candidate group with each target, l-groups duplicating a g group. Uses the scoring harness for features, predictions, blend and metrics (copy: harness.py)."""
 import os, sys, glob, argparse, pickle, numpy as np, pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import w2lib as W
 import harness as Hn

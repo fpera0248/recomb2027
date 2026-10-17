@@ -1,4 +1,4 @@
-"""E1 (N18a/b): per-type adaptive augmentation policy vs duplication, from saved same-processing 31-type results.
+"""Condition by size: per-type adaptive augmentation policy vs duplication, from saved same-processing 31-type results.
 
 README: python3 run.py [--smoke]   (seconds; reads probe31_runs.csv, writes out/*.csv + out/report.txt; no training)
 Input: part1_results/probe31_runs.csv (part1/probe31.py schema; 'upsample'=duplication, 'real'=no augmentation).
@@ -71,7 +71,7 @@ T.to_csv(os.path.join(a.out, "summary.csv"), index=False)
 verdict = "SUCCESS" if ok.sum() >= 2 else "NOT SHOWN"
 rep = ("Rule is nested across types (other types' held-out outcomes), NOT train-only; policy_ls also leaves out the probe's seed. "
        "Diagnostic is n-bin only (per size, not per type); candidates are the arms in the CSV only. oracle = per-probe max (loose); oracle_type = best arm per type on test.\n") + T.round(4).to_string() + f"\nVERDICT: {verdict} ({int(ok.sum())}/{len(T)} classifiers pass)\n"
-# N18b: which arm wins where (mean rec200 minus dup, by n-bin)
+# which arm wins where (mean rec200 minus dup, by n-bin)
 al = pd.concat(per); arms = [c for c in al.columns if c in D.arm.unique()]
 rep += "\nmean rec200 minus dup by clf and n-bin (0:<=4,1:8-16,2:>=32)\n" + al.groupby(["clf", "bin"])[arms].mean().sub(al.groupby(["clf", "bin"]).upsample.mean(), axis=0).round(3).to_string() + "\n"
 open(os.path.join(a.out, "report.txt"), "w").write(rep); print(rep)
