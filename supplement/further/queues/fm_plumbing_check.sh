@@ -1,13 +1,13 @@
 #!/bin/bash
-# Embedding queue, laptop plumbing + timing on REAL full pools (not part of the experiment; outputs go to out/fm_plumbing_check). Takes the laptop lock itself; ~1 h.
+# Embedding queue, laptop plumbing + timing on REAL full pools (not part of the experiment; outputs go to out/w2_fm_plumb). Takes the laptop lock itself; ~1 h.
 # (a) noise512 (planted 512-d random embedding) through candidates F and P + QA: checks the 512-d code path and its feature timing;
 # (b) atl_luad_p0 (a set A pool, toolin pool built from atlas/luad.h5ad by run/adapt_pool.py) with real scGPT (MPS), Geneformer V1-10M (MPS) and scVI (CPU): full-pool embedding time,
 #     QA, candidates, and scoring of each space against PCA on this one pool (leiden + frozen; LOAO needs >= 2 atlases and is skipped).
-# Marker: out/fm_plumbing_check/DONE_plumb | FAILED_plumb.
+# Marker: out/w2_fm_plumb/DONE_plumb | FAILED_plumb.
 set -eu
 if [ -z "${W2_LOCKED:-}" ]; then export W2_LOCKED=1; exec "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/laptop_lock_run.sh" "$0" "$@"; fi
 export W2_OUT=${HR_WORK:-$HOME/work}/jiaqi1011/out/w2_fm_plumb PY=/usr/local/bin/python3 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 NUMBA_NUM_THREADS=4
-MARK=plumb; source "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/common.sh"; rm -f "$O/DONE_plumb" "$O/FAILED_plumb"
+MARK=plumb; source "$(cd "$(dirname "$0")/../embeddings" && pwd)/common.sh"; rm -f "$O/DONE_plumb" "$O/FAILED_plumb"
 export PYTORCH_ENABLE_MPS_FALLBACK=1 KMP_DUPLICATE_LIB_OK=TRUE SCGPT_CKPT=${HR_WORK:-$HOME/work}/cfgen_natrare/j1004/tools/scgpt_ckpt
 P=atl_0bf30b02_p0; $PY $C/embedding_candidates.py pca F $P; $PY $C/embed.py noise512 $P; $PY $C/embedding_qa.py noise512 $P; for v in F P; do $PY $C/embedding_candidates.py noise512 $v $P; done
 L=atl_luad_p0; ls "$W/data/w2_fm/toolin/r/$L.h5ad" >/dev/null || { R5=$W/data/w2_fm SLIM_DIR=$W/data/w2_fm/slim_atlas SI_H=$W/data/w2_fm/hmod $PY ${HR_WORK:-$HOME/work}/r5/run/adapt_pool.py $L slim_atlas ${HR_WORK:-$HOME/work}/r5/data/atlas/luad.h5ad; }

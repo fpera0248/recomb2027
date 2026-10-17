@@ -1,5 +1,5 @@
 # dup_vs_generators_savegene: dup_vs_generators.py + SAVE_GENE hook that saves every arm's added cells in gene space (for marker recovery).
-# Writes dup_vs_generators_savegene*.csv so dup_vs_generators's own outputs are never touched.
+# Writes gen16m*.csv so gen16's own outputs are never touched.
 """THE HEAD-TO-HEAD: does duplicating real cells beat every generative model?
 
 One donor-disjoint split, one dose, one readout, every generator family we can run:

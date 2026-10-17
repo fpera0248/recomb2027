@@ -1,5 +1,5 @@
 #!/bin/bash
-# Scaling: pipeline time/memory vs pool size, on one machine. Output: ~/work/jiaqi1011/out/scale_queue/{scale.csv,logs/,DONE|FAILED}. Resumable (re-run skips ok rows).
+# Scaling: pipeline time/memory vs pool size, on one machine. Output: ~/work/jiaqi1011/out/w1_scale/{scale.csv,logs/,DONE|FAILED}. Resumable (re-run skips ok rows).
 set -eu
 J=${HR_WORK:-$HOME/work}/jiaqi1011; OUT=${OUT:-$J/out/w1_scale}; mkdir -p $OUT $J/logs; rm -f $OUT/DONE $OUT/FAILED
 exec >> ${LOGFILE:-$J/logs/w1_scale.log} 2>&1

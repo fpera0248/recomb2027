@@ -92,5 +92,5 @@ def sample_sdiff(M, cls, k, scale=10.0, bs=128):
             out.append(M['vae'](z*M['zsd']+M['zmu'], return_decoded=True).numpy())
     # decoder output is only ReLU-clipped (values up to ~65, rows far from 1e4 CPM); put it through the
     # shared normalizer like every other arm: expm1 -> rows to 1e4 -> log1p
-    from statistical_arms import renorm
+    from statistical_augmentations import renorm
     return renorm(np.vstack(out))

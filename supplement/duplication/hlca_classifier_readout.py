@@ -1,13 +1,13 @@
 """m27 hlca classifier-robustness readout: m27_gen_hlca's saved arm cells (m27_hl/, gene-space
-log1p-CPM, from SAVE_GENE=m27_hl python3 m27_gen_hlca.py) re-read under statistical_arms's four readouts
-(lr/knn/rf/mlp), plus jitter_s1.0 and smote_k5 built in gene space and renormalized (statistical_arms.gene_arm), then the same PCA. rec200 uses the per-class NEVc saved by m27_gen_hlca.py (hlca fallback: a
+log1p-CPM, from SAVE_GENE=m27_hl python3 m27_gen_hlca.py) re-read under statistical_augmentations's four readouts
+(lr/knn/rf/mlp), plus jitter_s1.0 and smote_k5 built in gene space and renormalized (statistical_augmentations.gene_arm), then the same PCA. rec200 uses the per-class NEVc saved by m27_gen_hlca.py (hlca fallback: a
 probe type with < 200 held-out cells is scored at its own held-out count, not 200).
   python3 hlca_classifier_readout.py run      -> m27_hlclf.csv
   python3 hlca_classifier_readout.py report
 """
 import sys, os, glob, numpy as np, pandas as pd
 HL = os.environ.get('M27_HL', 'm27_hl'); CSV = os.environ.get('M27_CSV', 'm27_hlclf.csv')   # panel run: per-dataset dirs
-from statistical_arms import readout, gene_arm
+from statistical_augmentations import readout, gene_arm
 ARMS = sorted({os.path.basename(f).split('_', 1)[1][:-4] for f in glob.glob(f'{HL}/s*_*.npz')} - {'base', 'sd3'} | {'sd3_nosingle'})
 # sd3 (all-class fit) succeeds only when the seed has no singleton type, so there it IS the no-singleton fit
 _fn = lambda s, a: next((f for f in (f'{HL}/s{s}_{a}.npz',) + ((f'{HL}/s{s}_sd3.npz',) if a == 'sd3_nosingle' else ()) if os.path.exists(f)), None)
@@ -49,7 +49,7 @@ def fit(seed, arm):
 
 def fit_noise(seed, arm):
     """jitter_s1.0 / smote_k5 built in gene space on the real training cells, renormalized, then projected
-    with the same PCA as every generator arm (statistical_arms.gene_arm)."""
+    with the same PCA as every generator arm (statistical_augmentations.gene_arm)."""
     b, comp, pmean, Ztr, ytr, Zev, yev = _base(seed)
     n_c, probe = b['n_c'], b['probe']
     up = np.load(f'{HL}/s{seed}_upsample.npz'); T = int(n_c[probe[0]] + (up['y'] == probe[0]).sum())

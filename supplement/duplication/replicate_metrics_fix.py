@@ -6,12 +6,12 @@ alone, exact W2, energy. Means are over units EVERY arm has; n_c=1 rows reported
   OMP_NUM_THREADS=2 python3 replicate_metrics_fix.py > m27_repl_fix_report.txt
 """
 import numpy as np, pandas as pd, ot, polh
-from statistical_arms import gene_arm
+from statistical_augmentations import gene_arm
 ARMS = ['real', 'jitter_s1.0', 'upsample', 'sd3_nosingle', 'nb', 'synth_w1', 'synthbal_w1',
         'scvi', 'sdiff', 'lat_boot', 'lat_gauss']
 T = 256
 
-def jitter_s1(b, seed):   # gene space + renormalized (statistical_arms.gene_arm)
+def jitter_s1(b, seed):   # gene space + renormalized (statistical_augmentations.gene_arm)
     return {c: v[0] for c, v in gene_arm('jitter_s1.0', b['Xtr'], b['ytr'], b['probe'], b['n_c'], seed, T).items()}
 
 d2 = lambda A, B: ((A[:, None] - B[None]) ** 2).sum(-1)

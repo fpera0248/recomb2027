@@ -1,6 +1,6 @@
 #!/bin/bash
-# Re-derive every scDiffusion number after the log1p(1e4) ceiling was added to statistical_arms.renorm.
-# Pre-clip outputs are in pcaspace_bak/preclip/. Lane A: AIDA readers (marker_recovery cells already rewritten).
+# Re-derive every scDiffusion number after the log1p(1e4) ceiling was added to statistical_augmentations.renorm.
+# Pre-clip outputs are in pcaspace_bak/preclip/. Lane A: AIDA readers (mk16 cells already rewritten).
 # Lane B: regenerate sdiff for the hard / lupus sets, then their readers.
 cd ${HR_WORK:-$HOME/work}/cfgen_natrare
 export OMP_NUM_THREADS=3 MKL_NUM_THREADS=3 OPENBLAS_NUM_THREADS=3 NJ=3 M27_THREADS=3

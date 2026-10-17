@@ -2,11 +2,11 @@
 Truth: the probe type's held-out-donor eval cells vs the real training cells of every other type.
 Each arm's class = its n_c real training cells + its added cells; 'rest' is the same real cells for every arm.
 more_real = every pre-deletion training cell of the type (what more cells from the same donors would give).
-Jitter / SMOTE are built in gene space and renormalized (statistical_arms.gene_arm), like every generator arm.
-  SAVE_GENE=marker_recovery python3 dup_vs_generators_savegene.py ; python3 marker_recovery.py [dir]   -> mk16.csv + table
+Jitter / SMOTE are built in gene space and renormalized (statistical_augmentations.gene_arm), like every generator arm.
+  SAVE_GENE=mk16 python3 dup_vs_generators_savegene.py ; python3 marker_recovery.py [dir]   -> mk16.csv + table
 """
 import sys, glob, os, numpy as np, pandas as pd, polh
-from statistical_arms import gene_arm
+from statistical_augmentations import gene_arm
 from scipy import stats
 from sklearn.neighbors import NearestNeighbors
 K, DET = 50, 0.25
@@ -15,7 +15,7 @@ D = sys.argv[1] if len(sys.argv) > 1 else 'mk16'
 def lfc(mc, mr): return np.log2((np.expm1(np.maximum(mc, 0)) + 1e-9) / (np.expm1(np.maximum(mr, 0)) + 1e-9))
 
 def stat_arms(b, seed, T):
-    """jitter / smote_k5 built in gene space on the real training cells and renormalized (statistical_arms.gene_arm):
+    """jitter / smote_k5 built in gene space on the real training cells and renormalized (statistical_augmentations.gene_arm):
     the same normalizer every generator's cells went through."""
     return {name: {c: v[0] for c, v in gene_arm(name, b['Xtr'], b['ytr'], b['probe'], b['n_c'], seed, T).items()}
             for name in ('jitter_s0.5', 'jitter_s1.0', 'jitter_s2.0', 'jitternz_s1.0', 'smote_k5')}

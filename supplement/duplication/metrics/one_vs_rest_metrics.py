@@ -1,6 +1,6 @@
 """Main driver for the one-versus-rest metrics. For one dataset (aida/hlca/lupus): every cached arm x 4 classifiers x
 {multiclass, ovr(probe types only)} x {default, matched} threshold, full metric suite.
-  python3 run_e1.py aida     -> j1004/metrics/aida_full.csv
+  python3 one_vs_rest_metrics.py aida     -> j1004/metrics/aida_full.csv
 """
 import sys, os, time, numpy as np, pandas as pd
 sys.path.insert(0, os.path.dirname(__file__))

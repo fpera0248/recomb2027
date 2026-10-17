@@ -3,7 +3,7 @@ README: python3 run.py [DIR_WITH_mk16.csv_and_m27_de.csv] [OUT_DIR]   (seconds, 
 Inputs  : p1data/mk16.csv (top-50 by log2FC of arm means, genes detected in >=25% of truth cells; truth = held-out-donor
           eval cells of the type vs real train cells of other types) and p1data/m27_de.csv (Wilcoxon + Welch, BH<0.05 & lfc>0.25,
           truths A=vs real train rest, B=vs held-out rest). 3 seeds x 8 AIDA probe types, donor-disjoint split, 2000 HVGs log1p-CPM.
-Same processing (Table S2): every arm is built/renormalized in gene space through statistical_arms.renorm (ceiling log1p(1e4)); the xmax
+Same processing (Table S2): every arm is built/renormalized in gene space through statistical_augmentations.renorm (ceiling log1p(1e4)); the xmax
           assert below only checks that renorm ran, NOT that the clip ran (renorm bounds xmax either way). Clip evidence is circumstantial:
           clip_chain.sh lane A reran marker_recovery/de_marker_recovery after the clip and values moved off the pre-clip numbers. HVGs: 2000 chosen on all
           cells before the donor split, as in Table S2 (no train-only-HVG variant). All arms except more_real are topped to 256 cells;

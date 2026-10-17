@@ -1,6 +1,6 @@
 # dup_vs_generators_rawcounts: dup_vs_generators_savegene.py + also saves RAW COUNTS of every arm's added cells (not just log1p-CPM),
 # plus real train/eval raw counts + library sizes in the base file. Thread-capped for shared-machine use.
-# Writes m27_base/*.npz and m27_base*.csv; never touches dup_vs_generators*/dup_vs_generators_savegene*/marker_recovery*.
+# Writes m27_base/*.npz and m27_base*.csv; never touches gen16*/gen16m*/mk16*.
 """THE HEAD-TO-HEAD: does duplicating real cells beat every generative model?
 
 One donor-disjoint split, one dose, one readout, every generator family we can run:

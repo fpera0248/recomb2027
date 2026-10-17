@@ -2,8 +2,8 @@
 Every arm tops each probe type up to TARGET cells, built in the shared gene space (log1p-CPM) and renormalized,
 then projected with the cache's PCA (gene_arm; same processing + encoder for every arm); readout is dup_vs_generators's
 LogisticRegression(max_iter=2000) and rec200. Soft-labelled rows carry sample_weight (sums to k per type).
-  python3 statistical_arms.py run 0 20     fit every arm on seeds 0..19
-  python3 statistical_arms.py report       paired analysis vs upsample, memorization (DCR) table
+  python3 statistical_augmentations.py run 0 20     fit every arm on seeds 0..19
+  python3 statistical_augmentations.py report       paired analysis vs upsample, memorization (DCR) table
 """
 import sys, os, time, importlib, numpy as np, pandas as pd
 from sklearn.linear_model import LogisticRegression

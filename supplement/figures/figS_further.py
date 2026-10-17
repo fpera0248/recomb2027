@@ -1,5 +1,5 @@
 """Supplement figure: further analyses (supp.tex, section 'Further analyses'). Post hoc, exploratory.
-Data: ~/work/jiaqi1011/out/scale_queue/scale.csv (time, memory), out/w2_fm/res_{pca30?,scvi_F,scgpt_F}.csv + paired_tests.csv (embeddings),
+Data: ~/work/jiaqi1011/out/w1_scale/scale.csv (time, memory), out/w2_fm/res_{pca30?,scvi_F,scgpt_F}.csv + paired_tests.csv (embeddings),
 out/w6_annot_atac/p1_summary.csv + p1_atlas_union_AP.csv (random label errors).
 Run: OMP_NUM_THREADS=4 nice -n 10 python3 figS_further.py"""
 import sys, os, itertools, numpy as np, pandas as pd
