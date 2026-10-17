@@ -3,12 +3,12 @@
 Inputs (read only):
   ~/work/recomb27/rev1015/p1data/panel_runs/<dataset>/clf.csv   (88 datasets; every method and classifier except no augmentation)
   ~/work/recomb27/rev1015/p1data/panel_runs/<dataset>/real.csv  (no augmentation)
-  ~/work/recomb27/rev1015/p1data/panel_analysis.py, polh.py      (the pre-specified analysis functions, imported unchanged)
+  supplement/duplication/panel_analysis.py and polh.py   (the pre-specified analysis functions, imported from the repository; they match the p1data copies except for comments and docstrings)
   ~/work/recomb27/rev1015/p1data/panel_eligible.csv
 Outputs: data/panel_tab.csv (per dataset x method x classifier), data/panel_across.csv, data/panel_p2.csv (max-T per dataset)."""
 import os, sys, glob
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
-H = HR_WORK + '/recomb27/rev1015/p1data'; sys.path.insert(0, H); sys.dont_write_bytecode = True
+H = HR_WORK + '/recomb27/rev1015/p1data'; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'duplication')); sys.dont_write_bytecode = True
 import pandas as pd, numpy as np
 import panel_analysis as P
 E = pd.read_csv(f'{H}/panel_eligible.csv').set_index('dataset_id'); S = []
