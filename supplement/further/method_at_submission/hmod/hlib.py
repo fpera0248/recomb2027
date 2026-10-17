@@ -4,20 +4,20 @@ detection method is allowed to see (raw counts, visible label, donor); the
 true cell type comes back as a separate Series so nothing passes it by
 accident. See h/manifest.csv for pilot_id -> (design, dataset, rare_type, ...).
 
-Leaks fixed here:
+Leak guards:
  - raw_adata() returns the source slice UNCHANGED
    (including its obsm/uns/varm/layers/var columns) whenever the source h5ad
-   has no .raw. Fixed: load_pilot always strips those slots itself.
+   has no .raw, so load_pilot always strips those slots itself.
  - the pilot pool builder writes every pilot parquet
    sorted by TRUE type (D1: [m1 block][m2 block][rare block], always in that
    order; D2: one contiguous block per true type), AND obs_names are the
    source h5ad's own row index, so a source file sorted by cell type would
-   let obs_name itself encode truth. A FIXED-SEED shuffle (this file's
-   previous fix) does not close this: RandomState(seed).permutation(n)
+   let obs_name itself encode truth. A FIXED-SEED shuffle would not
+   close this: RandomState(seed).permutation(n)
    depends only on n and the seed, so it is the SAME permutation for every
    pilot of a given size and is trivially invertible by anyone who knows
-   hlib's seed -- it still lets a method's own code exploit row position.
-   Fixed properly: rows are reordered by sort(sha1(pilot_id + source
+   hlib's seed -- it would still let a method's own code exploit row position.
+   So rows are reordered by sort(sha1(pilot_id + source
    obs_name)), a permutation that depends on data a method never sees (the
    source obs_name) combined with the pilot_id, so it cannot be recomputed
    or inverted from anything a method has access to. obs_names are replaced

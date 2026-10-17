@@ -38,7 +38,7 @@ R4 = {"luad": ("author_cell_type_level_1", "author_cell_type_level_2")}     # re
 DROP_PRE = {
     "fe067858": "CV0902 CV0904 CV0911 CV0915 CV0917 CV0926 CV0929 CV0934 CV0939 CV0940 CV0944 "
                 "MH8919176 MH8919177 MH8919178 MH8919179 MH8919226 MH8919227 MH8919282 MH8919283 MH8919332 MH8919333 newcastle65 newcastle74 A35 A36".split(),
-    "551ad2bc": "582C 583B 591C 621B 640C 398B 343B 367C 411C".split()}      # 411C added: norm match to psccolon 411c, alias match to "A32 (411C)" in panel file 80a2c5b6 and the CBTM siblings
+    "551ad2bc": "582C 583B 591C 621B 640C 398B 343B 367C 411C".split()}      # 411C: norm match to psccolon 411c, alias match to "A32 (411C)" in panel file 80a2c5b6 and the CBTM siblings
 # mechanical rule: all non-primary cells of these atlases are dropped before pooling (meta-atlas with generic-id donors whose source cannot be found)
 NPDROP = {"fe067858"}
 # CELLDROP: visible OR truth label, lower-cased and stripped, equals one of these
