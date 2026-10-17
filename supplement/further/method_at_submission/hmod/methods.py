@@ -103,8 +103,7 @@ def _groups_from_call(adata, X, call, labels, resolution=0.5, min_size=5):
     """Leiden-cluster the called cells WITHIN each visible label; each
     resulting subcluster (>= min_size) is reported as a candidate group.
     A label's called cells that never reach min_size are dropped, not
-    reported (this used to report them as a group
-    regardless of size, which inflated n_groups/n_false_groups in
+    reported (reporting them would inflate n_groups/n_false_groups in
     evaluate.py in proportion to the number of visible labels)."""
     obs_names = adata.obs_names.values
     call = np.asarray(call)
@@ -425,8 +424,7 @@ def _loop(adata, mode):
             sel = idx[cl == c]
             if len(sel) >= MIN_GROUP_SIZE:
                 groups.append(list(obs_names[sel]))
-    # else: union below MIN_GROUP_SIZE -> no group reported (fixed: this used to report the whole undersized union as one
-    # group, the same floor-skipping bug as _groups_from_call above).
+    # else: union below MIN_GROUP_SIZE -> no group reported (same size floor as _groups_from_call above).
 
     return dict(score=pd.Series(last_score, index=obs_names),
                 call=pd.Series(union_mask, index=obs_names),

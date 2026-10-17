@@ -1,4 +1,4 @@
-"""python run_m1_only.py PILOT_ID : run_base.py restricted to m1_leiden_sub (port addition; run_base.py itself unchanged)."""
+"""python run_m1_only.py PILOT_ID : run_base.py restricted to m1_leiden_sub (run_base.py itself is unchanged)."""
 import os, sys, runpy
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or HR_WORK + "/r5/data", "hmod"))

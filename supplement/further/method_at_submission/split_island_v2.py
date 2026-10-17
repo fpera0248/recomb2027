@@ -8,7 +8,7 @@ Per thinning t (N_THIN of them, seeds RNG+t):
     Ablation A-only: the same d' on half A (no replication). Cohesion Tn (kNN, ceiling-corrected) feeds the m1-rerank ablation.
  4. Cell score = max S over surviving islands containing it (-1 if none) + 1e-3 * isolation rank (tie-break only).
 Final score = mean over thinnings. call = score >= TAU (one global constant, calibrated on held-out D1null pilots, never per pilot).
-Removed vs v1: the simulated one-population null (it could not absorb native subtypes), full-count HVGs, saturating T.
+No simulated one-population null is used (it could not absorb native subtypes), HVGs do not come from full counts, and T does not saturate.
 No truth is read; nothing is tuned per pilot."""
 import os, sys
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
