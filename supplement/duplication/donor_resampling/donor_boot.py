@@ -8,7 +8,7 @@ each probe type's argmax recall and rec200 (k = true eval cells of the type in t
 multiplicity), take d = upsample - real, average over probe types and seeds per draw. Report percentile 95% interval next to the
 type-level exact sign-flip p (polh.signflip_p, as in the paper tables).
 Env: REPDIR (rep16t npz), LUPUS_BASE / HLCA_BASE (m27_*_t dirs: s<seed>_base.npz, s<seed>_upsample.npz), STAT16_DIR, M27_SRC
-(dir of hlca_classifier_readout.py + polh.py). New outputs only: boot_df_<ds>_<clf>_s<seed>.npz, boot_df_<ds>_<clf>_summary.csv/_pertype.csv."""
+(dir of m27_hlclf.py, the file released here as hlca_classifier_readout.py, and polh.py). New outputs only: boot_df_<ds>_<clf>_s<seed>.npz, boot_df_<ds>_<clf>_summary.csv/_pertype.csv."""
 import os, sys, glob, numpy as np, pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__)); E = os.path.expanduser
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
