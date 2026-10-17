@@ -1,8 +1,8 @@
-"""Regenerate scDiffusion cells for m27_hard / m27_mk (lupus) with the clipped renorm (stat16.renorm).
+"""Regenerate scDiffusion cells for m27_hard / m27_mk (lupus) with the clipped renorm (statistical_arms.renorm).
 The saved s*_sdiff.npz there were renormalized WITHOUT the log1p(1e4) ceiling, which turned decoder rows
 above it into one-gene cells; that step is not invertible, so we retrain with the gen scripts' settings:
 build_sdiff(base Xtr, ytr, NC+1, seed, 40/60/30 epochs, bs 256, vae_steps 5000), TARGET - n_c per probe type.
-Usage: python3 m27_sdiff_regen.py m27_hard 0 1 2 ; old files are moved to pcaspace_bak/<D>_sdiff_unclipped/."""
+Usage: python3 scdiffusion_clipped_regen.py m27_hard 0 1 2 ; old files are moved to pcaspace_bak/<D>_sdiff_unclipped/."""
 import sys, os, shutil, time, itertools, numpy as np
 from sdiff_mod import build_sdiff, sample_sdiff
 D, seeds = sys.argv[1], [int(s) for s in sys.argv[2:]]

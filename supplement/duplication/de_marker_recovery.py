@@ -1,5 +1,5 @@
-"""m27_de: differential-expression marker recovery for every augmentation arm, on gen16's exact
-donor-disjoint split and mk16's saved arm cells (2000 HVGs, log1p-CPM). Question: does duplication (or scDesign3, or anything) recover better marker genes for rare types
+"""de_marker_recovery: differential-expression marker recovery for every augmentation arm, on dup_vs_generators's exact
+donor-disjoint split and marker_recovery's saved arm cells (2000 HVGs, log1p-CPM). Question: does duplication (or scDesign3, or anything) recover better marker genes for rare types
 than the real cells alone, and does any method inflate significance (pseudoreplication)?
 
 Group = the probe type's n_c real training cells + that arm's added cells (identical across arms
@@ -12,15 +12,15 @@ restricted to lfc>0), average precision of the arm's ranking for truth's signifi
 (FDR<0.05 & lfc>0.25), n_sig, precision of significant calls vs truth, and fp_rate = fraction of
 truth NON-markers the arm calls significant (the pseudoreplication/p-value-inflation readout).
 
-  python3 m27_de.py run [mk16]     -> m27_de.csv
-  python3 m27_de.py report         -> m27_de_report.txt (+ stdout)
+  python3 de_marker_recovery.py run [marker_recovery]     -> m27_de.csv
+  python3 de_marker_recovery.py report         -> m27_de_report.txt (+ stdout)
 """
 import os
 for _v in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'NUMEXPR_NUM_THREADS'):
     os.environ.setdefault(_v, '3')
 import sys, glob, time, warnings, numpy as np, pandas as pd, polh
 from scipy import stats
-from stat16 import gene_arm
+from statistical_arms import gene_arm
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import average_precision_score
 from statsmodels.stats.multitest import multipletests
@@ -36,7 +36,7 @@ def lfc(mc, mr):
 
 
 def stat_arms(b, seed, T):
-    """jitter_s1.0 / smote_k5 built in gene space and renormalized (stat16.gene_arm)."""
+    """jitter_s1.0 / smote_k5 built in gene space and renormalized (statistical_arms.gene_arm)."""
     return {name: {c: v[0] for c, v in gene_arm(name, b['Xtr'], b['ytr'], b['probe'], b['n_c'], seed, T).items()}
             for name in ('jitter_s1.0', 'jitternz_s1.0', 'smote_k5')}
 

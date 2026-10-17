@@ -6,7 +6,7 @@ scored 0, lupus drops sdiff (invalid cells), n=1 rows kept apart (n2plus is the 
 exact sign-flip over rare types, BH within each (dataset, mode) family.
 Statistic: generator minus duplication ('upsample'), per (seed, type, n, clf), averaged to one
 value per type, then sign-flip over types.
-usage: python3 j21_dup_vs_gen.py  -> prints tables, writes j21_tests.csv here."""
+usage: python3 dup_vs_gen_one_vs_rest.py  -> prints tables, writes j21_tests.csv here."""
 import itertools, os, numpy as np, pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))

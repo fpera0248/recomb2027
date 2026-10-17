@@ -1,8 +1,6 @@
-# m27_gen_hard: gen16m.py, retargeted at 8 cell types that are NOT physically rare but are
-# intrinsically hard to SEPARATE from a neighbour (coarse/parent ontology labels that overlap
-# transcriptionally with specific child subtypes -- see m27_step1_sep.csv). Same protocol,
-# same donor-disjoint physical deletion, new PROBE list. Writes m27_hard*.csv / m27_hard/ only;
-# gen16/gen16m's own outputs are never touched. Thread-capped for a shared machine.
+# dup_vs_generators_rawcounts: dup_vs_generators_savegene.py + also saves RAW COUNTS of every arm's added cells (not just log1p-CPM),
+# plus real train/eval raw counts + library sizes in the base file. Thread-capped for shared-machine use.
+# Writes m27_base/*.npz and m27_base*.csv; never touches dup_vs_generators*/dup_vs_generators_savegene*/marker_recovery*.
 """THE HEAD-TO-HEAD: does duplicating real cells beat every generative model?
 
 One donor-disjoint split, one dose, one readout, every generator family we can run:
@@ -62,7 +60,7 @@ from cfgen.models.base.encoder_model import EncoderModel
 from cfgen.models.fm.denoising_model import MLPTimeStep
 from cfgen.models.fm.fm import FM
 from cfgen.models.featurizers.category_featurizer import CategoricalFeaturizer
-torch.set_num_threads(8)
+torch.set_num_threads(8)   # m27: shared machine, cap threads (see also OMP/MKL/OPENBLAS env at launch)
 
 SMOKE = '--smoke' in sys.argv
 HVG=400 if '--smoke' in sys.argv else 2000
@@ -80,24 +78,10 @@ RUNGS=np.array([1,2,4,8]) if '--smoke' in sys.argv else np.array([1,2,4,8,16,32,
 WGRID=[1.0]
 TARGET=64 if '--smoke' in sys.argv else 256   # every augmented arm reaches exactly this many cells
 SEEDS=[0] if SMOKE else [0,1,2]
-# m27_hard PROBE list: the 8 AIDA types (excluding gen16's original 8) with the LOWEST 15-NN
-# same-type fraction among held-out cells (m27_step1_sep.csv) -- i.e. least separable from a
-# neighbour type. These are common types overall (2,330-10,795 cells AIDA-wide) so rung 128 in
-# training + 200 held-out eval cells survive the donor-disjoint split with wide margin (checked:
-# 9-12% of donors needed for eval at all 3 seeds). Separability here is
-# driven by ontology coarseness (unspecified parent labels vs specific child subtypes), not by
-# raw rarity -- unlike gen16's physically-rare probes, which turned out to be the MORE separable
-# half of AIDA's 31 types (m27_step1_report.txt).
-# PROBE is a Cell-Ontology LEAF set, neighbour-disjoint (no probe is another probe's kNN neighbour, so
-# every neighbour stays abundant at CAP). The 6 annotator "unknown" bins (UNKNOWN_BINS: T_unknown,
-# B_unknown, ...) have their own child as nearest type and hold ~all of India's coarse-only annotation,
-# so probes drawn from them would measure label depth + site, not mixing. They are dropped from train AND eval.
-UNKNOWN_BINS=['T cell','CD4-positive, alpha-beta T cell','CD8-positive, alpha-beta T cell',
-              'natural killer cell','B cell','myeloid cell']
-PROBE=['central memory CD4-positive, alpha-beta T cell','memory B cell',
-       'CD8-positive, alpha-beta memory T cell','CD1c-positive myeloid dendritic cell',
-       'CD16-positive, CD56-dim natural killer cell, human','CD4-positive, alpha-beta cytotoxic T cell',
-       'naive B cell','gamma-delta T cell']
+PROBE=['double negative T regulatory cell','CD141-positive myeloid dendritic cell',
+       'innate lymphoid cell','pre-conventional dendritic cell','plasma cell',
+       'plasmacytoid dendritic cell','mature B cell',
+       'CD16-negative, CD56-bright natural killer cell, human']   # the 8 rarest types in AIDA
 if '--smoke' in sys.argv: PROBE=PROBE[:4]
 D=SUPP_DATA + '/pilots/aida/'
 t0=time.time()
@@ -106,7 +90,6 @@ t0=time.time()
 A=ad.concat([ad.read_h5ad(D+'AIDA_AbundantPool_120k.h5ad'), ad.read_h5ad(D+'AIDA_RarePool.h5ad')],
             join='inner', index_unique='-')
 A.obs['ct']=A.obs.cell_type.astype(str)
-A=A[~A.obs.ct.isin(UNKNOWN_BINS)].copy()
 dall_raw=A.obs.donor_id.astype(str).values
 A=A[:, np.asarray(A.X.sum(0)).ravel()>0].copy()
 sc.pp.highly_variable_genes(A, n_top_genes=HVG, flavor='seurat_v3', subset=True)
@@ -256,7 +239,8 @@ for seed in SEEDS:
     pca=PCA(50,random_state=seed).fit(Xn[tr_idx[rng.choice(len(tr_idx),min(30000,len(tr_idx)),replace=False)]])
     Ztr=pca.transform(Xn[tr_idx[lab]]); ytr_l=ytr[lab]
     Zev=pca.transform(Xn[ev_idx]); yev=yall[ev_idx]
-    SAVE_GENE=os.environ.get('SAVE_GENE')
+    SAVE_GENE=os.environ.get('SAVE_GENE','m27_base')
+    RAWR={}   # m27: raw-count twin of REC, keyed the same way (id of the PCA-output object arm() receives)
     if SAVE_GENE:   # remember each generator block's gene-space input, keyed by the PCA output object arm() receives
         os.makedirs(SAVE_GENE,exist_ok=True); REC={}; _pt=pca.transform
         def _rec(X,_pt=_pt,REC=REC):
@@ -265,9 +249,13 @@ for seed in SEEDS:
             return out
         pca.transform=_rec
         pm=np.isin(yall[full_tr],probe)
+        # m27: raw counts + library sizes alongside the existing log1p-CPM base file, for the
+        # "same cell size?" and "latent code" questions. Xc[tr_idx[lab]]/Xc[ev_idx] are RAW counts.
+        Ctr=Xc[tr_idx[lab]]; Cev=Xc[ev_idx]
         np.savez_compressed(f'{SAVE_GENE}/s{seed}_base.npz',Xtr=Xn[tr_idx[lab]],ytr=ytr_l,Ztr=Ztr,Xev=Xn[ev_idx],yev=yev,
             Xfull=Xn[full_tr[pm]],yfull=yall[full_tr[pm]],probe=probe,n_c=n_c,cts=np.array(cts),
-            comp=pca.components_,pmean=pca.mean_,genes=np.array(A.var_names).astype(str))
+            comp=pca.components_,pmean=pca.mean_,genes=np.array(A.var_names).astype(str),
+            Ctr=Ctr,Cev=Cev,Ltr=Ctr.sum(1).astype(np.float32),Lev=Cev.sum(1).astype(np.float32))
 
     # ---- scDesign3 arm: same training cells, same targets, conditioned on cell_type only ----
     # temp dir lives beside the script, NOT under the system temp tree, which can be wiped while a run is in progress.
@@ -298,7 +286,10 @@ for seed in SEEDS:
         assert not any(np.allclose(S[0],Xc[i]) for i in tr_idx[:300]), 'sd3 returned real cells'
         Sn=np.log1p(S/np.maximum(S.sum(1,keepdims=True),1)*1e4).astype(np.float32)
         print(f"  seed {seed} sd3[{tag}] ok {time.time()-t:.0f}s, {len(S)} cells",flush=True)
-        return {int(ci[c]):pca.transform(Sn[sm==c]) for c in want.cell_type}, ''
+        res={}
+        for c in want.cell_type:   # m27: keep the raw counts S alongside the PCA output, same id-keyed pattern as REC
+            o=pca.transform(Sn[sm==c]); RAWR[id(o)]=S[sm==c].copy(); res[int(ci[c])]=o
+        return res, ''
 
     single=[int(c) for c in range(NC) if n_c[c]<2]        # classes the copula cannot fit at all
     sd3,err_all=run_sd3(set(), 'all')
@@ -323,8 +314,10 @@ for seed in SEEDS:
                     size_factor_covariate="cell_type",conditioning_covariates=["cell_type"],
                     covariate_indices={"cell_type":torch.full((b,),int(c),dtype=torch.long)},
                     guidance_weights={"cell_type":float(w)})["rna"].numpy()
-                out.append(np.log1p(sm/np.maximum(sm.sum(1,keepdims=True),1)*1e4).astype(np.float32))
-            gen[(w,int(c))]=pca.transform(np.vstack(out))
+                out.append(sm.astype(np.float32))
+            Sraw=np.vstack(out)   # m27: raw counts kept; log1p-CPM applied once below (per-row op, same result)
+            o=pca.transform(np.log1p(Sraw/np.maximum(Sraw.sum(1,keepdims=True),1)*1e4).astype(np.float32))
+            RAWR[id(o)]=Sraw; gen[(w,int(c))]=o
     cost(seed,'synth_w1',time.time()-_tc)   # FM fit + sampling
     print(f"  seed {seed} generated {time.time()-t0:.0f}s",flush=True)
 
@@ -340,7 +333,10 @@ for seed in SEEDS:
         return np.vstack(out).astype(np.float32)
 
     def to_pca(S):
-        return pca.transform(np.log1p(S/np.maximum(S.sum(1,keepdims=True),1)*1e4).astype(np.float32))
+        Sf=np.asarray(S,np.float32)
+        out=pca.transform(np.log1p(Sf/np.maximum(Sf.sum(1,keepdims=True),1)*1e4).astype(np.float32))
+        RAWR[id(out)]=Sf.copy()   # m27: raw counts alongside every arm's PCA output
+        return out
 
     lb={}; lg={}
     # Both bypass the flow entirely: real latents, then the SHARED decoder.
@@ -465,7 +461,7 @@ for seed in SEEDS:
     # Adam with coupled weight decay cripples their VAE.
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,
-                   vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/m27hard_s{seed}_{VAE_STEPS}.pt')
+                   vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/m27_s{seed}_{VAE_STEPS}.pt')
     sdf={}
     for c in probe:
         k=TARGET-int(n_c[c])
@@ -476,7 +472,7 @@ for seed in SEEDS:
     print(f"  seed {seed} scDiffusion done {time.time()-t0:.0f}s",flush=True)
 
     def arm(name):
-        Z,y=[Ztr],[ytr_l]; GB=[]
+        Z,y=[Ztr],[ytr_l]; GB=[]; GBraw=[]
         for c in probe:
             k=TARGET-int(n_c[c])
             if k<=0: continue
@@ -505,12 +501,19 @@ for seed in SEEDS:
                 Z.append(sdf[int(c)])
             else:
                 Z.append(gen[(float(name.split('_w')[1]),int(c))])
-            if SAVE_GENE: GB.append(Xn[tr_idx[lab]][sel] if name=='upsample' else REC[id(Z[-1])])
+            if SAVE_GENE:
+                GB.append(Xn[tr_idx[lab]][sel] if name=='upsample' else REC[id(Z[-1])])
+                # m27: raw-count twin. upsample copies a real cell's own raw counts; sdiff has none
+                # (it samples log1p-CPM directly, never raw counts -- see decode_latents/to_pca callers).
+                GBraw.append(Xc[tr_idx[lab]][sel] if name=='upsample' else RAWR.get(id(Z[-1])))
             y.append(np.full(k,c,dtype=np.int64))
         if SAVE_GENE and GB:
-            np.savez_compressed(f'{SAVE_GENE}/s{seed}_{name}.npz',X=np.vstack(GB),y=np.concatenate(y[1:]))
+            if all(g is not None for g in GBraw):
+                np.savez_compressed(f'{SAVE_GENE}/s{seed}_{name}.npz',X=np.vstack(GB),y=np.concatenate(y[1:]),C=np.vstack(GBraw))
+            else:
+                np.savez_compressed(f'{SAVE_GENE}/s{seed}_{name}.npz',X=np.vstack(GB),y=np.concatenate(y[1:]))
         Z=np.vstack(Z); y=np.concatenate(y)
-        clf=LogisticRegression(max_iter=2000,n_jobs=3,random_state=seed).fit(Z,y)
+        clf=LogisticRegression(max_iter=2000,n_jobs=8,random_state=seed).fit(Z,y)
         P=clf.predict_proba(Zev); cls=list(clf.classes_); pred=clf.classes_[P.argmax(1)]
         for c in range(NC):
             true=(yev==c); j=cls.index(c) if c in cls else None
@@ -526,7 +529,7 @@ for seed in SEEDS:
     cost(seed,'real',0.0); cost(seed,'upsample',0.0)
     cost(seed,'lat_boot',_ae_sec); cost(seed,'lat_gauss',_ae_sec)
     cost(seed,'ae_shared',_ae_sec)   # CFGen and both lat arms all pay this once
-    pd.DataFrame(crows).to_csv('m27_hard_cost.csv',index=False)
+    pd.DataFrame(crows).to_csv('m27_base_cost.csv',index=False)
     # ---- displacement geometry + iLISI, PCA-50, the space the probe sees ---------------
     pset=set(probe.tolist()); ab=np.array([c for c in range(NC) if c not in pset])
     CEV=np.stack([Zev[yev==c].mean(0) for c in range(NC)])
@@ -564,13 +567,13 @@ for seed in SEEDS:
                 v=compute_lisi(Z,md,['src'],perplexity=min(30,(len(Z)-2)//3))[:,0]
                 lrows.append(dict(seed=seed,c=int(c),name_=cts[c],n=int(n_c[c]),arm=nm,scope=scope,
                                   ilisi=float(v[len(R):].mean())))
-    pd.DataFrame(drows).to_csv('m27_hard_disp.csv',index=False)
-    pd.DataFrame(lrows).to_csv('m27_hard_ilisi.csv',index=False)
+    pd.DataFrame(drows).to_csv('m27_base_disp.csv',index=False)
+    pd.DataFrame(lrows).to_csv('m27_base_ilisi.csv',index=False)
     print(f"  seed {seed} geometry + iLISI done {time.time()-t0:.0f}s",flush=True)
-    pd.DataFrame(rows).to_csv('m27_hard.csv',index=False)   # partial results survive a kill
-    pd.DataFrame(srows).to_csv('m27_hard_sd3status.csv',index=False)
+    pd.DataFrame(rows).to_csv('m27_base.csv',index=False)   # partial results survive a kill
+    pd.DataFrame(srows).to_csv('m27_base_sd3status.csv',index=False)
 
-S3=pd.DataFrame(srows); S3.to_csv('m27_hard_sd3status.csv',index=False)
+S3=pd.DataFrame(srows); S3.to_csv('m27_base_sd3status.csv',index=False)
 print('\n=== can scDesign3 run at all on a donor-disjoint split with a 1-cell class?')
 for _,r in S3.iterrows():
     print(f"  seed {r.seed}: {r.n_singleton} singleton class(es) [{r.singleton_types}]")
@@ -578,7 +581,7 @@ for _,r in S3.iterrows():
           + ('' if r.all_classes_ok else f"  {r.err_all[-220:]}"))
     print(f"    singletons drop : {'RAN' if r.nosingle_ok else r.err_nosingle[:60]}")
 
-T=pd.DataFrame(rows); T.to_csv('m27_hard.csv',index=False)
+T=pd.DataFrame(rows); T.to_csv('m27_base.csv',index=False)
 ARMS=tuple(a for a in ('real','upsample','nb','sd3','sd3_nosingle','synth_w1','synthbal_w1','scvi','scvi_cond','sdiff','lat_boot','lat_gauss') if a in set(T.arm))
 P=T[T.probe]
 print("\n=== recall@200 on held-out cells, 8 NATURALLY RARE probe classes, mean over seeds")
@@ -610,8 +613,8 @@ C=T[~T.probe]
 print('  ' + '  '.join(f"{a} {C[C.arm==a].rec200.mean():.3f}" for a in ARMS))
 
 
-D=pd.DataFrame(drows); D.to_csv('m27_hard_disp.csv',index=False)
-L=pd.DataFrame(lrows); L.to_csv('m27_hard_ilisi.csv',index=False)
+D=pd.DataFrame(drows); D.to_csv('m27_base_disp.csv',index=False)
+L=pd.DataFrame(lrows); L.to_csv('m27_base_ilisi.csv',index=False)
 GARMS=[a for a in ('train','upsample','nb','sd3','sd3_nosingle','synth_w1','synthbal_w1',
                    'scvi','scvi_cond','sdiff','lat_boot','lat_gauss') if a in set(D.arm)]
 BINS=((1,8,'1-8'),(9,64,'9-64'),(65,257,'65+'))
@@ -658,7 +661,7 @@ for scope,note in (('pooled','backdrop = all real cells, so landing anywhere den
 #             the naive t runs 2-3x larger on identical data.
 #   win       fraction of (seed, class) pairs where upsampling is at least as good
 #   cost      median wall-clock seconds to produce one seed's synthetic cells
-C=pd.DataFrame(crows); C.to_csv('m27_hard_cost.csv',index=False)
+C=pd.DataFrame(crows); C.to_csv('m27_base_cost.csv',index=False)
 COST=C.groupby('arm').sec.median().to_dict()
 
 def clust_t(d, a, b):

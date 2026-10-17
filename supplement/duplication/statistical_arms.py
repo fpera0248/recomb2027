@@ -1,9 +1,9 @@
-"""Jiaqi's statistical upsampling arms on gen16's exact donor-disjoint split (cached by replay16.py).
+"""Jiaqi's statistical upsampling arms on dup_vs_generators's exact donor-disjoint split (cached by replay_split.py).
 Every arm tops each probe type up to TARGET cells, built in the shared gene space (log1p-CPM) and renormalized,
-then projected with the cache's PCA (gene_arm; same processing + encoder for every arm); readout is gen16's
+then projected with the cache's PCA (gene_arm; same processing + encoder for every arm); readout is dup_vs_generators's
 LogisticRegression(max_iter=2000) and rec200. Soft-labelled rows carry sample_weight (sums to k per type).
-  python3 stat16.py run 0 20     fit every arm on seeds 0..19
-  python3 stat16.py report       paired analysis vs upsample, memorization (DCR) table
+  python3 statistical_arms.py run 0 20     fit every arm on seeds 0..19
+  python3 statistical_arms.py report       paired analysis vs upsample, memorization (DCR) table
 """
 import sys, os, time, importlib, numpy as np, pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -12,9 +12,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
 TARGET, NEV, KNN = 256, 200, 15
-REP = os.environ.get('REP', 'rep16')   # rep16t = train-only HVGs (HVG_TRAIN=1 replay16.py)
+REP = os.environ.get('REP', 'rep16')   # rep16t = train-only HVGs (HVG_TRAIN=1 replay_split.py)
 
-ANCHORS = None   # set to [] to record each dup/jitter/smote row's source-cell index (m27_latent anchor-library path)
+ANCHORS = None   # set to [] to record each dup/jitter/smote row's source-cell index (latent_unification anchor-library path)
 
 def dup(Z, y, c, k, rng):
     pos = np.where(y == c)[0]; i = rng.choice(pos, k, replace=True)
@@ -40,7 +40,7 @@ def smote(Z, y, c, k, rng, kn):
     return X[i] + rng.random((k, 1)) * (X[j] - X[i]), np.full(k, c), np.ones(k)
 
 def lognorm(C):
-    """THE shared normalizer (gen16/m27 line 99): counts -> log1p-CPM over the HVGs. It is scale-free, so
+    """THE shared normalizer (dup_vs_generators/m27 line 99): counts -> log1p-CPM over the HVGs. It is scale-free, so
     lognorm(expm1(X)) puts any non-negative log-space matrix back on the same scale as the real cells."""
     C = np.maximum(np.asarray(C, np.float32), 0)
     return np.log1p(C / np.maximum(C.sum(1, keepdims=True), 1) * 1e4).astype(np.float32)
@@ -68,7 +68,7 @@ def gene_arm(name, X, y, probe, n_c, seed, T=TARGET, extra=None):
     return out
 
 def readout(k, Z, y, w, Zev, seed):
-    """Per-class scores (column c = class c) and argmax calls. CLF env picks readouts: lr (gen16's), knn, rf, mlp."""
+    """Per-class scores (column c = class c) and argmax calls. CLF env picks readouts: lr (dup_vs_generators's), knn, rf, mlp."""
     if k == 'lr':
         m = LogisticRegression(max_iter=2000, random_state=seed).fit(Z, y, sample_weight=None if np.all(w == 1) else w)
     else:

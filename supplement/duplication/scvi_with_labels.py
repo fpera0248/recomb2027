@@ -1,4 +1,4 @@
-"""gen12: scVI is also given the cell type label. Why is it worse than upsampling?
+"""scvi_with_labels: scVI is also given the cell type label. Why is it worse than upsampling?
 
 Jiaqi's question. scVI takes a label, scDesign3 takes a label, so on paper they ask the model
 for the same thing. scDesign3 lands near the class and scVI does not. Three candidate reasons,
@@ -16,7 +16,7 @@ on one identical donor-disjoint split at one identical dose:
     scvi_cond_boot  CondSCVI's decoder fed REAL latents. Separates a bad sampler from a bad
                     decoder, the same control that closed the CFGen question in gen9.
 
-Reference lines carried over unchanged from gen12: upsample, lat_rt, lat_boot, lat_gauss,
+Reference lines carried over unchanged from scvi_with_labels: upsample, lat_rt, lat_boot, lat_gauss,
 lat_gauss_pool. 6 seeds, because four scVI models are trained per seed. Every contrast is
 reported naively AND class clustered, since there are only 8 distinct probe types.
 """

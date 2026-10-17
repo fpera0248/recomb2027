@@ -1,13 +1,13 @@
 """m27_hard's saved arm cells (m27_hard/, PCA-50 via each seed's own base.npz comp/pmean) re-read
-under stat16's four readouts (lr, knn, rf, mlp), PLUS jitter_s1.0 and smote_k5 built in gene space,
-renormalized, then the same PCA (stat16.gene_arm). Unlike our earlier scDesign3 classifier readout (not included), this does NOT depend on rep16_seed*.npz (that
-cache belongs to gen16's OLD 8-probe split); m27_hard/s{seed}_base.npz alone supplies the real
+under statistical_arms's four readouts (lr, knn, rf, mlp), PLUS jitter_s1.0 and smote_k5 built in gene space,
+renormalized, then the same PCA (statistical_arms.gene_arm). Unlike our earlier scDesign3 classifier readout (not included), this does NOT depend on rep16_seed*.npz (that
+cache belongs to dup_vs_generators's OLD 8-probe split); m27_hard/s{seed}_base.npz alone supplies the real
 train/eval cells and the PCA basis for this split.
-  python3 m27_hardclf.py run      -> m27_hardclf.csv
-  python3 m27_hardclf.py report   -> m27_hard_report.txt-style table (also printed)
+  python3 hard_types_classifier.py run      -> m27_hardclf.csv
+  python3 hard_types_classifier.py report   -> m27_hard_report.txt-style table (also printed)
 """
 import sys, os, glob, numpy as np, pandas as pd
-from stat16 import readout, gene_arm, NEV, TARGET
+from statistical_arms import readout, gene_arm, NEV, TARGET
 
 D = 'm27_hard'
 GEN_ARMS = sorted({os.path.basename(f)[len('s0_'):-4] for f in glob.glob(f'{D}/s0_*.npz')} - {'base'})
@@ -17,7 +17,7 @@ def fit(seed, arm):
     b = np.load(f'{D}/s{seed}_base.npz')
     Ztr, ytr, cts, n_c, probe = b['Ztr'], b['ytr'], b['cts'], b['n_c'], b['probe']
     Zev = (b['Xev'] - b['pmean']) @ b['comp'].T; yev = b['yev']
-    if arm in STAT_ARMS:   # gene space + renormalized, then the same PCA (stat16.gene_arm)
+    if arm in STAT_ARMS:   # gene space + renormalized, then the same PCA (statistical_arms.gene_arm)
         A = gene_arm(arm, b['Xtr'], ytr, probe, n_c, seed)
         Z = np.vstack([Ztr] + [(v[0] - b['pmean']) @ b['comp'].T for v in A.values()]); y = np.concatenate([ytr] + [v[1] for v in A.values()])
     else:

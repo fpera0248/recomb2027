@@ -1,8 +1,8 @@
-"""Replay gen16.py's data prep + donor-disjoint split + PCA-50 and cache each seed to rep16_seed<s>.npz.
-Logic copied from an earlier feature-extraction script (not included), verified bit-exact against gen16 for seeds 0-2.
-Seeds 0-2 are checked against gen16.log/gen16.csv; every seed is checked for 0 donor overlap,
+"""Replay dup_vs_generators.py's data prep + donor-disjoint split + PCA-50 and cache each seed to rep16_seed<s>.npz.
+Logic copied from an earlier feature-extraction script (not included), verified bit-exact against dup_vs_generators for seeds 0-2.
+Seeds 0-2 are checked against dup_vs_generators.log/gen16.csv; every seed is checked for 0 donor overlap,
 exact rungs, and >= NEV eval cells per probe type. Any mismatch stops the run.
-Usage: python3 replay16.py 0 20
+Usage: python3 replay_split.py 0 20
 """
 import os, sys, time, numpy as np, pandas as pd, anndata as ad, scanpy as sc
 SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
@@ -30,7 +30,7 @@ if __name__ == '__main__':
                   join='inner', index_unique='-')
     A.obs['ct'] = A.obs.cell_type.astype(str)
     A = A[:, np.asarray(A.X.sum(0)).ravel() > 0].copy()
-    TRH = os.environ.get('HVG_TRAIN') == '1'   # 1 = pick HVGs per seed on train cells only; gen16 used the pooled cohort
+    TRH = os.environ.get('HVG_TRAIN') == '1'   # 1 = pick HVGs per seed on train cells only; dup_vs_generators used the pooled cohort
     def lognorm(X):
         X = np.asarray(X.todense() if hasattr(X, 'todense') else X, dtype=np.float32)
         return np.log1p(X / np.maximum(X.sum(1, keepdims=True), 1) * 1e4).astype(np.float32)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         pca = PCA(50, random_state=seed).fit(Xtr[rng.choice(len(tr_idx), min(30000, len(tr_idx)), replace=False)])
         fn = f'rep{31 if P31 else 16}{"t" if TRH else ""}_seed{seed}.npz'; Ztr = pca.transform(Xtr)
         if os.path.exists(fn): assert np.array_equal(np.load(fn)['Ztr'], Ztr), f'{fn}: rerun does not reproduce the cached split'
-        # Xtr/pmean/comp: stat16.gene_arm builds jitter/SMOTE in gene space and projects them (same encoder for every arm)
+        # Xtr/pmean/comp: statistical_arms.gene_arm builds jitter/SMOTE in gene space and projects them (same encoder for every arm)
         np.savez(fn, Ztr=Ztr, ytr=ytr, Zev=pca.transform(Xev), yev=yall[ev_idx], n_c=n_c, probe=probe, cts=np.array(cts),
                  n_ev_donors=len(ev_d), Xtr=Xtr, pmean=pca.mean_, comp=pca.components_)
         print(f'  seed {seed}: {len(ev_d)}/{len(UD)} eval donors, {len(tr_idx):,} train, deleted {n_del:,}, '

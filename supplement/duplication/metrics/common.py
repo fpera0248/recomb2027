@@ -1,11 +1,11 @@
-"""Shared loading + metrics for AIDA/HLCA/lupus, same readout path as m27_hlclf.py.
-Imports m27_hlclf.py and stat16.py unmodified (sets M27_HL before import so its ARMS/_fn/_base pick up
+"""Shared loading + metrics for AIDA/HLCA/lupus, same readout path as hlca_classifier_readout.py.
+Imports hlca_classifier_readout.py and statistical_arms.py unmodified (sets M27_HL before import so its ARMS/_fn/_base pick up
 the right cache dir). Does NOT edit either file.
 """
 import os, sys, glob, numpy as np
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.path.insert(0, HR_WORK + '/cfgen_natrare')
-os.chdir(HR_WORK + '/cfgen_natrare')   # m27_hlclf._base/_fn use paths relative to this dir
+os.chdir(HR_WORK + '/cfgen_natrare')   # hlca_classifier_readout._base/_fn use paths relative to this dir
 os.environ.setdefault('OMP_NUM_THREADS', '2')
 os.environ.setdefault('MKL_NUM_THREADS', '2')
 os.environ.setdefault('OPENBLAS_NUM_THREADS', '2')
@@ -16,16 +16,16 @@ from sklearn.metrics import roc_auc_score, average_precision_score, matthews_cor
 
 
 def load_dataset(dataset):
-    """Sets M27_HL then imports m27_hlclf fresh (per-process import, so the module-level HL/ARMS/_fn
-    bind to this dataset's cache dir). Returns the module plus gene_arm/readout from stat16."""
+    """Sets M27_HL then imports hlca_classifier_readout fresh (per-process import, so the module-level HL/ARMS/_fn
+    bind to this dataset's cache dir). Returns the module plus gene_arm/readout from statistical_arms."""
     D = DIRS[dataset]
     os.environ['M27_HL'] = D
     os.environ['M27_CSV'] = f'/tmp/_unused_{dataset}.csv'
     import importlib
-    if 'm27_hlclf' in sys.modules:
-        del sys.modules['m27_hlclf']   # force re-read of M27_HL for this process
-    import m27_hlclf as H
-    from stat16 import readout, gene_arm
+    if 'hlca_classifier_readout' in sys.modules:
+        del sys.modules['hlca_classifier_readout']   # force re-read of M27_HL for this process
+    import hlca_classifier_readout as H
+    from statistical_arms import readout, gene_arm
     return D, H, readout, gene_arm
 
 
@@ -34,7 +34,7 @@ def n_seeds(D):
 
 
 NOISE_ARMS = ('jitter_s1.0', 'jitternz_s1.0', 'smote_k5')   # built on the fly (gene_arm), never saved as npz,
-# so they never show up in H.ARMS' glob of s*_*.npz -- m27_hlclf.py's own run block adds them as a
+# so they never show up in H.ARMS' glob of s*_*.npz -- hlca_classifier_readout.py's own run block adds them as a
 # separate hardcoded job list; same fix needed here or they'd silently be missing.
 
 def arm_list(H):
@@ -42,7 +42,7 @@ def arm_list(H):
 
 
 def build_Zy(D, H, gene_arm, seed, arm):
-    """Reproduces m27_hlclf.fit / fit_noise's Z,y construction exactly (copied, not imported, since
+    """Reproduces hlca_classifier_readout.fit / fit_noise's Z,y construction exactly (copied, not imported, since
     those functions also score). arm='real' = no augmentation (Ztr,ytr alone)."""
     b, comp, pmean, Ztr, ytr, Zev, yev = H._base(seed)
     if arm == 'real':
@@ -65,7 +65,7 @@ def build_Zy(D, H, gene_arm, seed, arm):
 
 
 def top_k_mask(s, k, n):
-    """Exactly np.argsort(-s)[:k] as a boolean mask -- same tie-break as m27_hlclf's rec200."""
+    """Exactly np.argsort(-s)[:k] as a boolean mask -- same tie-break as hlca_classifier_readout's rec200."""
     k = min(k, n)
     idx = np.argsort(-s)[:k]
     m = np.zeros(n, bool)

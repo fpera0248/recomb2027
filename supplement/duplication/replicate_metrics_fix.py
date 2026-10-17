@@ -3,15 +3,15 @@ duplication. m27_repl.py's gamma grid (0.1..100) is ~0 between distinct cells in
 counted exact copies. Here: one RBF kernel at the reference's own median squared distance (median
 heuristic, fixed per type so every arm is scored by the same kernel), CFGen's widest kernel gamma=0.01
 alone, exact W2, energy. Means are over units EVERY arm has; n_c=1 rows reported separately.
-  OMP_NUM_THREADS=2 python3 m27_repl_fix.py > m27_repl_fix_report.txt
+  OMP_NUM_THREADS=2 python3 replicate_metrics_fix.py > m27_repl_fix_report.txt
 """
 import numpy as np, pandas as pd, ot, polh
-from stat16 import gene_arm
+from statistical_arms import gene_arm
 ARMS = ['real', 'jitter_s1.0', 'upsample', 'sd3_nosingle', 'nb', 'synth_w1', 'synthbal_w1',
         'scvi', 'sdiff', 'lat_boot', 'lat_gauss']
 T = 256
 
-def jitter_s1(b, seed):   # gene space + renormalized (stat16.gene_arm)
+def jitter_s1(b, seed):   # gene space + renormalized (statistical_arms.gene_arm)
     return {c: v[0] for c, v in gene_arm('jitter_s1.0', b['Xtr'], b['ytr'], b['probe'], b['n_c'], seed, T).items()}
 
 d2 = lambda A, B: ((A[:, None] - B[None]) ** 2).sum(-1)

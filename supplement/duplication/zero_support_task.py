@@ -1,4 +1,4 @@
-"""gen14: gen13 said the zero-support task does not exist. gen13 tested the EASY version.
+"""zero_support_task: gen13 said the zero-support task does not exist. gen13 tested the EASY version.
 
 In gen13 the target types still kept 300 to 700 cells in the other two ancestries, so the
 classifier sat at 0.92 and putting the real deleted cells back bought 0.0035. That rules out

@@ -1,6 +1,5 @@
-# m27_gen_base: gen16m.py + also saves RAW COUNTS of every arm's added cells (not just log1p-CPM),
-# plus real train/eval raw counts + library sizes in the base file. Thread-capped for shared-machine use.
-# Writes m27_base/*.npz and m27_base*.csv; never touches gen16*/gen16m*/mk16*.
+# dup_vs_generators_savegene: dup_vs_generators.py + SAVE_GENE hook that saves every arm's added cells in gene space (for marker recovery).
+# Writes dup_vs_generators_savegene*.csv so dup_vs_generators's own outputs are never touched.
 """THE HEAD-TO-HEAD: does duplicating real cells beat every generative model?
 
 One donor-disjoint split, one dose, one readout, every generator family we can run:
@@ -60,7 +59,7 @@ from cfgen.models.base.encoder_model import EncoderModel
 from cfgen.models.fm.denoising_model import MLPTimeStep
 from cfgen.models.fm.fm import FM
 from cfgen.models.featurizers.category_featurizer import CategoricalFeaturizer
-torch.set_num_threads(8)   # m27: shared machine, cap threads (see also OMP/MKL/OPENBLAS env at launch)
+torch.set_num_threads(8)
 
 SMOKE = '--smoke' in sys.argv
 HVG=400 if '--smoke' in sys.argv else 2000
@@ -68,7 +67,7 @@ NEV=50 if '--smoke' in sys.argv else 200
 LAT=50; EDIM=20; BS=256; NS=128
 CAP=150 if '--smoke' in sys.argv else 500   # control classes capped so scDesign3 can run at all
 RS_BIN=HR_WORK + '/envs/scdesign3/bin/Rscript'
-SD3_CORES=8   # scDesign3 fork count (capped to leave cores for other jobs)
+SD3_CORES=8   # mem_patch.R (SD3_MEM=1) strips the per-fit env capture, so 8 forks fit in RAM: 2000 genes in 1086s, cache 31 MB
 AE_EPOCHS = 2 if SMOKE else 30
 SCVI_EPOCHS = 2 if SMOKE else 60
 SDIFF_EP = (2,2,2) if SMOKE else (40,60,30)   # VAE, diffusion, classifier
@@ -239,8 +238,7 @@ for seed in SEEDS:
     pca=PCA(50,random_state=seed).fit(Xn[tr_idx[rng.choice(len(tr_idx),min(30000,len(tr_idx)),replace=False)]])
     Ztr=pca.transform(Xn[tr_idx[lab]]); ytr_l=ytr[lab]
     Zev=pca.transform(Xn[ev_idx]); yev=yall[ev_idx]
-    SAVE_GENE=os.environ.get('SAVE_GENE','m27_base')
-    RAWR={}   # m27: raw-count twin of REC, keyed the same way (id of the PCA-output object arm() receives)
+    SAVE_GENE=os.environ.get('SAVE_GENE')
     if SAVE_GENE:   # remember each generator block's gene-space input, keyed by the PCA output object arm() receives
         os.makedirs(SAVE_GENE,exist_ok=True); REC={}; _pt=pca.transform
         def _rec(X,_pt=_pt,REC=REC):
@@ -249,24 +247,20 @@ for seed in SEEDS:
             return out
         pca.transform=_rec
         pm=np.isin(yall[full_tr],probe)
-        # m27: raw counts + library sizes alongside the existing log1p-CPM base file, for the
-        # "same cell size?" and "latent code" questions. Xc[tr_idx[lab]]/Xc[ev_idx] are RAW counts.
-        Ctr=Xc[tr_idx[lab]]; Cev=Xc[ev_idx]
         np.savez_compressed(f'{SAVE_GENE}/s{seed}_base.npz',Xtr=Xn[tr_idx[lab]],ytr=ytr_l,Ztr=Ztr,Xev=Xn[ev_idx],yev=yev,
             Xfull=Xn[full_tr[pm]],yfull=yall[full_tr[pm]],probe=probe,n_c=n_c,cts=np.array(cts),
-            comp=pca.components_,pmean=pca.mean_,genes=np.array(A.var_names).astype(str),
-            Ctr=Ctr,Cev=Cev,Ltr=Ctr.sum(1).astype(np.float32),Lev=Cev.sum(1).astype(np.float32))
+            comp=pca.components_,pmean=pca.mean_,genes=np.array(A.var_names).astype(str))
 
     # ---- scDesign3 arm: same training cells, same targets, conditioned on cell_type only ----
     # temp dir lives beside the script, NOT under the system temp tree, which can be wiped while a run is in progress.
-    os.makedirs('m27_sd3_tmp',exist_ok=True)
+    os.makedirs('sd3_tmp',exist_ok=True)
     def run_sd3(drop, tag):
         """Fit scDesign3 on the training cells whose class is not in `drop`. Returns (arm, err)."""
         sel=~np.isin(ytr,list(drop)) if drop else np.ones(len(ytr),bool)
         want=pd.DataFrame([dict(cell_type=cts[c],n=TARGET-int(n_c[c]))
                            for c in probe if TARGET-int(n_c[c])>0 and c not in drop])
         if not len(want): return None,'nothing to generate'
-        wd=tempfile.mkdtemp(prefix=f'sd3_{seed}_{tag}_', dir='m27_sd3_tmp')
+        wd=tempfile.mkdtemp(prefix=f'sd3_{seed}_{tag}_', dir='sd3_tmp')
         scipy.io.mmwrite(os.path.join(wd,'train_counts.mtx'),
                          scipy.sparse.csr_matrix(Xc[tr_idx[sel]].T))     # genes x cells
         pd.DataFrame(dict(cell_type=[cts[i] for i in ytr[sel]])).to_csv(
@@ -286,10 +280,7 @@ for seed in SEEDS:
         assert not any(np.allclose(S[0],Xc[i]) for i in tr_idx[:300]), 'sd3 returned real cells'
         Sn=np.log1p(S/np.maximum(S.sum(1,keepdims=True),1)*1e4).astype(np.float32)
         print(f"  seed {seed} sd3[{tag}] ok {time.time()-t:.0f}s, {len(S)} cells",flush=True)
-        res={}
-        for c in want.cell_type:   # m27: keep the raw counts S alongside the PCA output, same id-keyed pattern as REC
-            o=pca.transform(Sn[sm==c]); RAWR[id(o)]=S[sm==c].copy(); res[int(ci[c])]=o
-        return res, ''
+        return {int(ci[c]):pca.transform(Sn[sm==c]) for c in want.cell_type}, ''
 
     single=[int(c) for c in range(NC) if n_c[c]<2]        # classes the copula cannot fit at all
     sd3,err_all=run_sd3(set(), 'all')
@@ -314,10 +305,8 @@ for seed in SEEDS:
                     size_factor_covariate="cell_type",conditioning_covariates=["cell_type"],
                     covariate_indices={"cell_type":torch.full((b,),int(c),dtype=torch.long)},
                     guidance_weights={"cell_type":float(w)})["rna"].numpy()
-                out.append(sm.astype(np.float32))
-            Sraw=np.vstack(out)   # m27: raw counts kept; log1p-CPM applied once below (per-row op, same result)
-            o=pca.transform(np.log1p(Sraw/np.maximum(Sraw.sum(1,keepdims=True),1)*1e4).astype(np.float32))
-            RAWR[id(o)]=Sraw; gen[(w,int(c))]=o
+                out.append(np.log1p(sm/np.maximum(sm.sum(1,keepdims=True),1)*1e4).astype(np.float32))
+            gen[(w,int(c))]=pca.transform(np.vstack(out))
     cost(seed,'synth_w1',time.time()-_tc)   # FM fit + sampling
     print(f"  seed {seed} generated {time.time()-t0:.0f}s",flush=True)
 
@@ -333,10 +322,7 @@ for seed in SEEDS:
         return np.vstack(out).astype(np.float32)
 
     def to_pca(S):
-        Sf=np.asarray(S,np.float32)
-        out=pca.transform(np.log1p(Sf/np.maximum(Sf.sum(1,keepdims=True),1)*1e4).astype(np.float32))
-        RAWR[id(out)]=Sf.copy()   # m27: raw counts alongside every arm's PCA output
-        return out
+        return pca.transform(np.log1p(S/np.maximum(S.sum(1,keepdims=True),1)*1e4).astype(np.float32))
 
     lb={}; lg={}
     # Both bypass the flow entirely: real latents, then the SHARED decoder.
@@ -461,7 +447,7 @@ for seed in SEEDS:
     # Adam with coupled weight decay cripples their VAE.
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,
-                   vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/m27_s{seed}_{VAE_STEPS}.pt')
+                   vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/g16_s{seed}_{VAE_STEPS}.pt')
     sdf={}
     for c in probe:
         k=TARGET-int(n_c[c])
@@ -472,7 +458,7 @@ for seed in SEEDS:
     print(f"  seed {seed} scDiffusion done {time.time()-t0:.0f}s",flush=True)
 
     def arm(name):
-        Z,y=[Ztr],[ytr_l]; GB=[]; GBraw=[]
+        Z,y=[Ztr],[ytr_l]; GB=[]
         for c in probe:
             k=TARGET-int(n_c[c])
             if k<=0: continue
@@ -501,17 +487,10 @@ for seed in SEEDS:
                 Z.append(sdf[int(c)])
             else:
                 Z.append(gen[(float(name.split('_w')[1]),int(c))])
-            if SAVE_GENE:
-                GB.append(Xn[tr_idx[lab]][sel] if name=='upsample' else REC[id(Z[-1])])
-                # m27: raw-count twin. upsample copies a real cell's own raw counts; sdiff has none
-                # (it samples log1p-CPM directly, never raw counts -- see decode_latents/to_pca callers).
-                GBraw.append(Xc[tr_idx[lab]][sel] if name=='upsample' else RAWR.get(id(Z[-1])))
+            if SAVE_GENE: GB.append(Xn[tr_idx[lab]][sel] if name=='upsample' else REC[id(Z[-1])])
             y.append(np.full(k,c,dtype=np.int64))
         if SAVE_GENE and GB:
-            if all(g is not None for g in GBraw):
-                np.savez_compressed(f'{SAVE_GENE}/s{seed}_{name}.npz',X=np.vstack(GB),y=np.concatenate(y[1:]),C=np.vstack(GBraw))
-            else:
-                np.savez_compressed(f'{SAVE_GENE}/s{seed}_{name}.npz',X=np.vstack(GB),y=np.concatenate(y[1:]))
+            np.savez_compressed(f'{SAVE_GENE}/s{seed}_{name}.npz',X=np.vstack(GB),y=np.concatenate(y[1:]))
         Z=np.vstack(Z); y=np.concatenate(y)
         clf=LogisticRegression(max_iter=2000,n_jobs=8,random_state=seed).fit(Z,y)
         P=clf.predict_proba(Zev); cls=list(clf.classes_); pred=clf.classes_[P.argmax(1)]
@@ -529,7 +508,7 @@ for seed in SEEDS:
     cost(seed,'real',0.0); cost(seed,'upsample',0.0)
     cost(seed,'lat_boot',_ae_sec); cost(seed,'lat_gauss',_ae_sec)
     cost(seed,'ae_shared',_ae_sec)   # CFGen and both lat arms all pay this once
-    pd.DataFrame(crows).to_csv('m27_base_cost.csv',index=False)
+    pd.DataFrame(crows).to_csv('gen16m_cost.csv',index=False)
     # ---- displacement geometry + iLISI, PCA-50, the space the probe sees ---------------
     pset=set(probe.tolist()); ab=np.array([c for c in range(NC) if c not in pset])
     CEV=np.stack([Zev[yev==c].mean(0) for c in range(NC)])
@@ -567,13 +546,13 @@ for seed in SEEDS:
                 v=compute_lisi(Z,md,['src'],perplexity=min(30,(len(Z)-2)//3))[:,0]
                 lrows.append(dict(seed=seed,c=int(c),name_=cts[c],n=int(n_c[c]),arm=nm,scope=scope,
                                   ilisi=float(v[len(R):].mean())))
-    pd.DataFrame(drows).to_csv('m27_base_disp.csv',index=False)
-    pd.DataFrame(lrows).to_csv('m27_base_ilisi.csv',index=False)
+    pd.DataFrame(drows).to_csv('gen16m_disp.csv',index=False)
+    pd.DataFrame(lrows).to_csv('gen16m_ilisi.csv',index=False)
     print(f"  seed {seed} geometry + iLISI done {time.time()-t0:.0f}s",flush=True)
-    pd.DataFrame(rows).to_csv('m27_base.csv',index=False)   # partial results survive a kill
-    pd.DataFrame(srows).to_csv('m27_base_sd3status.csv',index=False)
+    pd.DataFrame(rows).to_csv('gen16m.csv',index=False)   # partial results survive a kill
+    pd.DataFrame(srows).to_csv('gen16m_sd3status.csv',index=False)
 
-S3=pd.DataFrame(srows); S3.to_csv('m27_base_sd3status.csv',index=False)
+S3=pd.DataFrame(srows); S3.to_csv('gen16m_sd3status.csv',index=False)
 print('\n=== can scDesign3 run at all on a donor-disjoint split with a 1-cell class?')
 for _,r in S3.iterrows():
     print(f"  seed {r.seed}: {r.n_singleton} singleton class(es) [{r.singleton_types}]")
@@ -581,7 +560,7 @@ for _,r in S3.iterrows():
           + ('' if r.all_classes_ok else f"  {r.err_all[-220:]}"))
     print(f"    singletons drop : {'RAN' if r.nosingle_ok else r.err_nosingle[:60]}")
 
-T=pd.DataFrame(rows); T.to_csv('m27_base.csv',index=False)
+T=pd.DataFrame(rows); T.to_csv('gen16m.csv',index=False)
 ARMS=tuple(a for a in ('real','upsample','nb','sd3','sd3_nosingle','synth_w1','synthbal_w1','scvi','scvi_cond','sdiff','lat_boot','lat_gauss') if a in set(T.arm))
 P=T[T.probe]
 print("\n=== recall@200 on held-out cells, 8 NATURALLY RARE probe classes, mean over seeds")
@@ -613,8 +592,8 @@ C=T[~T.probe]
 print('  ' + '  '.join(f"{a} {C[C.arm==a].rec200.mean():.3f}" for a in ARMS))
 
 
-D=pd.DataFrame(drows); D.to_csv('m27_base_disp.csv',index=False)
-L=pd.DataFrame(lrows); L.to_csv('m27_base_ilisi.csv',index=False)
+D=pd.DataFrame(drows); D.to_csv('gen16m_disp.csv',index=False)
+L=pd.DataFrame(lrows); L.to_csv('gen16m_ilisi.csv',index=False)
 GARMS=[a for a in ('train','upsample','nb','sd3','sd3_nosingle','synth_w1','synthbal_w1',
                    'scvi','scvi_cond','sdiff','lat_boot','lat_gauss') if a in set(D.arm)]
 BINS=((1,8,'1-8'),(9,64,'9-64'),(65,257,'65+'))
@@ -661,7 +640,7 @@ for scope,note in (('pooled','backdrop = all real cells, so landing anywhere den
 #             the naive t runs 2-3x larger on identical data.
 #   win       fraction of (seed, class) pairs where upsampling is at least as good
 #   cost      median wall-clock seconds to produce one seed's synthetic cells
-C=pd.DataFrame(crows); C.to_csv('m27_base_cost.csv',index=False)
+C=pd.DataFrame(crows); C.to_csv('gen16m_cost.csv',index=False)
 COST=C.groupby('arm').sec.median().to_dict()
 
 def clust_t(d, a, b):

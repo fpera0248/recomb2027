@@ -11,25 +11,25 @@ are deterministic functions of input, and upsample's added rows are copies of re
 special-casing is needed -- this script just runs every arm's saved cells through each encoder.
 
 Same processing for every arm: every arm's saved cells go through the shared
-normalizer (stat16.renorm: expm1 -> rows to 1e4 -> log1p; a no-op to ~1e-6 for arms already made from
+normalizer (statistical_arms.renorm: expm1 -> rows to 1e4 -> log1p; a no-op to ~1e-6 for arms already made from
 counts, a real fix for sdiff, whose decoder output was never renormalized). jitter_s1.0 / smote_k5 are
-built ONCE per seed in gene space on the real training cells (stat16.gene_arm), so all three encoders
+built ONCE per seed in gene space on the real training cells (statistical_arms.gene_arm), so all three encoders
 see identical cells. Arms without raw counts (sdiff, jitter, smote) reach scVI as PSEUDO-counts:
 expm1(X)/1e4 * L, L drawn from that TYPE's real training library sizes (Ltr). That approximation is
 flagged in the output.
 
-Evaluates every arm in every latent with stat16.readout for lr/knn/rf/mlp, rec200 on probe types,
+Evaluates every arm in every latent with statistical_arms.readout for lr/knn/rf/mlp, rec200 on probe types,
 paired vs duplication (polh.signflip_p by type), then reports sign flips and Kendall-tau rank
 agreement of arms across latents.
-  python3 m27_latent.py > m27_latent_report.txt   (writes m27_latent.csv)
+  python3 latent_unification.py > m27_latent_report.txt   (writes m27_latent.csv)
 """
 import glob, os, sys, warnings, numpy as np, pandas as pd, torch, anndata as ad
 warnings.filterwarnings('ignore')
 import logging; logging.getLogger('lightning.pytorch').setLevel(logging.ERROR)
 import scvi
 from scipy.stats import kendalltau
-from stat16 import readout, NEV, gene_arm, renorm
-import stat16
+from statistical_arms import readout, NEV, gene_arm, renorm
+import statistical_arms
 import polh
 torch.set_num_threads(int(os.environ.get('M27_THREADS', 8)))
 # M27_PSEUDO_ALL=1: for scVI, EVERY arm's added cells (upsample included) go through the same pseudo-count path,
@@ -83,7 +83,7 @@ for bf in sorted(glob.glob(f'{D}/s*_base.npz')):
     Ctr, Cev, Ltr = b['Ctr'], b['Cev'], b['Ltr']
     comp, pmean, cts, n_c, probe = b['comp'], b['pmean'], b['cts'], b['n_c'], b['probe']
     NC = len(cts); pset = set(probe.tolist())
-    NEVc = b['NEVc'] if 'NEVc' in b.files else np.full(NC, NEV)   # HLCA scores top-NEVc per class, as m27_hlclf does
+    NEVc = b['NEVc'] if 'NEVc' in b.files else np.full(NC, NEV)   # HLCA scores top-NEVc per class, as hlca_classifier_readout does
     arms = sorted({os.path.basename(f)[len(f's{seed}_'):-4] for f in glob.glob(f'{D}/s{seed}_*.npz')} - {'base'})
     if ONLY: arms = [x for x in arms if x in ONLY]
     print(f'seed {seed}: fitting mlp + scvi encoders on {len(Xtr)} real training cells, arms={arms}', flush=True)
@@ -104,7 +104,7 @@ for bf in sorted(glob.glob(f'{D}/s*_base.npz')):
     for a in arms:
         d = np.load(f'{D}/s{seed}_{a}.npz'); CELLS[a] = (renorm(d['X']), d['y'], d['C'] if 'C' in d.files else None)
     for a in [x for x in ('jitter_s1.0', 'jitternz_s1.0', 'smote_k5') if not ONLY or x in ONLY]:
-        stat16.ANCHORS = []; A = gene_arm(a, Xtr, ytr, probe, n_c, seed, T); anc = np.concatenate(stat16.ANCHORS); stat16.ANCHORS = None
+        statistical_arms.ANCHORS = []; A = gene_arm(a, Xtr, ytr, probe, n_c, seed, T); anc = np.concatenate(statistical_arms.ANCHORS); statistical_arms.ANCHORS = None
         Xa = np.vstack([v[0] for v in A.values()]); assert len(anc) == len(Xa), a
         CELLS[a] = (Xa, np.concatenate([v[1] for v in A.values()]),
                     np.round(np.expm1(Xa.astype(np.float64)) / 1e4 * Ltr[anc][:, None]).astype(np.float32) if ANCHOR_LIB else None)
@@ -138,7 +138,7 @@ for bf in sorted(glob.glob(f'{D}/s*_base.npz')):
 
 R = pd.DataFrame(rows); R.to_csv(f'm27_latent{TAG}.csv', index=False)
 if not len(R):
-    print(f'no {D}/s*_base.npz found yet -- run m27_gen_base.py first'); raise SystemExit
+    print(f'no {D}/s*_base.npz found yet -- run dup_vs_generators_rawcounts.py first'); raise SystemExit
 
 P = R[R.probe]
 print(f"\n{P.seed.nunique()} seed(s) x {P.latent.nunique()} latents x {P.clf.nunique()} classifiers x {P.name_.nunique()} probe types\n")

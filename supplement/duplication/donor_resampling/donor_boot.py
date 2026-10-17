@@ -2,13 +2,13 @@
   python3 donor_boot.py run  --ds aida8|lupus|hlca [--clf lr[,knn,..]] [--B 1000] [--seeds 0:20] [--evdir D] [--out D]
   python3 donor_boot.py report --ds .. [--clf lr] [--out D]      (aggregates every per-seed file in --out)
   python3 donor_boot.py selfcheck
-Per seed: fit 'real' (no augmentation) and 'upsample' (dup to 256 cells, stat16.gene_arm) with stat16.readout, keep per-cell
+Per seed: fit 'real' (no augmentation) and 'upsample' (dup to 256 cells, statistical_arms.gene_arm) with statistical_arms.readout, keep per-cell
 scores P and calls, resample the seed's EVAL DONORS with replacement (B draws, same draws for both arms and all types), recompute
 each probe type's argmax recall and rec200 (k = true eval cells of the type in the resample; cells of a drawn donor count with
 multiplicity), take d = upsample - real, average over probe types and seeds per draw. Report percentile 95% interval next to the
 type-level exact sign-flip p (polh.signflip_p, as in the paper tables).
 Env: REPDIR (rep16t npz), LUPUS_BASE / HLCA_BASE (m27_*_t dirs: s<seed>_base.npz, s<seed>_upsample.npz), STAT16_DIR, M27_SRC
-(dir of m27_hlclf.py + polh.py). New outputs only: boot_df_<ds>_<clf>_s<seed>.npz, boot_df_<ds>_<clf>_summary.csv/_pertype.csv."""
+(dir of hlca_classifier_readout.py + polh.py). New outputs only: boot_df_<ds>_<clf>_s<seed>.npz, boot_df_<ds>_<clf>_summary.csv/_pertype.csv."""
 import os, sys, glob, numpy as np, pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__)); E = os.path.expanduser
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
@@ -58,25 +58,25 @@ def draw_union(donors_per_seed, B):
 
 # ---------- per-seed fits ----------
 def fit_scores(ds, seed):
-    """-> dict arm -> (P, pred) per clf, plus Zev/yev/probe/cts. Same matrices as stat16.fit_arm / m27_hlclf.fit."""
-    import stat16
+    """-> dict arm -> (P, pred) per clf, plus Zev/yev/probe/cts. Same matrices as statistical_arms.fit_arm / hlca_classifier_readout.fit."""
+    import statistical_arms
     if ds == 'aida8':
         d = np.load(f"{E(os.environ.get('REPDIR', W + '/monday_q/donorfix/data'))}/rep16t_seed{seed}.npz")
         Z, y, Zev, yev, X, pm, Wc, probe, cts, n_c = (d[k] for k in ('Ztr', 'ytr', 'Zev', 'yev', 'Xtr', 'pmean', 'comp', 'probe', 'cts', 'n_c'))
         assert np.allclose((X - pm) @ Wc.T, Z, atol=1e-3), 'cache Xtr does not project to Ztr'
-        A = stat16.gene_arm('upsample', X, y, probe, n_c, seed)
+        A = statistical_arms.gene_arm('upsample', X, y, probe, n_c, seed)
         Zu = np.vstack([Z] + [(v[0] - pm) @ Wc.T for v in A.values()]); yu = np.concatenate([y] + [v[1] for v in A.values()])
         wu = np.concatenate([np.ones(len(y))] + [v[2] for v in A.values()])
     else:
         os.environ['M27_HL'] = E(os.environ.get('LUPUS_BASE' if ds == 'lupus' else 'HLCA_BASE', W + '/rev1015/hvg_c3/from_mini/' + ('m27_mk_t' if ds == 'lupus' else 'm27_hl_t')))
-        from m27_hlclf import _base
+        from hlca_classifier_readout import _base
         b, Wc, pm, Z, y, Zev, yev = _base(seed); probe, cts = b['probe'], b['cts']
         a = np.load(f"{os.environ['M27_HL']}/s{seed}_upsample.npz")
         Zu = np.vstack([Z, (a['X'] - pm) @ Wc.T]); yu = np.concatenate([y, a['y']]); wu = np.ones(len(yu))
     return dict(real=(Z, y, np.ones(len(y))), upsample=(Zu, yu, wu)), Zev, yev, probe, cts
 
 def run_seed(ds, clf, seed, B, evdir):
-    paths(); import stat16
+    paths(); import statistical_arms
     ev = np.load(f'{evdir}/evcells_df_{ds}_s{seed}.npz'); assert 'provenance' not in ev.files, 'synthetic (fake donor) evcells file'
     arms, Zev, yev, probe, cts = fit_scores(ds, seed)
     assert np.array_equal(ev['yev'], yev), f'{ds} seed {seed}: evdon eval cells do not align with the cache'
@@ -85,7 +85,7 @@ def run_seed(ds, clf, seed, B, evdir):
     counts = draw_union({sd: np.load(f)['ev_donor'] for sd, f in allf.items()}, B)[seed]   # union over every seed's evcells file in evdir
     out = {}
     for arm, (Z, y, w) in arms.items():
-        P, pred = stat16.readout(clf, Z, y, w, Zev, seed)
+        P, pred = statistical_arms.readout(clf, Z, y, w, Zev, seed)
         if P.shape[1] < len(cts): Pf = np.full((len(Zev), len(cts)), -np.inf); Pf[:, np.unique(y)] = P; P = Pf
         out[arm] = [metrics_boot(P, pred, yev, int(c), don_idx, counts) for c in probe]
     return dict(seed=seed, probe=probe, cts=np.array(cts), nd=counts.shape[1],

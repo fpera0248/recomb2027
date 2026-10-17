@@ -3,18 +3,18 @@ README: python3 run.py [DIR_WITH_mk16.csv_and_m27_de.csv] [OUT_DIR]   (seconds, 
 Inputs  : p1data/mk16.csv (top-50 by log2FC of arm means, genes detected in >=25% of truth cells; truth = held-out-donor
           eval cells of the type vs real train cells of other types) and p1data/m27_de.csv (Wilcoxon + Welch, BH<0.05 & lfc>0.25,
           truths A=vs real train rest, B=vs held-out rest). 3 seeds x 8 AIDA probe types, donor-disjoint split, 2000 HVGs log1p-CPM.
-Same processing (Table S2): every arm is built/renormalized in gene space through stat16.renorm (ceiling log1p(1e4)); the xmax
+Same processing (Table S2): every arm is built/renormalized in gene space through statistical_arms.renorm (ceiling log1p(1e4)); the xmax
           assert below only checks that renorm ran, NOT that the clip ran (renorm bounds xmax either way). Clip evidence is circumstantial:
-          m27_clip_chain.sh lane A reran mk16/m27_de after the clip and values moved off the pre-clip numbers. HVGs: 2000 chosen on all
+          clip_chain.sh lane A reran marker_recovery/de_marker_recovery after the clip and values moved off the pre-clip numbers. HVGs: 2000 chosen on all
           cells before the donor split, as in Table S2 (no train-only-HVG variant). All arms except more_real are topped to 256 cells;
           more_real = all pre-deletion train cells of the type (median ~600), an UNMATCHED upper reference, not a matched gain.
-Metric labels: mk16 jaccard50 = top-50 genes by log2FC of arm means (genes detected in >=25% of truth cells). m27_de jaccard50 = top-50
+Metric labels: marker_recovery jaccard50 = top-50 genes by log2FC of arm means (genes detected in >=25% of truth cells). de_marker_recovery jaccard50 = top-50
           up-regulated genes ranked by the Wilcoxon (or Welch) statistic; BH<0.05 & lfc>0.25 feeds only n_sig/precision/fp_rate.
           sd3_nosingle has 21 of 24 units: quote only its PAIRED difference. Table S2 names: nb=scDesign3 without copula,
           sd3_nosingle=unmodified scDesign3, synth_w1=CFGen, synthbal_w1=CFGen class-balanced, jitter=noise on copies,
           jitternz=noise on nonzero genes, real=no augmentation, upsample=duplication.
 REPORTING RULE (fixed before re-deriving; NOT a pre-registration, all numbers were already in the reports): unit = probe type (seed-averaged); p = exact two-sided sign-flip over the 8 type means
-          (floor 2/256 = 0.0078). Arm A "recovers MORE than" B only if d>0 and p<0.05 in mk16 AND in m27_de Wilcoxon truth A
+          (floor 2/256 = 0.0078). Arm A "recovers MORE than" B only if d>0 and p<0.05 in marker_recovery AND in de_marker_recovery Wilcoxon truth A
           AND truth B; "LESS" symmetric; else "no difference shown". Reference = duplication ('upsample') and pre-aug 'real'.
           No arm may be credited with recovering markers beyond 'more_real' (extra real donors' cells). Recall-free metric
           (set overlap), so the rare-class F1 rule does not apply. Never say "no augmentation beats real" without naming the test.
