@@ -2,7 +2,7 @@
 by the pilot pool builder (not included) / manifest.csv. The AnnData carries only what a blind
 detection method is allowed to see (raw counts, visible label, donor); the
 true cell type comes back as a separate Series so nothing passes it by
-accident. See h/manifest.csv for pilot_id -> (design, dataset, rare_type, ...).
+accident. See $R5/hmod/manifest.csv for pilot_id -> (design, dataset, rare_type, ...).
 
 Leak guards:
  - raw_adata() returns the source slice UNCHANGED

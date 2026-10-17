@@ -68,7 +68,7 @@ NEV=50 if '--smoke' in sys.argv else 200
 LAT=50; EDIM=20; BS=256; NS=128
 CAP=150 if '--smoke' in sys.argv else 500   # control classes capped so scDesign3 can run at all
 RS_BIN=HR_WORK + '/envs/scdesign3/bin/Rscript'
-SD3_CORES=8   # m27: shared machine (was 8 in gen16m)
+SD3_CORES=8   # scDesign3 fork count (capped to leave cores for other jobs)
 AE_EPOCHS = 2 if SMOKE else 30
 SCVI_EPOCHS = 2 if SMOKE else 60
 SDIFF_EP = (2,2,2) if SMOKE else (40,60,30)   # VAE, diffusion, classifier

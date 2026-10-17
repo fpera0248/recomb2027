@@ -1,4 +1,4 @@
-"""Part I panel statistics for fig1_partI. Recomputes, from the raw per-dataset CSVs, the per-dataset difference
+"""Part I panel statistics for Figure 1 (Part I). Recomputes, from the raw per-dataset CSVs, the per-dataset difference
 (method minus duplication) in rare-type recall, at the matched operating point (rec200) and the default threshold (rec_argmax).
 Inputs (read only):
   ~/work/recomb27/rev1015/p1data/panel_runs/<dataset>/clf.csv   (88 datasets; every method and classifier except no augmentation)

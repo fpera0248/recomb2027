@@ -1,4 +1,4 @@
-"""python run_base.py PILOT_ID -> si/preds_base/<method>/<pid>.parquet for m1-m8 (unchanged methods.py, CPU only)."""
+"""python run_base.py PILOT_ID -> $R5/preds_base/<method>/<pid>.parquet for m1-m8 (unchanged methods.py, CPU only)."""
 import os, sys
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
