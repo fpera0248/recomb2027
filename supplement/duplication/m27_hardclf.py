@@ -1,6 +1,6 @@
 """m27_hard's saved arm cells (m27_hard/, PCA-50 via each seed's own base.npz comp/pmean) re-read
 under stat16's four readouts (lr, knn, rf, mlp), PLUS jitter_s1.0 and smote_k5 built in gene space,
-renormalized, then the same PCA (stat16.gene_arm). Unlike sd3clf16.py, this does NOT depend on rep16_seed*.npz (that
+renormalized, then the same PCA (stat16.gene_arm). Unlike our earlier scDesign3 classifier readout (not included), this does NOT depend on rep16_seed*.npz (that
 cache belongs to gen16's OLD 8-probe split); m27_hard/s{seed}_base.npz alone supplies the real
 train/eval cells and the PCA basis for this split.
   python3 m27_hardclf.py run      -> m27_hardclf.csv

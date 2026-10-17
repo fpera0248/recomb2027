@@ -5,7 +5,8 @@ threshold (rec_argmax) and at the matched point (rec200), and macro-F1 over ALL 
 Sources (all under the same processing: each file's arms came from one pipeline run):
   panel : released part1_results/panel_runs/*/{clf,real}.csv  (88 datasets, 3 seeds, lr/knn/rf/mlp, has ncall+nev_used -> exact F1)
   aida  : rev1015/p1data/m27_base.csv (AIDA 31 types, 3 seeds, lr, nev=200/class, has called -> exact F1, incl. scDesign3)
-          rev1015/p1data/sd3clf16.csv (AIDA, 4 clfs, recall only, no F1)
+          rev1015/p1data/m27_latent_anchor.csv (AIDA, PCA latent, 4 clfs, recall only, no F1)
+          rev1015/p1data/stat16.csv and stat16_clf.csv (AIDA, lr/knn/rf/mlp, 20 seeds, F1, noise and SMOTE)
 F1 per type = 2TP/(ncall+nev), TP=rec_argmax*nev. Macro over types with nev>0.
 PRE-DECLARED RULE (per condition x classifier, delta = condition - real, mean over seeds then datasets; 95% CI by
 bootstrap over datasets, AIDA: over seeds): SACRIFICE if CI upper < 0 and mean < -0.01; NO-SACRIFICE (non-inferior)
