@@ -2,7 +2,7 @@
 
 ## Atlases
 
-The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Eight rows have no URL, and 3 of them have a note in `notes`. The other 5 are `panel` rows with no recorded version. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Two rows have no URL (`hbca`, which is not in the paper, and `hlca`), and both have a note in `notes`. The URLs of five `panel` rows (2adb1f8a, 43aa19d2, 456e8b9b, b2dda353, f7c1c579) are the version the CELLxGENE API listed on 2026-10-12, and the version the run used is not recorded. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
 
 `data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` lists the datasets used before the test.
 
@@ -155,7 +155,7 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` gives the AIDA download URL, but the HLCA file was pulled from Census 2025-11-08 and has no `dataset_version_id` recorded, see its notes) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools: only their wrappers and pinned environments are included.
 - RaceID and CHOIR, which ran from the authors' released code on the 10-atlas pools only: no wrapper, commit in tools/sources.txt or image entry is included for them.
-- The code of our AnnoGCD and scGAD reimplementations (it lived on a machine we no longer hold, in `j1005/pub/gcd`, and only its written declaration survives in our records; scGAD ran on a declared 48 pools, the first four of each of 12 atlases, and the declaration gives no reason for that subset) and the runner of the GiniClust3 (swapped filters) rows. Notebook 02 scores the saved AnnoGCD output.
+- The code of our AnnoGCD and scGAD reimplementations (the wrappers ran on the temporary disk of a rented machine that was wiped when it was hibernated, so only their written declaration and outputs survive; scGAD ran on a declared subset, the first four pools of each atlas, which gives 32 of the 69 pools of the 8-atlas set; neither tool ran on the 10-atlas set, because both need a GPU and none was available for that round) and the runner of the GiniClust3 (swapped filters) rows. Notebook 02 scores the saved AnnoGCD output.
 - The code of the local outlier factor, isolation forest on scVI, classifier uncertainty and self-training loop baselines. `hiddenrare/baselines.py` holds only Leiden subclustering and the isolation forest on PCA.
 - The `full` level is untested, and we have not run the `recomb2027-tools` image end to end.
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no level rebuilds them.
