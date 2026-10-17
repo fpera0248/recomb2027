@@ -6,10 +6,17 @@ scored 0, lupus drops sdiff (invalid cells), n=1 rows kept apart (n2plus is the 
 exact sign-flip over rare types, BH within each (dataset, mode) family.
 Statistic: generator minus duplication ('upsample'), per (seed, type, n, clf), averaged to one
 value per type, then sign-flip over types.
-usage: python3 j21_dup_vs_gen.py  -> prints tables, writes j21_tests.csv here."""
+usage: python3 j21_dup_vs_gen.py  -> prints tables, writes j21_tests.csv here.
+Inputs: aida_full.csv, hlca_full.csv, lupus_full.csv, the per-row metrics that duplication/metrics/run_e1.py writes
+(one run per dataset, each needs that dataset's generated cells, which are not released). Put the three files next to
+this script or set J21_METRICS to the folder that holds them. No other input is read."""
 import itertools, os, numpy as np, pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+IN = os.environ.get('J21_METRICS', HERE)
+_miss = [f for f in ('aida', 'hlca', 'lupus') if not os.path.exists(f'{IN}/{f}_full.csv')]
+if _miss:
+    raise SystemExit(f'missing {IN}/{{{",".join(_miss)}}}_full.csv: write them with duplication/metrics/run_e1.py or set J21_METRICS')
 GENS = {'synth_w1': 'CFGen (shipped)', 'synthbal_w1': 'CFGen (balanced)', 'scvi': 'scVI',
         'scvi_cond': 'scVI (conditional)', 'sdiff': 'scDiffusion', 'nb': 'scDesign3 NB', 'sd3_nosingle': 'scDesign3'}
 METRICS = ['matched_recall', 'ap']
@@ -30,7 +37,7 @@ def bh(p):
 
 rows = []
 for ds in ['aida', 'hlca', 'lupus']:
-    d = pd.read_csv(f'{HERE}/{ds}_full.csv')
+    d = pd.read_csv(f'{IN}/{ds}_full.csv')
     d = d[(d.dataset == ds) & (d.probe == True)]
     if ds == 'lupus':
         d = d[d.arm != 'sdiff']
