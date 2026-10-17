@@ -1,4 +1,4 @@
-"""Step 1 (C18 V2-316M build): reproduce run_fm_dup.py's exact cell selection for seeds 0-2
+"""Step 1 (V2-316M build): reproduce run_fm_dup.py's exact cell selection for seeds 0-2
 by IMPORTING the real function (not re-implemented), so the RNG call sequence is guaranteed
 identical to the finished 6L run. fm/run_fm_dup.py is read-only -- this only imports it.
 
@@ -12,12 +12,13 @@ Writes cells_needed.csv: one row per (seed, role, cell) with both the positional
 aida_sg.h5ad directly) so embed_v2.py can pull raw counts by either key.
 """
 import os, sys
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True   # fm/ is read-only; never let the import drop a .pyc there
 import numpy as np
 import pandas as pd
 
-FM_DIR = '/Users/fperaltacastro/work/cfgen_natrare/j1004/fm'
-OUT = '/Users/fperaltacastro/work/cfgen_natrare/j1004/fm3'
+FM_DIR = HR_WORK + '/cfgen_natrare/j1004/fm'
+OUT = HR_WORK + '/cfgen_natrare/j1004/fm3'
 sys.path.insert(0, FM_DIR)
 import run_fm_dup as R  # read-only import; module-level code is just def's, main() is guarded
 

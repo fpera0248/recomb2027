@@ -1,7 +1,7 @@
 """Shared one-liner: some CELLxGENE h5ads store processed data in .X and the
 real raw counts in .raw (AIDA_phase1_v2, lupus_perez); others (hlca_m27, the
 93 panel/*.h5ad pulls, the AIDA pilot pools) have raw counts directly in .X.
-Always go through this so every script in h/ agrees on which is which."""
+Always go through this so every script in hmod/ agrees on which is which."""
 import anndata as ad
 import pandas as pd
 

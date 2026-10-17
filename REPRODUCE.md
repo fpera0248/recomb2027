@@ -2,7 +2,7 @@
 
 ## Atlases
 
-The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Eight rows have no URL, and 3 of them have a note in `notes`. The other 5 are `panel` rows with no recorded version. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
+The source atlases are public CELLxGENE files. `ATLAS_MANIFEST.csv` lists every one with its collection where recorded, its `dataset_version_id` download URL, size, md5 where known and the set it belongs to (`key` for the 10-atlas set, `name` for the 8-atlas set, is the short id used by the builders). Two rows have no URL (`hbca`, which is not in the paper, and `hlca`), and both have a note in `notes`. The URLs of five `panel` rows (2adb1f8a, 43aa19d2, 456e8b9b, b2dda353, f7c1c579) are the version the CELLxGENE API listed on 2026-10-12, and the version the run used is not recorded. Download them by `dataset_id` from the page in `collection_url`, which serves the current version.
 
 `data/atlases.csv` lists the 10-atlas test set and `data/used_datasets.csv` lists the datasets used before the test.
 
@@ -140,7 +140,7 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - `tools/`: wrappers of the published detectors, their pinned repositories and commits (`sources.txt`) and `fetch_sources.sh`, which clones them ([tools/README.md](tools/README.md)).
 - `part1/`: the study of known rare types, duplication against generators ([part1/README.md](part1/README.md)).
 - `combination/`: the hidden-type calls plus duplication experiment ([combination/README.md](combination/README.md)).
-- `supplement/`: unchanged copies of the scripts behind the supplement analyses that no level runs ([supplement/README.md](supplement/README.md)).
+- `supplement/`: copies of the scripts behind the supplement analyses that no level runs, with only comments, docstrings, path defaults and one escaped string literal edited ([supplement/README.md](supplement/README.md)).
 - `docker/`: the two image definitions (see `CONTAINER.md`).
 - `.github/workflows/`: CI (self-tests on every push, no level run), the image builds and the manual container check (`paper` and `rerun` levels in the published image).
 
@@ -149,13 +149,13 @@ We kept feature-table column names (`mk_*`, `hl_*`) from the training tables bec
 - CELLxGENE data (downloaded by the builders), the training pools and the tool checkouts. `hiddenrare/scorer.py fit` is the training script and needs the training pools. Run it from the repository root (it imports eval/targets.py).
 - The 10-atlas predictions: the 10-atlas results (strata, separability levels, label ablation, CHOIR) cannot be rerun from the release.
 - The rebuilt 8-atlas subsamples and their predictions (our method, Leiden subclustering, GiniClust3 and FiRE): the second block of Supp. Table S6 and the GiniClust3 and FiRE bars of Fig. 2a cannot be rerun from the release.
-- Figure scripts, except `supplement/figures/figS_further.py` (Supp. Fig. S5), which no level runs. No level runs the statistics script `supplement/figures/p1_panel_stats.py` either.
+- Figure scripts, except `supplement/figures/figS_further.py` (Supp. Fig. S5), which no level runs. No level runs the statistics script `supplement/figures/part1_panel_stats.py` either.
 - Most inputs of the supplement analyses listed in [PAPER_ITEMS.md](PAPER_ITEMS.md): the AIDA, HLCA and lupus files, the generated cells and the 10-atlas subsamples. Of these inputs, only `part1_results.tgz` and the trained regressor (`models/refit_dev_nat.pkl`) are released. Their scripts are in [`supplement/`](supplement/README.md), but no level runs them.
 - The 69 pool h5ads of the 8-atlas test set, needed by `combination/`, Fig. 3b and c, Supp. Figs. S1 and S4, Supp. Tables S8 and S9, the per-subtype results, the donor ablation and any rescoring of those pools from counts. No builder here writes them (`data/build_pools.py` builds the 10-atlas pools), so there is no route to them yet.
-- The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` has no download URL for its `aida` and `hlca` rows) and the CFGen and scDiffusion checkouts (no commit recorded).
+- The inputs of the Part I runs and the training of the generators: the AIDA, HLCA and lupus h5ad files that `part1/` reads (`ATLAS_MANIFEST.csv` gives the AIDA download URL, but the HLCA file was pulled from Census 2025-11-08 and has no `dataset_version_id` recorded, see its notes) and the CFGen and scDiffusion checkouts (no commit recorded).
 - Reproductions of the published tools: only their wrappers and pinned environments are included.
 - RaceID and CHOIR: `tools/run_raceid.R`, `tools/run_choir.R` and `tools/install_raceid_choir.R` are included, but the `recomb2027-tools` image does not contain them.
-- The code of our AnnoGCD and scGAD reimplementations and the runner of the GiniClust3 (swapped filters) rows. Notebook 02 scores the saved AnnoGCD output.
+- The code of our AnnoGCD and scGAD wrappers. They used the authors' model code (AnnoGCD commit 77b356a unmodified, scGAD commit 3328eda with two edits for a newer scanpy) and re-coded the other steps of the authors' scripts, including each tool's call. The wrappers were on a VM that is no longer available, so only their written declaration survives and this repository cannot rerun either tool. Notebook 02 rescores the saved AnnoGCD predictions (0.066 on 69 subsamples). The scGAD predictions are not in the release files, so this repository cannot rescore the 0.051 on 32 subsamples. Neither tool ran on the 10-atlas set, because both need a GPU and none was available for that round. The release also leaves out the runner of the GiniClust3 (swapped filters) rows.
 - The local outlier factor, isolation forest on scVI, classifier uncertainty and self-training loop baselines run through `hiddenrare/baselines_hmod.py` (`HMOD=1` in `reproduce.sh full`), which imports their original code unchanged. Isolation forest on scVI needs scvi-tools, which neither pinned environment contains.
 - The `full` level is untested, and we have not run the `recomb2027-tools` image end to end.
 - The 101 twin pools of the null test (12 atlases): they ship only as predictions in `predictions.tgz`, and no level rebuilds them.

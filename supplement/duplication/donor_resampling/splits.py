@@ -1,4 +1,4 @@
-"""Donor-split replay WITHOUT fitting. Lines copied verbatim from replay16.py (AIDA, incl. P31) and
+"""Donor-split replay WITHOUT fitting. Lines copied verbatim from replay_split.py (AIDA, incl. P31) and
 m27_gen_{hlca,lupus}_t.py (identical split code); the originals run data prep + model fits at import,
 so they cannot be imported. Each loader returns (cts, yall, dall); `split` returns the split pieces.
 Checked against cached arrays by evdon.py (yev, n_c, n_ev_donors)."""
@@ -21,12 +21,12 @@ def _obs(path):
     return o.cell_type.astype(str).values, o.donor_id.astype(str).values
 
 def load_aida(d):
-    """replay16.py: concat(AbundantPool_120k, RarePool); row order = abundant then rare (obs only, no X)."""
+    """replay_split.py: concat(AbundantPool_120k, RarePool); row order = abundant then rare (obs only, no X)."""
     a = _obs(d + '/AIDA_AbundantPool_120k.h5ad'); b = _obs(d + '/AIDA_RarePool.h5ad')
     return _ids(np.concatenate([a[0], b[0]]), np.concatenate([a[1], b[1]]))
 
 def load_hlca(path):
-    """m27_gen_hlca_t.py: no cell dropped (logged 'C3 cell filter dropped 0'), so obs order = cell universe."""
+    """m27_gen_hlca_t.py: its cell filter dropped no cell (logged), so obs order = cell universe."""
     return _ids(*_obs(path))
 
 def load_lupus(path, ctrl_cap=12000):
@@ -45,7 +45,7 @@ def _ids(ct, don):
     return cts, np.array([ci[c] for c in ct], dtype=np.int64), np.asarray(don).astype(str)
 
 def split(cts, yall, dall, PROBE, seed, p31=False, order_seed31=31, CAP=500, nev=NEV):
-    """replay16.py lines 40-65 / m27_gen_*_t.py: seeded donor permutation, eval donors until every probe type
+    """replay_split.py lines 40-65 / m27_gen_*_t.py: seeded donor permutation, eval donors until every probe type
     has >= nev eval cells, rungs per probe, first nev permuted eval cells per type, kept train = rung / CAP."""
     ci = {c: i for i, c in enumerate(cts)}; NC = len(cts); UD = np.unique(dall)
     if p31:

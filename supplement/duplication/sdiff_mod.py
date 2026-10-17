@@ -11,8 +11,9 @@ Their pipeline, kept intact:
 Conditioning is therefore through a classifier gradient, not a label embedding (CFGen) and not
 a decoder covariate (scVI). Three different conditioning mechanisms, same shared decoder.
 """
-import sys, numpy as np, torch, torch.nn.functional as F
-sys.path.insert(0, '/Users/fperaltacastro/work/scDiffusion')
+import os, sys, numpy as np, torch, torch.nn.functional as F
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, HR_WORK + '/scDiffusion')
 from VAE.VAE_model import VAE
 from guided_diffusion.cell_model import Cell_Unet, Cell_classifier
 from guided_diffusion.script_util import create_gaussian_diffusion
@@ -26,7 +27,7 @@ def build_sdiff(Xn_tr, ytr, ncat, seed, ep_vae=40, ep_dif=60, ep_clf=30, bs=256,
             decoder_activation='linear', hidden_dim=hid)
     # vae_ckpt reuses a converged autoencoder; vae_steps trains to a step budget with THEIR
     # own optimizer (AdamW, lr 5e-4, wd 0.01) at their batch size, because the 40-epoch budget
-    # left the round trip unusable (see vae_conv.py / recon_check.py).
+    # left the round trip unusable (see our earlier autoencoder convergence checks, not included).
     import os
     if vae_ckpt and os.path.exists(vae_ckpt):
         vae.load_state_dict(torch.load(vae_ckpt, map_location='cpu'))
@@ -90,6 +91,6 @@ def sample_sdiff(M, cls, k, scale=10.0, bs=128):
         with torch.no_grad():
             out.append(M['vae'](z*M['zsd']+M['zmu'], return_decoded=True).numpy())
     # decoder output is only ReLU-clipped (values up to ~65, rows far from 1e4 CPM); put it through the
-    # shared normalizer like every other arm (Jiaqi 2026-09-28): expm1 -> rows to 1e4 -> log1p
-    from stat16 import renorm
+    # shared normalizer like every other arm: expm1 -> rows to 1e4 -> log1p
+    from statistical_augmentations import renorm
     return renorm(np.vstack(out))

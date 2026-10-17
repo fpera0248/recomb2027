@@ -11,7 +11,7 @@ for p in h.pools("B"):
     rows.append(r)
 res = dict(n_pools=len(rows), max_abs_diff_m14p=float(dm), max_abs_diff_frozen4=float(db), max_abs_diff_unionAP_vs_scores_preds_frozen4=float(du), mean_bl_unionAP=float(np.mean([r["bl_union_AP"] for r in rows])), mean_sc_unionAP=float(np.mean([r["sc_union_AP"] for r in rows])))
 print(res); json.dump(res, open(f"{h.H}/jiaqi1011/out/w1/parity.json", "w"), indent=1); pd.DataFrame(rows).to_csv(f"{h.H}/jiaqi1011/out/w1/deployed_setB.csv", index=False)
-# set A check vs ablation Cint
+# set A check against the donor-ablation scores
 SA = pd.read_csv(f"{h.H}/ablation_donor/out/scores_all.csv"); SA = SA[(SA.metric == "union_AP")]
 rA = pd.DataFrame([h.evaluate(M.predict, p, "A")[0] for p in h.pools("A")]); rA.to_csv(f"{h.H}/jiaqi1011/out/w1/deployed_setA.csv", index=False)
 for tag, col in (("bl_Cint", "bl_union_AP"), ("sc_Cint", "sc_union_AP")):

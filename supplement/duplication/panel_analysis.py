@@ -1,7 +1,6 @@
-"""CELLxGENE panel analysis. Pre-specified 2026-09-29 22:00 EDT, before any panel dataset had finished; revised the
-same night after a two-lens Opus review, still before any panel result was read (v1: pcaspace_bak/panel_analysis_pre_review.py).
+"""CELLxGENE panel analysis. Specified before any panel dataset had finished; revised once, still before any panel result was read.
 
-Inputs: <PANEL_DIR>/<dataset>/clf.csv (m27_hlclf, every arm x 4 readouts) + real.csv (no augmentation), for
+Inputs: <PANEL_DIR>/<dataset>/clf.csv (hlca_classifier_readout, every arm x 4 readouts) + real.csv (no augmentation), for
 datasets with a 'done' marker. Probe rows only. Unit of analysis = dataset; inside a dataset the unit is the
 probe type (8 per dataset), averaged over the 3 seeds (rungs rotate across seeds).
 
@@ -22,19 +21,19 @@ Primary (metric rec200 = recall in the top-NEVc eval cells, the matched operatin
      sign-flip p over datasets with BH across rows; non-inferiority of duplication: upper bound of (arm - dup) < DELTA.
   P3 duplication vs no augmentation: upsample - real at rec200 AND rec_argmax, own BH family (4 readouts x 2 metrics).
 Sensitivity: rec200_tie (ties at the cutoff split evenly); rung n=1 units dropped; rungs n<=8 only;
-  rungs n>=16 only (POST HOC, added 2026-09-30 after the 10-dataset interim look). Secondary: by tissue.
+  rungs n>=16 only (post hoc, added after the 10-dataset interim look). Secondary: by tissue.
 
   python3 panel_analysis.py            -> panel_report.txt, panel_tab.csv, panel_across.csv
 """
 import os, sys, glob, itertools, numpy as np, pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE); import polh
 PANEL_DIR = os.environ.get('PANEL_DIR', 'panel_runs'); OUTP = os.environ.get('PANEL_OUT', 'panel')
-DELTA = 0.02   # non-inferiority margin in recall, fixed 2026-09-29 before any panel result
+DELTA = 0.02   # non-inferiority margin in recall, fixed before any panel result
 FAM = {'published': ['scvi', 'scvi_cond', 'synth_w1', 'synthbal_w1', 'sdiff', 'nb', 'sd3_nosingle'], 'ours': ['lat_gauss', 'lat_boot'],
        'spread': ['jitter_s1.0', 'jitternz_s1.0', 'smote_k5'], 'noaug': ['real']}
 FAMOF = {a: f for f, v in FAM.items() for a in v}
 SUB = {'all': lambda X: X, 'no_n1': lambda X: X[X.n > 1], 'n_le8': lambda X: X[X.n <= 8],
-       'n_ge16': lambda X: X[X.n >= 16]}   # added 2026-09-30 after the 10-dataset interim look (Opus: RF dup is pathological at n<=2)
+       'n_ge16': lambda X: X[X.n >= 16]}   # added post hoc after the 10-dataset interim look (RF dup is pathological at n<=2)
 
 def bh(p):
     p = np.asarray(p, float); o = np.argsort(p); q = p[o] * len(p) / np.arange(1, len(p) + 1)

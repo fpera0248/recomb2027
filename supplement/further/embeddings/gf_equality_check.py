@@ -1,7 +1,7 @@
-"""Equality check: our W2 Geneformer embeddings vs the official geneformer EmbExtractor (OFFICIAL_CODE_AUDIT row W2).
+"""Equality check: our Geneformer embeddings vs the official geneformer EmbExtractor.
 usage: gf_equality_check.py --out DIR [--pool PID] [--subsample N] [--device cpu|mps] [--stored DIR]
 Pool default = first (alphabetical) of the 10 stored pools; all hold 20000 cells, so none is smaller.
-Pipeline = official TranscriptomeTokenizer (same args as w2_embed.py) -> official EmbExtractor(emb_mode cell, emb_layer -1, mean_pool, model_type Pretrained)
+Pipeline = official TranscriptomeTokenizer (same args as embed.py) -> official EmbExtractor(emb_mode cell, emb_layer -1, mean_pool, model_type Pretrained)
 on gf-6L-30M-i2048 -> rows re-ordered by orig_row_idx -> compared with out/w2_fm_lap/emb/gf/<pid>.npy.
 Deviations from a stock run, both in memory only, no file in the Geneformer checkout is edited:
  (1) tokenizer.py: pandas>=3 removed positional Series[int array]; the 2 sites get .iloc (same patch as our run).
@@ -10,18 +10,19 @@ Deviations from a stock run, both in memory only, no file in the Geneformer chec
 EmbExtractor expresses everything our run did (layer -1 = hidden_states[5], mean over non-pad tokens, no CLS/EOS). Our run used batch 16; EmbExtractor forward_batch_size=16 here.
 Refuses to overwrite an existing RESULT.txt / npy in --out."""
 import os, sys, types, importlib.util, hashlib, argparse, subprocess, tempfile, shutil
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np
 HOME = os.path.expanduser("~"); HERE = os.path.dirname(os.path.abspath(__file__))
-GF = f"{HOME}/geneformer/Geneformer"; PKG = f"{GF}/geneformer"; D30 = f"{PKG}/gene_dictionaries_30m"; CKPT = f"{GF}/gf-6L-30M-i2048"
+GF = os.environ.get("GF_ROOT", f"{HOME}/geneformer/Geneformer"); PKG = f"{GF}/geneformer"; D30 = f"{PKG}/gene_dictionaries_30m"; CKPT = f"{GF}/gf-6L-30M-i2048"
 MED, TOK, MAP = (f"{D30}/{n}_gc30M.pkl" for n in ("gene_median_dictionary", "token_dictionary", "ensembl_mapping_dict"))
-STORED = f"{HOME}/work/jiaqi1011/out/w2_fm_lap/emb/gf"; BATCH = 16; K = 15
+STORED = f"{HR_WORK}/jiaqi1011/out/w2_fm_lap/emb/gf"; BATCH = 16; K = 15
 
 ap = argparse.ArgumentParser(); ap.add_argument("--out", required=True); ap.add_argument("--pool"); ap.add_argument("--subsample", type=int, default=0)
 ap.add_argument("--device", default="cpu"); ap.add_argument("--stored", default=STORED); o = ap.parse_args()
 pool = o.pool or sorted(f[:-4] for f in os.listdir(o.stored) if f.endswith(".npy"))[0]
 os.makedirs(o.out, exist_ok=True); res_p = f"{o.out}/RESULT.txt"
 if os.path.exists(res_p) or os.path.exists(f"{o.out}/official_emb.npy"): sys.exit(f"refusing to overwrite results in {o.out}")
-sys.path.insert(0, HERE); import w2lib as W
+sys.path.insert(0, HERE); import embedding_lib as W
 import torch, pandas as pd, anndata as ad, scipy.sparse as sp
 dev = o.device; torch.set_num_threads(int(os.environ.get("OMP_NUM_THREADS", 4)))
 
@@ -39,7 +40,7 @@ torch.Tensor.to = lambda self, *a, **k: _to(self, *[dev if x == "cuda" else x fo
 from geneformer import perturber_utils as pu, emb_extractor as ee
 _lm = pu.load_model; pu.load_model = lambda *a, **k: _lm(*a, **k).to(dev)
 
-# ---- cells (same loader, same ensembl-id AnnData construction as w2_embed.py embed_gf)
+# ---- cells (same loader, same ensembl-id AnnData construction as embed.py embed_gf)
 W.env(); import loader; a, _ = loader.load_pilot(pool); del _
 stored = np.load(f"{o.stored}/{pool}.npy"); ids = open(f"{o.stored}/{pool}.ids.txt").read().split("\n")
 ids = [i for i in ids if i != ""] if len(ids) != stored.shape[0] else ids

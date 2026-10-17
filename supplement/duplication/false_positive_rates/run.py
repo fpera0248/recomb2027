@@ -1,4 +1,4 @@
-"""E3 (J22a/b): cell-level FPR per Part I condition for rare (probe) types, from saved predictions. No refit.
+"""False positive rates: cell-level FPR per Part I condition for rare (probe) types, from saved predictions. No refit.
 README: python run.py [--smoke]. Outputs fpr_rows*.csv (probe31 rows), fpr_summary*.csv (probe31), fpr_panel_summary.csv,
 fpr_j21_summary.csv in this directory. Reads tgz (probe31_runs.csv, panel_runs/*/{clf,real}.csv) and ref_j21/{aida,hlca,lupus}_full.csv.
 Definitions. N_eval = sum over classes of called (probe31) or nev_used (panel; equals sum(ncall) where ncall exists).
@@ -6,21 +6,23 @@ Definitions. N_eval = sum over classes of called (probe31) or nev_used (panel; e
  default threshold: FP = called - rec_argmax*nev ; FPR = FP/(N_eval-nev)
  matched cut (nev called for nev true): FP = nev*(1-rec200); FPR = FP/(N_eval-nev); TPR = recall, FP = FN.
  Matched FPR diff = -(recall diff)*nev/(N_eval-nev), so it restates the matched-recall test, not new evidence.
-RULE (frozen v2, changed from v1 on checker evidence): method differs from duplication ('upsample') for a classifier only if the
+RULE: method differs from duplication ('upsample') for a classifier only if the
  paper's own test rejects: exact/MC sign-flip over per-type mean paired differences (part1/signflip.py), BH q<0.05 over all
- method x classifier tests of the table (probe31 also over the paper's 20 primary tests). v1 used a percentile bootstrap CI
- with no multiplicity control; checkers showed it disagrees with the paper (mlp/real raw p 0.033, BH q 0.066).
+ method x classifier tests of the table (probe31 also over the paper's 20 primary tests). A percentile bootstrap CI
+ with no multiplicity control is not the decision rule (it would disagree with the paper: mlp/real raw p 0.033, BH q 0.066).
  Bootstrap CIs (over types) are kept as descriptive. Default-threshold FPR is descriptive, always shown with default TPR.
  Metric for rare types is TPR + FPR, never F1."""
 import io, sys, tarfile, os, glob, importlib.util
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
 import numpy as np, pandas as pd
 
 SMOKE = '--smoke' in sys.argv
 HERE = os.path.dirname(os.path.abspath(__file__))
-TGZ = '/Users/fperaltacastro/work/recomb2027-assets/part1_results.tgz'
-J21 = '/Users/fperaltacastro/work/recomb27/monday_q/donorfix/build/ovr_t/ref_j21'
-sp = importlib.util.spec_from_file_location('sf', '/Users/fperaltacastro/work/recomb2027-r8i3wt/part1/signflip.py')
+REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
+TGZ = os.environ.get('ASSETS', REPO + '/assets') + '/part1_results.tgz'
+J21 = HR_WORK + '/recomb27/monday_q/donorfix/build/ovr_t/ref_j21'
+sp = importlib.util.spec_from_file_location('sf', REPO + '/part1/signflip.py')
 sf = importlib.util.module_from_spec(sp); sp.loader.exec_module(sf)
 sfx = '_smoke' if SMOKE else ''
 
@@ -109,7 +111,7 @@ SP['n_datasets'] = q.ds.nunique()
 SP.to_csv(f'{HERE}/fpr_panel_summary.csv', index=False)
 print('PANEL'); print(SP.drop(columns=['n_rows']).round(5).to_string())
 
-# ---- C. AIDA / HLCA / lupus generators (existing J21 refit metrics, multiclass, n>=2) ----
+# ---- C. AIDA / HLCA / lupus generators (existing one-versus-rest refit metrics, multiclass, n>=2) ----
 J = []
 for ds in ('aida', 'hlca', 'lupus'):
     x = pd.read_csv(f'{J21}/{ds}_full.csv', usecols=['dataset', 'seed', 'arm', 'clf', 'mode', 'c', 'n', 'probe', 'default_fpr', 'matched_fpr', 'default_tpr', 'matched_tpr'])

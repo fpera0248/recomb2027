@@ -1,9 +1,10 @@
-"""Offline ranking rules over sr3 candidate dumps (DEV only: the truth columns here are for evaluation/training, never a method input).
+"""Offline ranking rules over candidate_dump candidate dumps (DEV only: the truth columns here are for evaluation/training, never a method input).
   python rescore.py feats IDS OUT.parquet   -> one row per candidate group: scale-free features + stability + (offline) recall/purity vs the hidden type
   python rescore.py eval  IDS RULES OUT.csv -> matched-k rprec per (pilot, rule); RULES is a python file defining RULES = {name: f(G, C) -> cell score}
 Cell score from group scores: max over the groups holding the cell (groups overlap across resolutions); cells in no group get -1 + 1e-3 * tie-break."""
 import os, sys, numpy as np, pandas as pd
-SI = os.path.dirname(os.path.abspath(__file__)); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data"); sys.path.insert(0, os.environ.get("SI_H", R5 + "/hmod"))
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+SI = os.path.dirname(os.path.abspath(__file__)); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"; sys.path.insert(0, os.environ.get("SI_H", R5 + "/hmod"))
 from hlib import _opaque_order, PILOTS_DIR
 from rprec import rprec
 CD = os.environ.get("SI_CANDS", R5 + "/cands")

@@ -1,12 +1,13 @@
-"""python score_atl.py PRED_ROOT OUT.csv MANIFEST.csv [MANIFEST.csv ...] : metrics per (atlas pilot, method) (PREREG_ATLAS.md + Amendment 1).
+"""python score_atl.py PRED_ROOT OUT.csv MANIFEST.csv [MANIFEST.csv ...] : metrics per (atlas pilot, method).
 Targets = score_hlca.targets (unchanged). K = union of all target cells in the pool. Ties are split at expected value (as rprec.py).
 Pool rows:   E1_union (PRIMARY, matched-k precision on the union), union_AP, E1_dontcare (near-miss subtype cells removed: T != L, T not BAD,
              not a target, share < 0.20), E1_halfK (precision in the top K/2), E1_2K (union recall in the top 2K).
 Target rows: masked_AP and masked_rprec (KEY SECONDARY: the other targets' cells removed, so each target is scored alone, ceiling 1, equal weight),
              det50 (1 if >= 50% of the target's cells are in the top K), recall_at_K, E2_within_label, per_target (shared ranking; ceiling < 1)."""
 import os, sys, glob, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 from sklearn.metrics import average_precision_score
-sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or os.path.expanduser("~/work/r5/data"), "hmod")); from hlib import _opaque_order, PILOTS_DIR
+sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or HR_WORK + "/r5/data", "hmod")); from hlib import _opaque_order, PILOTS_DIR
 from rprec import rprec
 from score_hlca import targets, BAD
 

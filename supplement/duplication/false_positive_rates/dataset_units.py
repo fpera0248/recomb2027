@@ -1,9 +1,10 @@
 import itertools, glob, os, sys
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np, pandas as pd
 pd.set_option('display.width', 250); pd.set_option('display.max_rows', 500)
 D = os.path.dirname(os.path.abspath(__file__)) + '/data/part1_results/'
-J21 = '/Users/fperaltacastro/work/recomb27/monday_q/donorfix/build/ovr_t/ref_j21/'
-M27 = '/Users/fperaltacastro/work/recomb27/rev1015/p1data/'
+J21 = HR_WORK + '/recomb27/monday_q/donorfix/build/ovr_t/ref_j21/'
+M27 = HR_WORK + '/recomb27/rev1015/p1data/'
 
 
 def sfp(d, g):
@@ -116,7 +117,7 @@ if part in ('all', 'B'):
     print(S.round(5).to_string())
     S.to_csv('chkB.csv', index=False)
 
-# ---------- C. J21 + reconciliation with m27 ----------
+# ---------- C. one-versus-rest + reconciliation with m27 ----------
 if part in ('all', 'C'):
     out = []
     for ds in ('aida', 'hlca', 'lupus'):
@@ -148,7 +149,7 @@ if part in ('all', 'C'):
         print(ds, 'm27 rows', len(mp), 'matched', len(mm), 'arms m27', sorted(mp.arm.unique()))
         print(ds, 'reconcile |fm27-fm| mean %.5f max %.5f identical %.2f ; rec200 vs tm mean %.4f' % (
             (mm.fm27 - mm.fm).abs().mean(), (mm.fm27 - mm.fm).abs().max(), ((mm.fm27 - mm.fm).abs() < 1e-9).mean(), (mm.rec200 - mm.tm).abs().mean()))
-        # per-arm mean diff vs upsample, m27 vs J21, lr
+        # per-arm mean diff vs upsample, m27 vs the one-versus-rest run, lr
         for src, col in (('m27', 'fm27'), ('j21', 'fm')):
             g = mm.pivot_table(index=['seed', 'name_'], columns='arm', values=col)
             dd = {a: (g[a] - g['upsample']).mean() * 100 for a in g.columns if a != 'upsample'}
