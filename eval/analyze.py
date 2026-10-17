@@ -70,7 +70,9 @@ def load(args):
     man = man[~man.pilot_id.isin(drop)].set_index("pilot_id")
     if "n_cells" not in man:
         man["n_cells"] = 20000
-    d = pd.concat([pd.read_csv(f) for f in args.scores]).drop_duplicates(
+    fr = [pd.read_csv(f) for f in args.scores]
+    # pandas 3 keeps an empty frame's object dtypes in concat, so a 0-row score file (no tools run) would turn every column to object
+    d = pd.concat([x for x in fr if len(x)] or fr).drop_duplicates(
         ["pilot_id", "method", "metric", "label", "target"]
     )
     return man, drop, d[d.pilot_id.isin(man.index)]
