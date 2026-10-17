@@ -1,6 +1,6 @@
 """Paired analysis of run_fm_dup.py's results.csv / results_ovr.csv.
 Pairing unit = (seed, type, clf); sign-flip test over the 8 probe types (polh.signflip_p);
-BH within each family of comparisons; n_train==1 units reported separately per project rule."""
+BH within each family of comparisons; n_train==1 units reported separately."""
 import os, sys, numpy as np, pandas as pd
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.path.insert(0, HR_WORK + '/cfgen_natrare')

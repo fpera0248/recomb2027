@@ -7,15 +7,15 @@ Dataset: AIDA Singapore, full cohort, ~/work/aida_sg/aida_sg.h5ad
 (manifest.json: src_h5ad=aida_sg.h5ad, n_cells=355046, shard=10000; 36 files of 10000/10000/.../5046
 sum exactly to 355046, confirming contiguous in-order sharding).
 
-Protocol (gen16-style, see matched-operating-point-is-mandatory.md): 8 probe rare types (the 8
+Protocol (gen16-style, read at a matched operating point): 8 probe rare types (the 8
 rarest AIDA Singapore types for which an 80/20 donor-disjoint split still leaves >=128 train-donor
 cells in every seed: mature B cell, CD16-neg CD56-bright NK, B cell, plasmacytoid DC, plasma cell,
 pre-conventional DC, innate lymphoid cell, CD141+ mDC), RUNGS=[1,2,4,8,16,32,64,128] permuted onto
 the 8 types per seed (bijection, reshuffled every seed), 3 seeds, donor-disjoint 80/20 train/eval
 donor split per seed. Arms: none, dup, classweight (lr/rf only), jitter (s=1.0, pooled abundant sd),
 smote (k=5); every augmented arm tops each probe type up to TARGET=128. Classifiers: lr/knn/rf/mlp
-(stat16.readout, imported not copied) + a plain nearest-prototype readout (real cells only: the
-oversampling-is-variance-inflation.md theorem says augmentation cannot move a mean-based readout,
+(stat16.readout, imported not copied) + a plain nearest-prototype readout (real cells only:
+duplication only reweights cells, so it cannot move a mean-based readout,
 so it is not re-run per arm). Two representations on the SAME cells: FM (256-dim, frozen) and
 PCA-50 of log1p-CPM (TruncatedSVD, fit per seed on that seed's real training pool).
 

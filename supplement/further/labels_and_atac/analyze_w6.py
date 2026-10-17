@@ -60,7 +60,7 @@ def p1():
     for fam, gs in (("random", ["R05", "R10", "R20"]), ("boundary", ["B05", "B10", "B20"])):
         m = T.group.isin(gs)
         for c in ("p_D", "p_level", "p_retained", "p_cc_retained"):
-            if m.any(): T.loc[m, c + "_holm"] = holm(T.loc[m, c].fillna(1).values)   # Holm over the 3 rates within each family; HEADLINE = D(r) (pre-registered DESIGN 1.4), level gap co-reported
+            if m.any(): T.loc[m, c + "_holm"] = holm(T.loc[m, c].fillna(1).values)   # Holm over the 3 rates within each family; HEADLINE = D(r) (fixed before the runs), level gap co-reported
     T.to_csv(f"{OUT}/p1_summary.csv", index=False); print(T.round(3).to_string())
     # figure 1: union AP vs corruption rate
     fig, ax = plt.subplots(1, 3, figsize=(11, 3.4), sharey=True)
@@ -95,7 +95,7 @@ def p1():
         s = pd.read_csv(st); s = s[s.metric == "union_AP"].set_index("pilot_id").rprec; r = ap[(ap.variant == "ID") & (ap.arm == "bl")].set_index("pid").value
         pd.DataFrame(dict(rerun=r, stored=s.reindex(r.index))).assign(diff=lambda d: d.rerun - d.stored).to_csv(f"{OUT}/p1_repro_check_ID_vs_stored.csv"); print("ID rerun vs stored, mean abs diff", (r - s.reindex(r.index)).abs().mean())
     # permuted-score sanity (planted violation): permuted positives must give AP near prevalence
-    # (done in p1_planted_check.py with real cands; see DESIGN)
+    # (done in p1_planted_check.py with real cands)
 
 # ------------------------------------------------------------------ P2
 def p2():

@@ -26,7 +26,7 @@ also the default, giving layer_to_quant = quant_layers(model) + (-1) = N_LAYERS 
 last layer, matching the 2nd-to-last-layer convention already used for 6L in gf6l_emb/src).
 This also matches this project's OWN prior V2-316M artifacts (fm2/run_fm_dup_gf316m.py's
 docstring: "1152-dim GF-316M CLS, frozen"). The repo default is therefore CLS at the 2nd-to-
-last layer, NOT a mean over gene tokens as the task notes guessed -- BUT the finished 6L run
+last layer, NOT a mean over gene tokens -- BUT the finished 6L run
 (gf6l_emb/src/02_embed.py) mean-pooled in fp32, so a CLS-only V2 output would confound "model
 size" with "pooling choice" in any foundation-model comparison. Fixed at zero extra cost: every forward pass
 below now saves BOTH poolings (CLS and mean, excluding <cls>/<eos>) from the same hidden_states,
@@ -277,7 +277,7 @@ def main():
 
     ids_all = [np.asarray(v, dtype=np.int64) for v in ds['input_ids']]
     lens = np.array([len(a) for a in ids_all])
-    order = np.argsort(-lens)   # long first: catches OOM immediately, ~3x faster per task notes
+    order = np.argsort(-lens)   # long first: catches OOM immediately, ~3x faster
     os.makedirs(PART_DIR, exist_ok=True)
 
     n_parts = (len(order) + CHUNK_CELLS - 1) // CHUNK_CELLS

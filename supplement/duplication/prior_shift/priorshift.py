@@ -1,4 +1,4 @@
-"""Prior-shift control for duplication (see DECL_priorshift.md). stat16 and polh are imported unchanged.
+"""Prior-shift control for duplication (declared in advance). stat16 and polh are imported unchanged.
   REP=<path>/rep16t STAT16_DIR=<dir with stat16.py,polh.py> CLF=lr,knn,rf,mlp python3 priorshift.py run S0 S1 [OUT.csv]
   python3 priorshift.py report OUT.csv           (share, bootstrap CI, signflip, verdict per classifier)
   REP=... python3 priorshift.py selfcheck [seed]  (parity with stat16.fit_arm + shift invariants, LR)

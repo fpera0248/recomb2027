@@ -92,7 +92,7 @@ SEEDS=[0] if SMOKE else [0,1,2]
 # whose nearest type is their own child and which hold ~all of India's coarse-only annotation, so it
 # measured label depth + site, not mixing. Replaced by a Cell-Ontology LEAF set, neighbour-disjoint (no
 # probe is another probe's kNN neighbour, so every neighbour stays abundant at CAP), and the 6 unknown
-# bins are dropped from train AND eval. Coarse version kept at jobs tmp m27_gen_hard.py.coarse.bak.
+# bins are dropped from train AND eval.
 UNKNOWN_BINS=['T cell','CD4-positive, alpha-beta T cell','CD8-positive, alpha-beta T cell',
               'natural killer cell','B cell','myeloid cell']
 PROBE=['central memory CD4-positive, alpha-beta T cell','memory B cell',
@@ -464,7 +464,7 @@ for seed in SEEDS:
     # ---- scDiffusion: a third family, and a third conditioning mechanism ----------
     # CFGen conditions by label embedding in the flow, scVI by a decoder covariate,
     # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer, per
-    # rare-class-lost-in-flow-not-decoder: Adam with coupled weight decay cripples their VAE.
+    # Adam with coupled weight decay cripples their VAE.
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,
                    vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/m27hard_s{seed}_{VAE_STEPS}.pt')

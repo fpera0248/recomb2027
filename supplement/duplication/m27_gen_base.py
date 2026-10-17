@@ -459,7 +459,7 @@ for seed in SEEDS:
     # ---- scDiffusion: a third family, and a third conditioning mechanism ----------
     # CFGen conditions by label embedding in the flow, scVI by a decoder covariate,
     # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer, per
-    # rare-class-lost-in-flow-not-decoder: Adam with coupled weight decay cripples their VAE.
+    # Adam with coupled weight decay cripples their VAE.
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,
                    vae_steps=VAE_STEPS, vae_ckpt=f'vae_ckpt/m27_s{seed}_{VAE_STEPS}.pt')
