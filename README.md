@@ -11,7 +11,7 @@ pip install -r requirements.txt    # Python 3.12
 
 - Download: 1.2 GB of release assets, about 2.5 GB on disk.
 - Time: about 4 minutes plus the download (measured on a laptop, 4 threads).
-- Success: the run prints `paper: all notebooks ran and every assertion held`. `paper` is the default level. It recomputes the numbers of the paper from the saved predictions and result tables. It does not rebuild the 8-atlas test set from the atlases.
+- Success: the run prints `paper: all notebooks ran and every assertion held`. `paper` is the default level on main. Release v0.1.2 requires the level, so pass it as shown above. It recomputes the numbers of the paper from the saved predictions and result tables. It does not rebuild the 8-atlas test set from the atlases.
 - It does not refit the model. `./reproduce.sh rerun` applies a refit scorer as a consistency check, so its numbers differ a little. The container image is `v0.1.2`, and the `paper` and `rerun` levels pass in it. Reproduction problems: https://github.com/fpera0248/recomb2027/issues. More checks are in [REPRODUCE.md](REPRODUCE.md#quick-check-details).
 - From-scratch check: Rebuilt from public files, our method reaches 0.311 against 0.202 for Leiden (+0.109, 7 of 8 atlases), within 0.03 of the reported 0.321 and 0.220, but not identical, because the regressor is a refit and Leiden partitions change with the software stack. The code that rebuilds the 8-atlas pools is not yet in this repository (an open pull request).
 
