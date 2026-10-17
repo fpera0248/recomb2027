@@ -80,7 +80,7 @@ What each level downloads:
 | `rerun` | 1.05 GB of release assets: the same definitions, the saved scores of our method and the baselines, and the frozen candidate tables | The same 1,380,000 cells, without counts |
 | `full` | The 10 `test10` atlases from CELLxGENE (29.3 GB) | 2.31 million cells. `full` builds 57 subsamples of 20,000 cells (1,140,000 cells) and reruns our method, Leiden subclustering and, with `TOOLS=1`, the published tools. We have not run it end to end |
 
-No level downloads the other sets. The 8-atlas results are recomputed from saved scores, not rebuilt from counts, because no script builds its 69 subsamples from the atlases. To use any other row, download it from its URL (see [REPRODUCE.md](REPRODUCE.md#atlases)).
+No level downloads the other sets. The `paper` and `rerun` levels recompute the 8-atlas results from saved scores, and `full8` rebuilds its 69 subsamples from the atlases. To use any other row, download it from its URL (see [REPRODUCE.md](REPRODUCE.md#atlases)).
 
 ## Citation
 
