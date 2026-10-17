@@ -7,8 +7,7 @@ ray/optuna/tdigest/seaborn imports) reconfigured for the V2/"95M-series" convent
 30M: special_token=True (<cls>/<eos>), model_input_size=4096, the gc95M-vocab dictionaries
 (gene_median_dictionary_gc95M.pkl / token_dictionary_gc95M.pkl / ensembl_mapping_dict_gc95M.pkl,
 vocab 20275, <pad>=0 <mask>=1 <cls>=2 <eos>=3 -- all confirmed by reading the pickles directly).
-The task's notes call this "gc104M"; no file of that name exists in this Geneformer checkout,
-but these gc95M dicts are the ones the checkout's own tokenizer.py docstring (line 37) says go
+There is no gc104M dictionary; these gc95M dicts are the ones tokenizer.py (line 37) pairs
 with special_token=True + model_input_size=4096 + vocab 20275, i.e. the same convention family.
 
 aida_sg.h5ad already has raw counts directly in .X and Ensembl ids directly as var_names
@@ -35,19 +34,11 @@ axis. Precision note: bf16 is the MPS-required compute dtype (see load_model()),
 states are upcast to fp32 BEFORE the mean-pool reduction -- summing up to ~4096 bf16 positions
 loses real precision a post-hoc cast cannot recover.
 
-CHECKPOINT: no gf-*-316M folder and no 1152-hidden/18-layer config.json exist anywhere on this
-machine (confirmed by inspecting every gf-* folder's config.json, md5-comparing the repo
-ROOT's model.safetensors against gf-12L-95M-i4096/model.safetensors -- byte-identical, so the
-root checkout is just the 95M model -- and a find under ~ and /Volumes for 316M/V2 names and
-hidden_size-1152 configs: nothing). CKPT previously guessed this repo's OWN on-disk "gf-NL-MMM-
-iSEQ" convention (gf-18L-316M-i4096), but that convention names the V1-era checkpoints already
-here; the real weights are public on HF as ctheodoris/Geneformer's "Geneformer-V2-316M" folder
-(18L/1152-hidden/18-head/vocab-20275/max-pos-4096 config verified against this file's VOCAB/
-HIDDEN/N_LAYERS/N_HEADS/MODEL_INPUT_SIZE), behind no credential. CKPT below defaults to that
-upstream name under GF_ROOT and is overridable with the GF_V2_CKPT env var once the weights are
-placed somewhere else; this script never fetches them itself. main() hard-asserts on CKPT before
-loading anything, and exits with an actionable message instead of silently running the wrong
-checkpoint.
+CHECKPOINT: the V2-316M weights (18L/1152-hidden/18-head/vocab-20275/max-pos-4096) are not in the
+Geneformer checkout. CKPT defaults to the upstream HF folder name ("Geneformer-V2-316M",
+ctheodoris/Geneformer) under GF_ROOT and is overridable with GF_V2_CKPT; this script never fetches
+the weights itself. main() hard-asserts on CKPT before loading anything and exits with an
+actionable message instead of silently running the wrong checkpoint.
 """
 import os, sys, json, time, shutil
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
@@ -67,7 +58,7 @@ PKG        = os.path.join(GF_ROOT, 'geneformer')
 GENE_MEDIAN_FILE      = os.path.join(PKG, 'gene_median_dictionary_gc95M.pkl')
 TOKEN_DICTIONARY_FILE = os.path.join(PKG, 'token_dictionary_gc95M.pkl')
 ENSEMBL_MAPPING_FILE  = os.path.join(PKG, 'ensembl_mapping_dict_gc95M.pkl')
-# Upstream HF folder name (ctheodoris/Geneformer); NOT present on this machine as of this build.
+# Upstream HF folder name (ctheodoris/Geneformer).
 # Override with GF_V2_CKPT once the weights are placed somewhere -- this script never downloads
 # them itself.
 CKPT = os.environ.get('GF_V2_CKPT', os.path.join(GF_ROOT, 'Geneformer-V2-316M'))

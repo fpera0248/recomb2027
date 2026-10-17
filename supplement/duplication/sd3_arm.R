@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 # scDesign3 arm for the rare-class augmentation experiment.
 #
-# Follows the call structure of the WORKING step0b stage2 augmenter
-#   scfm-release/scfoundation/augmented_AIDA/ethnicity_scfoundation_workflow/step0b_stage2_augment.R
+# Follows the call structure of the working stage-2 augmenter of our earlier scDesign3 augmentation
+# pipeline (a separate project)
 # rather than a hand-rolled split of the pipeline. Four things differ from a naive port and all four
 # were failure causes here:
 #   1. filtered_gene comes from construct_data (joint_data$filtered_gene). fit_copula does NOT
@@ -12,7 +12,7 @@
 #   4. new_covariate rows are SAMPLED FROM joint_data$dat, never hand-built, so every column,
 #      factor level and offset matches what the marginals were fitted against.
 #
-# NO FALLBACK. If a fit fails this writes a failure marker and exits non-zero. The ASI step0b wrapper
+# NO FALLBACK. If a fit fails this writes a failure marker and exits non-zero. The earlier pipeline's wrapper
 # silently resampled REAL cells and labelled them synthetic when scDesign3 failed, which would turn
 # this arm into the upsampling arm and hide the very effect we are measuring.
 suppressPackageStartupMessages({
@@ -21,7 +21,7 @@ suppressPackageStartupMessages({
 a <- commandArgs(TRUE)
 DIR <- a[1]; NC <- as.integer(a[2]); SEED <- as.integer(a[3])
 
-# step0b's own env-strip patch: fitted objects keep formula/terms whose
+# The earlier pipeline's env-strip patch: fitted objects keep formula/terms whose
 # .Environment holds that gene's training rows (5202 -> 19 bytes/cell/gene).
 # Unpatched, 2000 genes x 12010 cells = 125 GB across 8 forks, so every
 # worker dies and fit_marginal returns try-errors. Patched it is 456 MB.
@@ -96,11 +96,11 @@ ok <- tryCatch(withCallingHandlers({
           family_use='nb', n_cores=NC, usebam=FALSE, edf_flexible=TRUE,
           parallelization='mcmapply', BPPARAM=NULL)
     g <- good(mr)
-    if (g != length(mr)) stop(sprintf('fit_marginal returned %d/%d usable fits (n_cores=%d). Forked workers died; step0b runs this at n_cores=1.', g, length(mr), NC))
+    if (g != length(mr)) stop(sprintf('fit_marginal returned %d/%d usable fits (n_cores=%d). Forked workers died; the earlier pipeline runs this at n_cores=1.', g, length(mr), NC))
     saveRDS(mr, mrf); cat(sprintf('  fit_marginal %.0fs, %d/%d fits ok (cached)\n', el(), g, length(mr)))
   }
 
-  # important_feature as an explicit named logical vector, exactly as step0b builds it.
+  # important_feature as an explicit named logical vector, exactly as the earlier pipeline builds it.
   zf  <- Matrix::rowMeans(counts(sce) == 0)
   imp <- zf <= 0.80
   if (sum(imp) < 2L) imp <- rep(TRUE, length(imp))

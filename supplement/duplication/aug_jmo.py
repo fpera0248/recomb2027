@@ -49,8 +49,8 @@ METHOD, AS THE PAPER STATES IT
 
 ADAPTATIONS (this setting has no images/text, no SGD loop, no spurious
 attribute, and classes as rare as n=1)
-  1. No neural net / no epochs -> no "identification epoch T". The task
-     spec pins the identification (reference) model to
+  1. No neural net / no epochs -> no "identification epoch T". The
+     identification (reference) model is
      sklearn.linear_model.LogisticRegression(max_iter=2000), the same
      family as the downstream classifier. We use that at C=1 (matching the
      downstream classifier's C=1, since JM1's own weight-decay values are

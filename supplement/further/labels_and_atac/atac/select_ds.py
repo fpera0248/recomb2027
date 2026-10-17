@@ -3,7 +3,7 @@ Rules: human; fine/coarse columns picked mechanically (no method output); >=97% 
 pair = most whole-dataset target pairs, ties -> fewer coarse categories -> alphabetical (coarse, fine); >=3 targets, >=8,000 cells after drops, >=2 donors.
 Rule, added before any method output and decided from kidney metadata alone: NOTLAB also excludes model-prediction columns (label transfer, Azimuth, CellTypist, scANVI, scOMM, confidence/score) and cluster-id columns by name, because a prediction is not curated truth and favours the arm it came from. NOTLAB already goes beyond the spec list (library, institute, preservation, age, is_*, reported, sequenced, ...) and DROP now matches substrings (doublet, low quality) anywhere in a label.
 Dataset 72a69193 got (patient_group, region), which are not cell-type columns.
-Label columns must also have a cell-type-annotation name (CTLAB below; cell_type is exempt). Added before any method output, from column names only; applies to all datasets; the selection was rerun and every change is logged in OUT/selection_amend2.txt.
+Label columns must also have a cell-type-annotation name (CTLAB below; cell_type is exempt). Added after the first rule, from column names only and before any method output on dataset 72a69193; applies to all datasets; the selection was rerun and every change is logged in OUT/selection_amend2.txt.
 Optional OUT/not_zero_shot.csv (dataset_id,reason) overrides the zero-shot flag (study-level overlap the id lists miss).
 Writes OUT/selection.csv (one row per dataset) and OUT/<dataset_id>/selection.json (chosen pair, all valid pairs, donors, zero-shot status)."""
 import os, re, sys, json, argparse, glob, numpy as np, pandas as pd

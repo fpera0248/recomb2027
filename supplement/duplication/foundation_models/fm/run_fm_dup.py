@@ -15,8 +15,7 @@ the 8 types per seed (bijection, reshuffled every seed), 3 seeds, donor-disjoint
 donor split per seed. Arms: none, dup, classweight (lr/rf only), jitter (s=1.0, pooled abundant sd),
 smote (k=5); every augmented arm tops each probe type up to TARGET=128. Classifiers: lr/knn/rf/mlp
 (stat16.readout, imported not copied) + a plain nearest-prototype readout (real cells only:
-duplication only reweights cells, so it cannot move a mean-based readout,
-so it is not re-run per arm). Two representations on the SAME cells: FM (256-dim, frozen) and
+augmentation cannot move a mean-based readout, so it is not re-run per arm). Two representations on the SAME cells: FM (256-dim, frozen) and
 PCA-50 of log1p-CPM (TruncatedSVD, fit per seed on that seed's real training pool).
 
 Matched operating point (primary): top-NEVc eval cells by score, NEVc = that type's held-out count.

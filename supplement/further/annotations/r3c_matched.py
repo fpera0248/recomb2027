@@ -1,4 +1,4 @@
-"""Item 12: annotation improvement at a matched number of classes. Per pool, Leiden subclustering of every broad label at the single global resolution, bisected so the total class count equals (within 1) the class count of our method (A1 of p2_refine, at each threshold), scored with the p2_refine metrics.
+"""Annotation improvement at a matched number of classes. Per pool, Leiden subclustering of every broad label at the single global resolution, bisected so the total class count equals (within 1) the class count of our method (A1 of p2_refine, at each threshold), scored with the p2_refine metrics.
   python r3c_matched.py targets PID  (clean env, as score)                                   -> out/small/matched/targets_<PID>.json: our class count per threshold
   python r3c_matched.py grid PID     (env R5, SI_H, SLIM_DIR = data/w6/ID, as run_unit.py)  -> grid_<PID>.parquet (one partition per threshold) + gridinfo_<PID>.json; per threshold the global resolution is bisected (log scale) until the total class count is within 1 of ours
   python r3c_matched.py score PID    (clean env, as p2_refine apply)                         -> out/small/matched/score_<PID>.csv

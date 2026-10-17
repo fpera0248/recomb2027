@@ -148,7 +148,7 @@ def raw_ok(f, xk):
 
 # ---------------------------------------------------------------- prep: obs + drops (shared with the twin builder)
 def prep(name, log=None, ref=None):
-    """Load obs of the atlas, apply donor drops and CELLDROP. Returns dict(o, pos, f, xk, var, on, cfg, ...). `log(check,item,detail)` collects section-3 evidence."""
+    """Load obs of the atlas, apply donor drops and CELLDROP. Returns dict(o, pos, f, xk, var, on, cfg, ...). `log(check,item,detail)` collects donor and leak check evidence."""
     r4 = name in R4; log = log or (lambda *a: None)
     if r4: lab, fine = R4[name]; f = f"{b.AT}/{name}.h5ad"
     else: c = ATL[name]; lab, fine = c["lab"], c["fine"]; f = f"{b.AT}/{c['id']}.h5ad"
@@ -167,7 +167,7 @@ def prep(name, log=None, ref=None):
     P = dict(name=name, f=f, xk=xk, var=var, genemap=gm, on=on, lab=lab, fine=fine, r4=r4, n_raw=len(o), donors_raw=sorted(o.donor_id.unique()), labels=lr)
     keep = np.ones(len(o), bool)
     if r4: return _finish(P, o, keep)
-    # (i) assay rule (a)
+    # assay rule (a)
     if assay is not None:
         non10 = ~pd.Series(assay).str.startswith("10x").values; keep &= ~non10
         log("celldrop_assay", "non-10x", json.dumps(pd.Series(assay[non10]).value_counts().to_dict()))
@@ -184,13 +184,13 @@ def prep(name, log=None, ref=None):
         P["study_hits"] = sorted({d for d, k, _, _ in rows if k == "study"} - dd)
         # undeclared strong match = BC1 FAIL until a human line (drop_donor, or accept_donor / accept_study with a reason) exists; nothing is dropped silently
         P["undeclared_strong"] = sorted(strong - dd - acc - (set(P["study_hits"]) if acc_study else set()))
-        # (iv) 4b: is_primary_data. Non-primary cells are logged per donor; mechanical rule NPDROP drops ALL non-primary cells of the listed atlases
+        # is_primary_data. Non-primary cells are logged per donor; mechanical rule NPDROP drops ALL non-primary cells of the listed atlases
         npm = pd.Series(~prim).groupby(o.donor_id.values).sum(); npm = npm[npm > 0]
         log("is_primary_data", "obs", f"non-primary cells {int((~prim).sum())} of {len(prim)}; donors carrying them {len(npm)}")
         for d, n in npm.items(): log("is_primary_data_donor", d, f"{int(n)} non-primary cells; strong match={d in strong}; generic-only match={d in {x[0] for x in rows} - strong}")
         sd = ~prim if name in NPDROP else np.zeros(len(o), bool); keep &= ~sd; P["np_dropped"] = int(sd.sum())
         log("celldrop_4b", "non-primary cells dropped by NPDROP rule" if name in NPDROP else "no NPDROP rule for this atlas", str(int(sd.sum())))
-    # (ii) label rule on visible OR truth label
+    # label rule on visible OR truth label
     bad = np.zeros(len(o), bool)
     for c in (lab, fine): bad |= o[c].astype(object).fillna("nan").astype(str).str.strip().str.lower().map(lambda s: bool(LABDROP.match(s))).values
     P["labdrop"] = int((bad & keep).sum()); keep &= ~bad
