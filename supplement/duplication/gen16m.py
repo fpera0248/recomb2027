@@ -444,7 +444,7 @@ for seed in SEEDS:
 
     # ---- scDiffusion: a third family, and a third conditioning mechanism ----------
     # CFGen conditions by label embedding in the flow, scVI by a decoder covariate,
-    # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer, per
+    # scDiffusion by a CLASSIFIER GRADIENT on noisy latents. Its own optimizer is used, because
     # Adam with coupled weight decay cripples their VAE.
     _tc=time.time()
     SM=build_sdiff(Xn[tr_idx], ytr, NCAT, seed, *SDIFF_EP, bs=BS,

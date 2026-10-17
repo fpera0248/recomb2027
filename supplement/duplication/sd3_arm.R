@@ -96,7 +96,7 @@ ok <- tryCatch(withCallingHandlers({
           family_use='nb', n_cores=NC, usebam=FALSE, edf_flexible=TRUE,
           parallelization='mcmapply', BPPARAM=NULL)
     g <- good(mr)
-    if (g != length(mr)) stop(sprintf('fit_marginal returned %d/%d usable fits (n_cores=%d). Forked workers died; the earlier pipeline runs this at n_cores=1.', g, length(mr), NC))
+    if (g != length(mr)) stop(sprintf('fit_marginal returned %d/%d usable fits (n_cores=%d). Forked workers died; step0b runs this at n_cores=1.', g, length(mr), NC))
     saveRDS(mr, mrf); cat(sprintf('  fit_marginal %.0fs, %d/%d fits ok (cached)\n', el(), g, length(mr)))
   }
 
