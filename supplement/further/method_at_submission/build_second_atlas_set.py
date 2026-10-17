@@ -1,9 +1,9 @@
-"""Test-pool builder for the second set of atlases. Reuses build_atlas5.pools and its pilot / slim-h5ad format unchanged.
+"""Test-pool builder for the second set of atlases. Reuses build_atlas_pools.pools and its pilot / slim-h5ad format unchanged.
 Structure only: reads obs, raw counts and truth labels (targets), never any score. Env R5 = data root (outputs), R5_WORK = static inputs (default ~/work/r5).
-  python build_r5.py build NAME [NAME ...]      NAME = 8-char dataset id of an ATL entry; atlas file $R5/atlas/<dataset_id>.h5ad
-  python build_r5.py r4 luad                    regression check against the first set's config (no drops, 24 pools max, split test4)
-  python build_r5.py promote                    BC1-BC4 statuses -> primary / alternate decision (atlas5_final.csv)
-  python build_r5.py donors NAME                donor checks from the API cache only (no download)
+  python build_second_atlas_set.py build NAME [NAME ...]      NAME = 8-char dataset id of an ATL entry; atlas file $R5/atlas/<dataset_id>.h5ad
+  python build_second_atlas_set.py r4 luad                    regression check against the first set's config (no drops, 24 pools max, split test4)
+  python build_second_atlas_set.py promote                    BC1-BC4 statuses -> primary / alternate decision (atlas5_final.csv)
+  python build_second_atlas_set.py donors NAME                donor checks from the API cache only (no download)
 Outputs ($R5): slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv, leak5/ (log_<name>.csv, labels_<name>.csv,
 targets_<name>.csv, ../leak5_log.csv), build5/status_<name>.json."""
 import os, sys, re, json, glob, time, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
@@ -11,7 +11,7 @@ HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 SUPP_DATA = os.environ.get("SUPP_DATA", os.path.expanduser("~/data"))
 from anndata.io import sparse_dataset
 os.environ.setdefault("SI_H", os.path.join(os.path.dirname(os.path.abspath(__file__)), "hmod"))   # hlib / rprec for score_hlca without copying them to $R5/hmod
-import build_atlas5 as b          # pool engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
+import build_atlas_pools as b          # pool engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
 
 R5, N, MAXP = b.R5, b.N, 8
 W = os.environ.get("R5_WORK") or HR_WORK + "/r5"
@@ -213,7 +213,7 @@ def packs(P):
 
 
 def write_pool(P, pn, pid, r, split, extra_src=None):
-    """Pool writer (build_atlas5.build), unchanged format. r = local row indices into P['o'] (sorted)."""
+    """Pool writer (build_atlas_pools.build), unchanged format. r = local row indices into P['o'] (sorted)."""
     rows = P["pos"][r]
     with h5py.File(P["f"], "r") as h: X = sparse_dataset(h[P["xk"]])[rows]
     X = sp.csr_matrix(X).astype(np.float32)

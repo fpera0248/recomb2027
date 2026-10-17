@@ -1,8 +1,8 @@
-"""Halo-contrast marker features for every sr3 candidate group (dev; motivated by the HLCA diagnosis: 60% of the groups outranking small
-HLCA targets were pure FRAGMENTS of abundant subtypes, which rest-of-label markers (sr3m) cannot tell from a whole rare type).
+"""Halo-contrast marker features for every candidate_dump candidate group (dev; motivated by the HLCA diagnosis: 60% of the groups outranking small
+HLCA targets were pure FRAGMENTS of abundant subtypes, which rest-of-label markers (candidate_marker_features) cannot tell from a whole rare type).
 halo = the `size` cells of the same label, outside the group, nearest the group's centroid in global PCA-50. A fragment shares its markers
 with its halo (the rest of its own population); a whole rare type does not. Blind: counts + visible labels only.
-  python sr3h.py PILOT_ID -> $SI/cands/<pid>.halo.parquet (row-aligned with <pid>.groups.parquet)"""
+  python candidate_halo_features.py PILOT_ID -> $SI/cands/<pid>.halo.parquet (row-aligned with <pid>.groups.parquet)"""
 import os, sys, time
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS"): os.environ.setdefault(v, "2")
@@ -34,7 +34,7 @@ def features(X, labels, G, H, ratio):
 
 
 def run(pid):
-    import loader; from sr2 import M
+    import loader; from seprank_variants import M
     d = os.environ.get("SI_CANDS", f"{R5}/cands"); out = f"{d}/{pid}.halo.parquet"
     if os.path.exists(out): return
     t0 = time.time(); a, _true = loader.load_pilot(pid)          # truth is never passed to the method

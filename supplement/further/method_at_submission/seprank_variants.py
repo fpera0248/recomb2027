@@ -6,13 +6,13 @@ cell score = max d' over the candidate groups holding it (-1 if none) + 1e-3 * w
   g_multi : global PCA-50, every resolution in RES_ALL (no silhouette pick)
   l_sil   : per-label HVG + PCA-50 (standard subclustering), silhouette-picked resolution
   l_multi : per-label HVG + PCA-50, every resolution in RES_ALL
-  python sr2.py VARIANT PILOT_ID -> $SI_PREDS/<VARIANT>/<pid>.parquet   (call column left False; TAU is calibrated after the freeze)"""
+  python seprank_variants.py VARIANT PILOT_ID -> $SI_PREDS/<VARIANT>/<pid>.parquet   (call column left False; TAU is calibrated after the freeze)"""
 import os, sys, time
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"): os.environ.setdefault(v, "2")
 SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 import numpy as np, pandas as pd, scanpy as sc
-import loader, split_island_v2 as S2
+import loader, split_island_detector as S2
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import silhouette_score
 M = S2.M if hasattr(S2, "M") else __import__("methods")

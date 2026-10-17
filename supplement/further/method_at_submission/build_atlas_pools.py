@@ -3,7 +3,7 @@ label = the atlas's coarser author/CL annotation (what a user would have), true_
 Pools of 20,000 cells (seed 0). mode "block": one pool per value of the block column (min 2,000 cells); mode "pack": donors shuffled and packed
 until >= 20,000 cells, each pack one pool (donor-disjoint). At most MAXP pools per atlas, in shuffled order (the cap is logged).
 TEST atlases are md5-parity-1 datasets never used to train the learned scorer; DEV atlases are parity 0.
-  python build_atlas5.py NAME [NAME ...] -> slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv"""
+  python build_atlas_pools.py NAME [NAME ...] -> slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv"""
 import os, sys, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
 HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 from anndata.io import sparse_dataset

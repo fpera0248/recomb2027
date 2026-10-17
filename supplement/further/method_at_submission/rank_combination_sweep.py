@@ -1,4 +1,4 @@
-"""python combo_r2.py IDS.txt : rank combinations w*rank_pct(m15x_rule) + (1-w)*rank_pct(m11_seprank; the seprank baseline), w in {0.25, 0.5, 0.75},
+"""python rank_combination_sweep.py IDS.txt : rank combinations w*rank_pct(m15x_rule) + (1-w)*rank_pct(m11_seprank; the seprank baseline), w in {0.25, 0.5, 0.75},
 for every preds_r2/m15* method -> preds_r2c/<m15x_rule>_w<w>/<pid>.parquet. Pools without an m11 prediction are logged and skipped."""
 import sys, os, glob, pandas as pd
 

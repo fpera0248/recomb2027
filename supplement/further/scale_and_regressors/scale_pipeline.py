@@ -11,8 +11,8 @@ E = os.environ.get; R5 = E("R5", ""); OUT = E("OUT", HR_WORK + "/jiaqi1011/out/w
 ATLAS_DIR = E("ATLAS_DIR", f"{H}/data/atlas")
 SIZES = [(int(a), int(b)) for a, b in (x.split(":") for x in E("SIZES", "5000:0,10000:0,20000:0,20000:1,20000:2,50000:0,100000:0,200000:0").split(","))]
 MEM_MIN, CAP_MB = float(E("MEM_FREE_MIN", "25")), float(E("RSS_CAP_GB", "18")) * 1024
-# step ids (saved in scale.csv): sr3 = candidate groups, sr3m = marker features, sr3h = halo features, m1_leiden_sub = Leiden subclustering,
-# learn14_predict = learned scorer, frozen4 = final blend (our method)
+# step ids (saved in scale.csv): candidate_dump = candidate groups, candidate_marker_features = marker features, candidate_halo_features = halo features, m1_leiden_sub = Leiden subclustering,
+# learn14_predict = learned scorer, our_method = final blend (our method)
 STEPS = ["build", "sr3", "sr3m", "sr3h", "m1_leiden_sub", "learn14_predict", "frozen4"]
 BASE_MB = {"build": 3000, "sr3": 3209, "sr3m": 3209, "sr3h": 3209, "m1_leiden_sub": 3053, "learn14_predict": 312, "frozen4": 115}   # 20k medians, ~/work/r5/runtime_all.csv; first-size prediction only
 COLS = ["n", "seed", "step", "status", "wall_s", "cpu_s", "load1", "max_rss_mb", "out_bytes", "exit", "pred_rss_mb", "machine", "n_cells", "note"]
@@ -45,7 +45,7 @@ def fsize(paths): return sum(os.path.getsize(p) for p in paths if os.path.exists
 
 def build(n, seed):
     sys.path.insert(0, CODE); sys.path.insert(0, f"{CODE}/hmod"); os.environ.setdefault("SI_H", f"{CODE}/hmod")
-    import numpy as np, build_r5 as br                  # R5 env set before import -> br.b.OUT / PIL point at the scale root
+    import numpy as np, build_second_atlas_set as br                  # R5 env set before import -> br.b.OUT / PIL point at the scale root
     br.b.AT = ATLAS_DIR; br.LK = f"{H}/data/leak5"      # atlas files + read-only overrides.csv from the real tree; nothing is written there
     name = E("SCALE_NAME") or pick_atlas()[0]
     P = br.prep(name, None, None)
@@ -64,8 +64,8 @@ def build(n, seed):
 
 
 def pick_atlas():
-    """largest set-B atlas by n_obs (backed read); set B = build_r5.ATL ids present in ATLAS_DIR; SCALE_NAME overrides (laptop test: luad)."""
-    sys.path.insert(0, CODE); import anndata as ad, build_r5 as br
+    """largest set-B atlas by n_obs (backed read); set B = build_second_atlas_set.ATL ids present in ATLAS_DIR; SCALE_NAME overrides (laptop test: luad)."""
+    sys.path.insert(0, CODE); import anndata as ad, build_second_atlas_set as br
     if E("SCALE_NAME"): n = E("SCALE_NAME"); return n, None
     best = None
     for k, c in br.ATL.items():
@@ -97,12 +97,12 @@ def run():
         pid = f"atl_scale_n{n}_s{s}"; C, Hc = f"{R5}/cands/{pid}", f"{R5}/preds_m14p/m14p_frozen/{pid}.parquet"
         ids = f"{OUT}/ids_{pid}.txt"; open(ids, "w").write(pid + "\n")
         cmds = {"build": ([py, me, "build", str(n), str(s)], base, [f"{R5}/slim_atlas/scale_n{n}_s{s}.h5ad", f"{R5}/hmod/pilots/{pid}.parquet"]),
-                "sr3": ([py, f"{CODE}/sr3.py", pid], sr3env, [f"{C}.groups.parquet", f"{C}.cells.parquet"]),
-                "sr3m": ([py, f"{CODE}/sr3m.py", pid], sr3env, [f"{C}.markers.parquet"]),
-                "sr3h": ([py, f"{CODE}/sr3h.py", pid], sr3env, [f"{C}.halo.parquet"]),
-                "m1_leiden_sub": ([py, f"{CODE}/run_m1_only.py", pid], base, [f"{R5}/preds_base/m1_leiden_sub/{pid}.parquet"]),
-                "learn14_predict": ([py, f"{CODE}/learn14.py", "predict", model, pid, Hc, "P4_s1"], {**base, "FEATS": "mkh"}, [Hc]),
-                "frozen4": ([py, f"{CODE}/frozen4.py", ids], base, [f"{R5}/preds_frozen4/frozen4/{pid}.parquet"])}
+                "sr3": ([py, f"{CODE}/candidate_dump.py", pid], sr3env, [f"{C}.groups.parquet", f"{C}.cells.parquet"]),
+                "sr3m": ([py, f"{CODE}/candidate_marker_features.py", pid], sr3env, [f"{C}.markers.parquet"]),
+                "sr3h": ([py, f"{CODE}/candidate_halo_features.py", pid], sr3env, [f"{C}.halo.parquet"]),
+                "m1_leiden_sub": ([py, f"{CODE}/run_leiden_sub_only.py", pid], base, [f"{R5}/preds_base/m1_leiden_sub/{pid}.parquet"]),
+                "learn14_predict": ([py, f"{CODE}/learned_scorer.py", "predict", model, pid, Hc, "P4_s1"], {**base, "FEATS": "mkh"}, [Hc]),
+                "frozen4": ([py, f"{CODE}/our_method.py", ids], base, [f"{R5}/preds_frozen4/frozen4/{pid}.parquet"])}
         stop = False
         for step in STEPS:
             if (n, s, step) in done and (step != "build" or os.path.exists(f"{R5}/slim_atlas/scale_n{n}_s{s}.h5ad")): continue   # rebuild if CLEAN removed the pool
