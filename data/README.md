@@ -2,6 +2,8 @@
 
 Run the commands from the repository root.
 
+`data/build_pools8.py` writes the 70 pools of the 8-atlas test set (the set of the headline result) from the atlases of `data/atlases8.csv`, fetched by `./fetch_data.sh full8 "$HR_DATA"` (default `work8`). `python -m eval.check_pools8 "$HR_DATA"` compares them with the original pools (`eval/expected/test8_pools.tsv`).
+
 `data/build_pools.py` writes the pools and `data/build_twins.py` the null-test twin pools of the 10-atlas test set. Both read the atlas files of `data/atlases.csv` in `$HR_DATA/atlas`. These come from `./fetch_data.sh full "$HR_DATA"` (below) or from `data/download_atlases.sh`, which does no size or md5 check.
 
 `data/manifests` and `data/targets` are reference copies of the pool lists and target tables of the original run: diff them against what `build_pools.py` writes to `$HR_DATA`.

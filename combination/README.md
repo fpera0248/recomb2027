@@ -18,4 +18,4 @@ combination/run_all.sh lr                                    # all eligible pool
 ```
 `HR_POOLS` holds `<source_path>` h5ad files (raw counts, all genes) for the 69 pools of the 8-atlas test set, for example `luad_p0.h5ad`.
 
-Limits: `data/build_pools.py` builds the 10-atlas pools, not these, and the paper-tier assets omit them, so the experiment cannot yet run from the repository and release assets alone. The finished run (58 pools from 8 atlases) is reported in Supp. Fig. S3 of the paper, but its per-pool result rows are not in the repository.
+Limits: the paper-tier assets omit these pools. `./reproduce.sh full8` (or `python -m data.build_pools8`) rebuilds them; set `HR_POOLS=$HR_DATA/pools` (untested end to end). The finished run (58 pools from 8 atlases) is reported in Supp. Fig. S3 of the paper, but its per-pool result rows are not in the repository.

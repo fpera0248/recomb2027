@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 work/
+work8/
 tools_src/
 out/
 *.log
@@ -8,4 +9,5 @@ out/
 *.parquet
 assets/
 reproduce_out/
+reproduce_out8/
 combination/rows*

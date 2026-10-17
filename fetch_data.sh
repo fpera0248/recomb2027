@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Download and verify what a reproduction tier needs.
 #
-#   fetch_data.sh paper|rerun|full|all [DEST]
+#   fetch_data.sh paper|rerun|full|full8|all [DEST]
 #     paper  predictions, tool predictions, pools and Part I results, extracted under DEST (default ./assets)
 #     rerun  pools, predictions and rerun inputs, extracted under DEST
 #     full   the 10-atlas test files from CELLxGENE (ATLAS_MANIFEST.csv, set test10), saved as DEST/atlas/<dataset_id>.h5ad
+#     full8  the 8-atlas test files (set test8, 22.3 GB), saved the same way; not part of all
 #     all    paper, rerun and full
 #
 # Release assets come from $BASE/<asset> with BASE=https://github.com/fpera0248/recomb2027/releases/download/$TAG, and are checked against
@@ -21,10 +22,10 @@ esac
 TAG=${TAG:-v0.1.0}
 BASE=${BASE:-https://github.com/fpera0248/recomb2027/releases/download/$TAG}
 here=$(cd "$(dirname "$0")" && pwd)
-mode=${1:?usage: fetch_data.sh paper|rerun|full|all [DEST]}
+mode=${1:?usage: fetch_data.sh paper|rerun|full|full8|all [DEST]}
 dest=${2:-assets}
 case $mode in
-  paper|rerun|full|all) ;;
+  paper|rerun|full|full8|all) ;;
   *)
     echo "unknown mode $mode" >&2
     exit 2
@@ -121,4 +122,7 @@ if [ "$mode" = rerun ] || [ "$mode" = all ]; then
 fi
 if [ "$mode" = full ] || [ "$mode" = all ]; then
   atlases test10
+fi
+if [ "$mode" = full8 ]; then
+  atlases test8
 fi
