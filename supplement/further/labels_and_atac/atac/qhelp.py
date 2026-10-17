@@ -1,4 +1,4 @@
-"""python qhelp.py CMD ... : small CSV lookups for mini_queue/atac_all.sh. order OUT (eligible dataset ids, kidney regression first, then fragment size ascending) | urls CAND ID (h5ad url, then fragment urls) | humans CAND (id and h5ad url of human datasets) | flags OUT ID (pair override flags)."""
+"""python qhelp.py CMD ... : small CSV lookups for further/queues/atac_all.sh. order OUT (eligible dataset ids, kidney regression first, then fragment size ascending) | urls CAND ID (h5ad url, then fragment urls) | humans CAND (id and h5ad url of human datasets) | flags OUT ID (pair override flags)."""
 import sys, os, pandas as pd
 KID = "09b518f9-da64-44cc-aec8-70a89d55611f"
 def main(a):

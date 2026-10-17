@@ -1,17 +1,17 @@
-"""python select_ds.py [--cand CSV] [--h5ad-dir DIR | --h5ad FILE --dataset ID] --out DIR [--only ID,ID] : R1 eligibility and (coarse, fine) pair per dataset, METADATA ONLY (backed h5ad obs read).
-Rules (PLAN_1012 R1): human; fine/coarse columns picked mechanically (no method output); >=97% of each fine type inside one coarse type; coarse has fewer categories than fine;
+"""python select_ds.py [--cand CSV] [--h5ad-dir DIR | --h5ad FILE --dataset ID] --out DIR [--only ID,ID] : eligibility and (coarse, fine) pair per dataset, METADATA ONLY (backed h5ad obs read).
+Rules: human; fine/coarse columns picked mechanically (no method output); >=97% of each fine type inside one coarse type; coarse has fewer categories than fine;
 pair = most whole-dataset target pairs, ties -> fewer coarse categories -> alphabetical (coarse, fine); >=3 targets, >=8,000 cells after drops, >=2 donors.
-Amendment 2026-10-12 (before any R1 method output; decided from kidney metadata alone, applies to all datasets): NOTLAB also excludes model-prediction columns (label transfer, Azimuth, CellTypist, scANVI, scOMM, confidence/score) and cluster-id columns by name, because a prediction is not curated truth and favours the arm it came from. NOTLAB already goes beyond the PLAN list (library, institute, preservation, age, is_*, reported, sequenced, ...) and DROP now matches substrings (doublet, low quality) anywhere in a label.
-Amendment 2 2026-10-12 ~20:45 EDT (column names only, before any R1 method output on that dataset): 72a69193 got (patient_group, region), which are not cell-type columns.
-Label columns must now also have a cell-type-annotation name (CTLAB below; cell_type is exempt). Applies to all datasets; the selection was rerun and every change is logged in OUT/selection_amend2.txt.
+Rule (decided from kidney metadata alone, before any method output): NOTLAB also excludes model-prediction columns (label transfer, Azimuth, CellTypist, scANVI, scOMM, confidence/score) and cluster-id columns by name, because a prediction is not curated truth and favours the arm it came from. NOTLAB goes beyond the spec list (library, institute, preservation, age, is_*, reported, sequenced, ...) and DROP matches substrings (doublet, low quality) anywhere in a label.
+Label columns must also have a cell-type-annotation name (CTLAB below; cell_type is exempt), so columns such as (patient_group, region) are never picked. This rule uses column names only, was also decided before any method output and applies to all datasets; OUT/selection_amend2.txt logs its effect on the selection.
 Optional OUT/not_zero_shot.csv (dataset_id,reason) overrides the zero-shot flag (study-level overlap the id lists miss).
 Writes OUT/selection.csv (one row per dataset) and OUT/<dataset_id>/selection.json (chosen pair, all valid pairs, donors, zero-shot status)."""
 import os, re, sys, json, argparse, glob, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 HOME = os.path.expanduser("~"); BAD = {"None", "nan", "Unknown"}
 DROP = re.compile(r"^(|unknown|unassigned|unclassified|unannotated|undefined|na|n/a|nan|none|empty|-)$|doublet|low[ _.-]?quality", re.I)   # labels dropped first
 # columns that are never labels: spec list (donor, sample, batch, assay, sex, tissue, disease, development stage, ethnicity) + ontology ids + CELLxGENE technical columns
 NOTLAB = re.compile(r"_ontology_term_id$|donor|sample|batch|assay|^sex|tissue|disease|development|ethnic|library|suspension|software|reference_genome|gene_annotation|preservation|institute|primary_data|organism|intronic|sequenced|^age|^is_|reported|predict|pred_|transfer|scomm|azimuth|celltypist|singler|scanvi|popv|majority_voting|confidence|_score|_prob|cluster|leiden|louvain|seurat_clusters", re.I)
-CTLAB = re.compile(r"cell.?type|annot|class|type|lineage|subset|sub(?!ject)|major|minor|level|(^|_)l\d", re.I)   # amendment 2: label columns must be named as cell-type annotations
+CTLAB = re.compile(r"cell.?type|annot|class|type|lineage|subset|sub(?!ject)|major|minor|level|(^|_)l\d", re.I)   # label columns must be named as cell-type annotations
 NUMLIKE = re.compile(r"^-?\d+(\.\d+)?$")
 
 def targets(df):
@@ -28,7 +28,7 @@ def label_cols(obs, don):
         s = obs[c]
         if not (isinstance(s.dtype, pd.CategoricalDtype) or s.dtype == object or pd.api.types.is_string_dtype(s)): continue
         if c != "cell_type" and NOTLAB.search(c): continue
-        if c != "cell_type" and not CTLAB.search(c): continue    # amendment 2
+        if c != "cell_type" and not CTLAB.search(c): continue    # label-column name rule (see docstring)
         if c == "cell_type_ontology_term_id": continue
         cats = pd.Index(s.astype(str).unique()); nn = [x for x in cats if not NUMLIKE.match(x)]
         if not (2 <= len(nn) <= 300) or len(nn) < 0.5 * len(cats): continue    # numeric cluster ids out
@@ -66,9 +66,9 @@ def zero_shot(did, cid, out=None):
     if ov and os.path.exists(ov):
         o = pd.read_csv(ov).set_index("dataset_id").reason
         if did in o.index: return f"not zero-shot on study: {o[did]}"
-    uf = f"{HOME}/work/r5/used_datasets.csv"
+    uf = f"{HR_WORK}/r5/used_datasets.csv"
     if not os.path.exists(uf): return "zero-shot status unknown (used_datasets.csv missing)"
-    u = pd.read_csv(uf); ds = set(u.dataset_id) | {a for f in glob.glob(f"{HOME}/work/r5/data/atlas_manifest_*.csv") + glob.glob(f"{HOME}/work/ablation_donor/data/atlas_manifest_*.csv") for a in pd.read_csv(f).atlas.astype(str)}
+    u = pd.read_csv(uf); ds = set(u.dataset_id) | {a for f in glob.glob(f"{HR_WORK}/r5/data/atlas_manifest_*.csv") + glob.glob(f"{HR_WORK}/ablation_donor/data/atlas_manifest_*.csv") for a in pd.read_csv(f).atlas.astype(str)}
     d_used = did in set(u.dataset_id) or did[:8] in ds; c_used = cid in set(u.collection_id) or cid[:8] in ds
     return "not zero-shot on dataset" if d_used else "not zero-shot on study" if c_used else "zero-shot"
 
@@ -103,7 +103,7 @@ def demo():
 
 if __name__ == "__main__":
     if len(sys.argv) == 1: demo(); print("demo ok"); sys.exit(0)
-    p = argparse.ArgumentParser(); p.add_argument("--cand", default=f"{HOME}/work/jiaqi1011/out/w6_annot_atac/atac21_candidates.csv"); p.add_argument("--h5ad-dir"); p.add_argument("--h5ad"); p.add_argument("--dataset")
+    p = argparse.ArgumentParser(); p.add_argument("--cand", default=f"{HR_WORK}/jiaqi1011/out/w6_annot_atac/atac21_candidates.csv"); p.add_argument("--h5ad-dir"); p.add_argument("--h5ad"); p.add_argument("--dataset")
     p.add_argument("--out", required=True); p.add_argument("--only"); A = p.parse_args(); os.makedirs(A.out, exist_ok=True)
     C = pd.read_csv(A.cand); C = C[C.dataset_id.isin(A.only.split(","))] if A.only else C
     C = C[C.dataset_id == A.dataset] if A.dataset else C; rows = []

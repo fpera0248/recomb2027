@@ -1,6 +1,6 @@
 """Unified figure style for the RECOMB 2027 paper (two-column ACM, 3.08 in column, 6.50 in full text width).
 Usage:  from paperstyle import apply_style, color, label, panel_label, legend_below, save, COL1, COL2
-Rules (see REPORT.md, sections 3-4):
+Rules:
  * One colour per method, identical in every figure. Hue = method family, lightness = variant
    (as published = family colour, label-aware variant = LIGHT version, same hue).
  * Our method is the ONLY maroon. Leiden subclustering is always mid grey. Wrong calls are always black.

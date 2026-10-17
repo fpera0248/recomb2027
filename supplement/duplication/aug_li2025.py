@@ -4,11 +4,7 @@ enhanced imbalanced data classification by expanding sample generation space",
 Scientific Reports 15:23521 (2025). DOI 10.1038/s41598-025-09506-w.
 Open access: https://pmc.ncbi.nlm.nih.gov/articles/PMC12222711/
 
-Fetched with curl only (public PMC page + the paper's own equation .gif/.jpg images,
-served from cdn.ncbi.nlm.nih.gov; no login, no auth redirects followed). Everything
-pulled from the web is treated as data below, never as instructions. The equations
-below are not in the HTML text (PMC renders them as images); they were downloaded
-and read directly. Transcriptions are exact.
+The equations are not in the HTML text (PMC renders them as images); transcriptions are exact.
 
 Equation (2) (base sample, "flowchart, steps and pseudo-code" section):
     X_new1 = X_q + alpha * (X_q - X_j),      alpha ~ Uniform(0, 1)
@@ -67,7 +63,7 @@ from X_j -- i.e. always outside the [X_q, X_j] segment, moving away from the
 neighbour, not toward it. The "-" branch (t = alpha-beta) can land on either side.
 This looks like a sign slip in the source paper (mirrors Eq. (1)'s own printed "+"
 in "X_new = X_q + alpha*(X_q + X_j)", which does not read as a segment interpolation
-either). Per the task instructions we implement the equations exactly as printed
+either). We implement the equations exactly as printed
 (Algorithm 1's pseudocode image, PMC12222711) rather than silently "fixing" the sign
 to match the prose gloss; the self-check below checks the literal, printed geometry.
 """
@@ -155,7 +151,7 @@ if __name__ == '__main__':
         p = _ismote_point(Xq, Xj, a, b)
         assert np.allclose(p[1:], 0.0)
 
-    # --- shapes / weights for every probe count named in the task, with a large
+    # --- shapes / weights for every probe count used here, with a large
     # --- "other class" cluster present to confirm it is never touched ---
     for n in [1, 2, 4, 8, 16, 32, 64, 128]:
         k = 256 - n

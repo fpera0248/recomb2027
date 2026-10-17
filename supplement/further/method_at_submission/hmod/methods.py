@@ -103,8 +103,7 @@ def _groups_from_call(adata, X, call, labels, resolution=0.5, min_size=5):
     """Leiden-cluster the called cells WITHIN each visible label; each
     resulting subcluster (>= min_size) is reported as a candidate group.
     A label's called cells that never reach min_size are dropped, not
-    reported (fixed 2026-10-04: this used to report them as a group
-    regardless of size, which inflated n_groups/n_false_groups in
+    reported (reporting them would inflate n_groups/n_false_groups in
     evaluate.py in proportion to the number of visible labels)."""
     obs_names = adata.obs_names.values
     call = np.asarray(call)
@@ -223,7 +222,7 @@ def m4_iforest_scvi(adata, n_latent=10, max_epochs=20):
 # --------------------------------------------------------------------------
 # donor-wise cross-fitted classifier + uncertainty (shared by M5, M6, M7, M8)
 #
-# Scope note (fixed 2026-10-04, was overstated): only the RandomForest
+# Scope note: only the RandomForest
 # probabilities below are donor-disjoint (GroupKFold on donor). HVG
 # selection and PCA (preprocess_pca), mahalanobis_to_own_label's per-label
 # mean/covariance, and _assign_pseudo's Leiden carving are all fit on every
@@ -425,9 +424,7 @@ def _loop(adata, mode):
             sel = idx[cl == c]
             if len(sel) >= MIN_GROUP_SIZE:
                 groups.append(list(obs_names[sel]))
-    # else: union below MIN_GROUP_SIZE -> no group reported (fixed
-    # 2026-10-04: this used to report the whole undersized union as one
-    # group, the same floor-skipping bug as _groups_from_call above).
+    # else: union below MIN_GROUP_SIZE -> no group reported (same size floor as _groups_from_call above).
 
     return dict(score=pd.Series(last_score, index=obs_names),
                 call=pd.Series(union_mask, index=obs_names),
@@ -435,7 +432,7 @@ def _loop(adata, mode):
 
 
 def m6_dup_loop(adata):
-    """Round-0 candidates = union(M2, M5) calls, clustered into pseudo-
+    """Initial candidates = union(M2, M5) calls, clustered into pseudo-
     labels per visible label. Each round: duplicate each pseudo-label's
     training rows up to the median visible-label size, retrain the cross-
     fit classifier with pseudo-labels as new classes, re-score, reassign

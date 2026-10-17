@@ -1,4 +1,4 @@
-"""Step 2 (C18 V2-316M build): Geneformer V2-316M frozen cell embeddings for exactly the
+"""Step 2 (V2-316M build): Geneformer V2-316M frozen cell embeddings for exactly the
 12,719 unique cells cells_needed.csv selects (run cells_needed.py first).
 
 Reuses the proven gf6l_emb/src pipeline pattern (01_shard_tokenize.py + 02_embed.py: the REAL,
@@ -7,8 +7,8 @@ ray/optuna/tdigest/seaborn imports) reconfigured for the V2/"95M-series" convent
 30M: special_token=True (<cls>/<eos>), model_input_size=4096, the gc95M-vocab dictionaries
 (gene_median_dictionary_gc95M.pkl / token_dictionary_gc95M.pkl / ensembl_mapping_dict_gc95M.pkl,
 vocab 20275, <pad>=0 <mask>=1 <cls>=2 <eos>=3 -- all confirmed by reading the pickles directly).
-The task's notes call this "gc104M"; no file of that name exists in this Geneformer checkout,
-but these gc95M dicts are the ones the checkout's own tokenizer.py docstring (line 37) says go
+The Geneformer checkout used here has no gc104M dictionary (later upstream releases name the V2
+dictionaries gc104M); these gc95M dicts are the ones its tokenizer.py (line 37) pairs
 with special_token=True + model_input_size=4096 + vocab 20275, i.e. the same convention family.
 
 aida_sg.h5ad already has raw counts directly in .X and Ensembl ids directly as var_names
@@ -26,30 +26,23 @@ also the default, giving layer_to_quant = quant_layers(model) + (-1) = N_LAYERS 
 last layer, matching the 2nd-to-last-layer convention already used for 6L in gf6l_emb/src).
 This also matches this project's OWN prior V2-316M artifacts (fm2/run_fm_dup_gf316m.py's
 docstring: "1152-dim GF-316M CLS, frozen"). The repo default is therefore CLS at the 2nd-to-
-last layer, NOT a mean over gene tokens as the task notes guessed -- BUT the finished 6L run
+last layer, NOT a mean over gene tokens -- BUT the finished 6L run
 (gf6l_emb/src/02_embed.py) mean-pooled in fp32, so a CLS-only V2 output would confound "model
-size" with "pooling choice" in any C18 comparison. Fixed at zero extra cost: every forward pass
+size" with "pooling choice" in any foundation-model comparison. Fixed at zero extra cost: every forward pass
 below now saves BOTH poolings (CLS and mean, excluding <cls>/<eos>) from the same hidden_states,
 so the comparison can isolate the pooling axis instead of silently mixing it with the model-size
 axis. Precision note: bf16 is the MPS-required compute dtype (see load_model()), but hidden
 states are upcast to fp32 BEFORE the mean-pool reduction -- summing up to ~4096 bf16 positions
 loses real precision a post-hoc cast cannot recover.
 
-CHECKPOINT: no gf-*-316M folder and no 1152-hidden/18-layer config.json exist anywhere on this
-machine (confirmed by inspecting every gf-* folder's config.json, md5-comparing the repo
-ROOT's model.safetensors against gf-12L-95M-i4096/model.safetensors -- byte-identical, so the
-root checkout is just the 95M model -- and a find under ~ and /Volumes for 316M/V2 names and
-hidden_size-1152 configs: nothing). CKPT previously guessed this repo's OWN on-disk "gf-NL-MMM-
-iSEQ" convention (gf-18L-316M-i4096), but that convention names the V1-era checkpoints already
-here; the real weights are public on HF as ctheodoris/Geneformer's "Geneformer-V2-316M" folder
-(18L/1152-hidden/18-head/vocab-20275/max-pos-4096 config verified against this file's VOCAB/
-HIDDEN/N_LAYERS/N_HEADS/MODEL_INPUT_SIZE), behind no credential. CKPT below defaults to that
-upstream name under GF_ROOT and is overridable with the GF_V2_CKPT env var once the weights are
-placed somewhere else; this script never fetches them itself. main() hard-asserts on CKPT before
-loading anything, and exits with an actionable message instead of silently running the wrong
-checkpoint.
+CHECKPOINT: the V2-316M weights (18L/1152-hidden/18-head/vocab-20275/max-pos-4096) are not in the
+Geneformer checkout. CKPT defaults to the upstream HF folder name ("Geneformer-V2-316M",
+ctheodoris/Geneformer) under GF_ROOT and is overridable with GF_V2_CKPT; this script never fetches
+the weights itself. main() hard-asserts on CKPT before loading anything and exits with an
+actionable message instead of silently running the wrong checkpoint.
 """
 import os, sys, json, time, shutil
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np
 import pandas as pd
 
@@ -60,13 +53,13 @@ try:
 except Exception:
     pass
 
-SRC_H5AD   = '/Users/fperaltacastro/work/aida_sg/aida_sg.h5ad'                       # READ-ONLY
-GF_ROOT    = '/Users/fperaltacastro/geneformer/Geneformer'                          # READ-ONLY
+SRC_H5AD   = HR_WORK + '/aida_sg/aida_sg.h5ad'                       # READ-ONLY
+GF_ROOT    = os.environ.get('GF_ROOT', os.path.expanduser('~/geneformer/Geneformer'))                          # READ-ONLY
 PKG        = os.path.join(GF_ROOT, 'geneformer')
 GENE_MEDIAN_FILE      = os.path.join(PKG, 'gene_median_dictionary_gc95M.pkl')
 TOKEN_DICTIONARY_FILE = os.path.join(PKG, 'token_dictionary_gc95M.pkl')
 ENSEMBL_MAPPING_FILE  = os.path.join(PKG, 'ensembl_mapping_dict_gc95M.pkl')
-# Upstream HF folder name (ctheodoris/Geneformer); NOT present on this machine as of this build.
+# Upstream HF folder name (ctheodoris/Geneformer).
 # Override with GF_V2_CKPT once the weights are placed somewhere -- this script never downloads
 # them itself.
 CKPT = os.environ.get('GF_V2_CKPT', os.path.join(GF_ROOT, 'Geneformer-V2-316M'))
@@ -242,7 +235,7 @@ def embed_chunk(model, dev, idlists):
     Returns (cls_out, mean_out), each (n, HIDDEN) float32, same order, from ONE forward pass:
       cls_out:  hidden_states[LAYER_TO_QUANT][:, 0, :]        (repo default, EmbExtractor emb_mode='cls')
       mean_out: mean over non-pad, non-cls/eos positions, same layer (EmbExtractor emb_mode='cell')
-    Both are saved so a C18 comparison can isolate the pooling axis (see module docstring)."""
+    Both are saved so a foundation-model comparison can isolate the pooling axis (see module docstring)."""
     import torch
     L = max(len(a) for a in idlists)
     x = torch.zeros((len(idlists), L), dtype=torch.long)
@@ -276,7 +269,7 @@ def main():
 
     ids_all = [np.asarray(v, dtype=np.int64) for v in ds['input_ids']]
     lens = np.array([len(a) for a in ids_all])
-    order = np.argsort(-lens)   # long first: catches OOM immediately, ~3x faster per task notes
+    order = np.argsort(-lens)   # long first: catches OOM immediately, ~3x faster
     os.makedirs(PART_DIR, exist_ok=True)
 
     n_parts = (len(order) + CHUNK_CELLS - 1) // CHUNK_CELLS

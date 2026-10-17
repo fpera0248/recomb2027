@@ -1,15 +1,18 @@
-"""W1c: time + memory of each pipeline step vs pool size. Calls the LOCKED code in ~/work/r5/code (never copied/edited).
+"""Scaling harness: time + memory of each pipeline step vs pool size. Calls the LOCKED code in ~/work/r5/code (never copied/edited).
   $R5_PY scale_pipeline.py run          driver (needs anndata for the atlas pick, so run it with the venv python): ladder of sizes, one /usr/bin/time -l subprocess per step -> $OUT/scale.csv
   $R5_PY  scale_pipeline.py build N SEED builds one pool (called by the driver) into $R5 (scale data root)
   python3 scale_pipeline.py selftest
 Env: R5 (scale data root, REQUIRED, never ~/work/r5/data), R5_PY, R5_MODEL, OUT, ATLAS_DIR, SCALE_NAME (atlas name, default = largest set-B atlas by n_obs),
 SIZES ("n:seed,..."), MEM_FREE_MIN (25), RSS_CAP_GB (18), CLEAN (1 = delete slim pool after its size)."""
 import os, sys, re, csv, time, subprocess, math, glob
-H = os.path.expanduser("~/work/r5"); CODE = f"{H}/code"
-E = os.environ.get; R5 = E("R5", ""); OUT = E("OUT", os.path.expanduser("~/work/jiaqi1011/out/w1_scale"))
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+H = HR_WORK + "/r5"; CODE = f"{H}/code"
+E = os.environ.get; R5 = E("R5", ""); OUT = E("OUT", HR_WORK + "/jiaqi1011/out/w1_scale")
 ATLAS_DIR = E("ATLAS_DIR", f"{H}/data/atlas")
 SIZES = [(int(a), int(b)) for a, b in (x.split(":") for x in E("SIZES", "5000:0,10000:0,20000:0,20000:1,20000:2,50000:0,100000:0,200000:0").split(","))]
 MEM_MIN, CAP_MB = float(E("MEM_FREE_MIN", "25")), float(E("RSS_CAP_GB", "18")) * 1024
+# step ids (saved in scale.csv): sr3 = candidate groups, sr3m = marker features, sr3h = halo features, m1_leiden_sub = Leiden subclustering,
+# learn14_predict = learned scorer, frozen4 = final blend (our method)
 STEPS = ["build", "sr3", "sr3m", "sr3h", "m1_leiden_sub", "learn14_predict", "frozen4"]
 BASE_MB = {"build": 3000, "sr3": 3209, "sr3m": 3209, "sr3h": 3209, "m1_leiden_sub": 3053, "learn14_predict": 312, "frozen4": 115}   # 20k medians, ~/work/r5/runtime_all.csv; first-size prediction only
 COLS = ["n", "seed", "step", "status", "wall_s", "cpu_s", "load1", "max_rss_mb", "out_bytes", "exit", "pred_rss_mb", "machine", "n_cells", "note"]
@@ -61,7 +64,7 @@ def build(n, seed):
 
 
 def pick_atlas():
-    """largest set-B atlas by n_obs (backed read); set B = build_r5.ATL ids present in ATLAS_DIR; SCALE_NAME overrides (laptop test: luad)."""
+    """largest set-B atlas by n_obs (backed read); set B = build_second_atlas_set.ATL ids present in ATLAS_DIR; SCALE_NAME overrides (laptop test: luad)."""
     sys.path.insert(0, CODE); import anndata as ad, build_r5 as br
     if E("SCALE_NAME"): n = E("SCALE_NAME"); return n, None
     best = None
@@ -81,7 +84,7 @@ def run():
     if not rows: csv.writer(open(csvf, "w")).writerow(COLS)
     done = {(int(r["n"]), int(r["seed"]), r["step"]) for r in rows if r["status"] == "ok"}
     hist = {s: [(int(r["n"]), float(r["max_rss_mb"])) for r in rows if r["step"] == s and r["status"] == "ok"] for s in STEPS}
-    py = E("R5_PY", "python3"); model = E("R5_MODEL", os.path.expanduser("~/work/r5/refit_dev_nat.pkl")); me = os.path.abspath(__file__)
+    py = E("R5_PY", "python3"); model = E("R5_MODEL", HR_WORK + "/r5/refit_dev_nat.pkl"); me = os.path.abspath(__file__)
     atl, natl = (E("SCALE_NAME"), None) if E("SCALE_NAME") else pick_atlas()
     print("atlas", atl, "n_obs", natl, flush=True)
     base = {**os.environ, "SCALE_NAME": atl, "SI_H": f"{CODE}/hmod", "SLIM_DIR": f"{R5}/slim_atlas", "PYTHONWARNINGS": "ignore"}

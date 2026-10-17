@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Reproduce the numbers of the paper at four depths.
 #
-#   reproduce.sh paper    download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type check, assert the match
+#   reproduce.sh [paper] (default) download the release assets, recompute the Part II numbers of the 8-atlas test set plus the Part I panel and 31-type check, assert the match
 #   reproduce.sh rerun    rescore the 69 held-out pools from the frozen candidate tables with this repository's scorer
 #   reproduce.sh full     rebuild the 10-atlas test pools from CELLxGENE and rerun our method, Leiden subclustering and (TOOLS=1) the published tools on them (untested)
 #   reproduce.sh full8    rebuild the 8-atlas test pools (the set of the headline result) from CELLxGENE and rerun our method, Leiden subclustering and (TOOLS=1) the published tools on them (untested)
@@ -33,7 +33,7 @@ case ${1:-} in
     exit 0
     ;;
 esac
-mode=${1:?usage: reproduce.sh paper|rerun|full|full8}
+mode=${1:-paper}   # default level: paper
 case $mode in
   paper|rerun|full|full8) ;;
   *)

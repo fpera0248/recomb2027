@@ -1,4 +1,4 @@
-"""E1 (N18a/b): per-type adaptive augmentation policy vs duplication, from saved same-processing 31-type results.
+"""Condition by size: per-type adaptive augmentation policy vs duplication, from saved same-processing 31-type results.
 
 README: python3 run.py [--smoke]   (seconds; reads probe31_runs.csv, writes out/*.csv + out/report.txt; no training)
 Input: part1_results/probe31_runs.csv (part1/probe31.py schema; 'upsample'=duplication, 'real'=no augmentation).
@@ -12,15 +12,16 @@ SUCCESS iff policy-minus-dup d>=+0.01 AND q<0.05 in >=2 of 4 classifiers AND pol
 Else report 'not shown'. Deep generators are not in this table (only dup/no-aug/jitter/jitternz/smote/li2025/jmo).
 """
 import os, sys, argparse
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ.setdefault("OMP_NUM_THREADS", "4")
 import numpy as np, pandas as pd
-R = os.environ.get("R8", "/Users/fperaltacastro/work/recomb2027-r8i3wt")
+R = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 sys.path.insert(0, R)
 from part1.signflip import signflip_p
 from statsmodels.stats.multitest import multipletests
 
 ap = argparse.ArgumentParser(); ap.add_argument("--smoke", action="store_true")
-ap.add_argument("--csv", default="/Users/fperaltacastro/work/recomb27/v2/p1/part1_results/probe31_runs.csv")
+ap.add_argument("--csv", default=HR_WORK + "/recomb27/v2/p1/part1_results/probe31_runs.csv")
 ap.add_argument("--out", default=None)
 ap.add_argument("--exclude", default="", help="comma list of arms to drop (secondary run: own diagnostics)")
 a = ap.parse_args()
@@ -70,7 +71,7 @@ T.to_csv(os.path.join(a.out, "summary.csv"), index=False)
 verdict = "SUCCESS" if ok.sum() >= 2 else "NOT SHOWN"
 rep = ("Rule is nested across types (other types' held-out outcomes), NOT train-only; policy_ls also leaves out the probe's seed. "
        "Diagnostic is n-bin only (per size, not per type); candidates are the arms in the CSV only. oracle = per-probe max (loose); oracle_type = best arm per type on test.\n") + T.round(4).to_string() + f"\nVERDICT: {verdict} ({int(ok.sum())}/{len(T)} classifiers pass)\n"
-# N18b: which arm wins where (mean rec200 minus dup, by n-bin)
+# which arm wins where (mean rec200 minus dup, by n-bin)
 al = pd.concat(per); arms = [c for c in al.columns if c in D.arm.unique()]
 rep += "\nmean rec200 minus dup by clf and n-bin (0:<=4,1:8-16,2:>=32)\n" + al.groupby(["clf", "bin"])[arms].mean().sub(al.groupby(["clf", "bin"]).upsample.mean(), axis=0).round(3).to_string() + "\n"
 open(os.path.join(a.out, "report.txt"), "w").write(rep); print(rep)

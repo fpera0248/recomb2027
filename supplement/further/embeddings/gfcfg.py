@@ -2,11 +2,12 @@
 Any change here changes CFG_HASH, which every stage asserts against the manifest,
 so a half-finished run can never be resumed under different settings."""
 import hashlib, json, os
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 from pathlib import Path
 
-SRC_H5AD   = "/Users/fperaltacastro/work/aida_sg/aida_sg.h5ad"          # READ-ONLY
-CELLS_CSV  = "/private/tmp/claude-501/-Users-fperaltacastro-scfm-release/5bd13e3c-42df-40d8-8644-bb7cdbe852fd/scratchpad/aida_sg_cells.csv"
-GF_ROOT    = Path("/Users/fperaltacastro/geneformer/Geneformer")        # READ-ONLY
+SRC_H5AD   = HR_WORK + "/aida_sg/aida_sg.h5ad"          # READ-ONLY
+CELLS_CSV  = os.environ.get("GF_CELLS_CSV")   # CSV of the cells to embed (aida_sg_cells.csv); set GF_CELLS_CSV before running a stage that reads it
+GF_ROOT    = Path(os.environ.get("GF_ROOT", os.path.expanduser("~/geneformer/Geneformer")))        # READ-ONLY
 PKG        = GF_ROOT / "geneformer"
 D30        = PKG / "gene_dictionaries_30m"
 GENE_MEDIAN_FILE      = D30 / "gene_median_dictionary_gc30M.pkl"
@@ -28,7 +29,7 @@ BATCH            = 16                       # measured optimum on BOTH cpu and m
 THREADS          = 8                        # measured: 5 threads 0.096, 8 threads 0.069, 10 threads 0.070 s/cell
 DEVICE           = os.environ.get("GF_DEVICE", "cpu")   # "mps" (~4.1 h) or "cpu" (~6.7 h)
 
-OUT   = Path(os.environ.get("GF_OUT", "/Users/fperaltacastro/work/gf6l_emb"))
+OUT   = Path(os.environ.get("GF_OUT", HR_WORK + "/gf6l_emb"))
 SHARD_DIR = OUT / "shards"      # temp h5ad shards, deleted after tokenizing
 TOK_DIR   = OUT / "tok"         # tokenized .dataset per shard (kept: lets you re-embed w/o re-tokenizing)
 EMB_DIR   = OUT / "emb"         # emb_%04d.npy + idx_%04d.npy + len_%04d.npy per shard
