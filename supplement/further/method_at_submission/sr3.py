@@ -1,4 +1,4 @@
-"""m12 DEV, stage 2 (2026-10-07): dump every candidate group once, so ranking rules can be compared offline without re-clustering.
+"""Dev stage 2: dump every candidate group once, so ranking rules can be compared offline without re-clustering.
 Why: sr2 dev sweep showed more candidates alone buy nothing (dev mean l_multi 0.231 vs m11 0.230); the open question is how to ORDER them
 (10-30-cell groups lose every top slot to larger high-d' groups; HLCA targets have median 31 cells).
 Per visible label (>= MIN_PARENT cells) and space (g = global PCA-50, l = the label's own HVG + PCA-50):

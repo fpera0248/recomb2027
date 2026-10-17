@@ -1,4 +1,4 @@
-"""m12 DEV variants of seprank (2026-10-07). Developed on the already-seen D1/D2 pilots; HLCA is the held-out test.
+"""Dev variants of seprank. Developed on the already-seen D1/D2 pilots; HLCA is the held-out test.
 Diagnosis (diag_m11.py): on D2 only 25% of rare cells sit in ANY m1 candidate group, so carving, not ranking, is the bottleneck.
 Every variant: per visible label, candidate groups = Leiden subclusters with share < MAX_SHARE and >= MIN_GROUP_SIZE cells;
 cell score = max d' over the candidate groups holding it (-1 if none) + 1e-3 * within-label isolation rank (same tie-break as m11).

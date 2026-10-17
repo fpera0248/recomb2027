@@ -1,5 +1,5 @@
 #!/bin/bash
-# Re-derive every scDiffusion number after the log1p(1e4) ceiling was added to stat16.renorm (2026-09-28).
+# Re-derive every scDiffusion number after the log1p(1e4) ceiling was added to stat16.renorm.
 # Pre-clip outputs are in pcaspace_bak/preclip/. Lane A: AIDA readers (mk16 cells already rewritten).
 # Lane B: regenerate sdiff for the hard / lupus sets, then their readers.
 cd /Users/fperaltacastro/work/cfgen_natrare

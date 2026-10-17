@@ -11,4 +11,4 @@ export SCGPT_CKPT=${SCGPT_CKPT:-$HOME/work/r5/tools/scgpt_ckpt}
 export OMP_NUM_THREADS=3 MKL_NUM_THREADS=3 OPENBLAS_NUM_THREADS=3 NUMBA_NUM_THREADS=3 PYTHONWARNINGS=ignore
 export ADMIT=${ADMIT:-1}                                          # mini admission rules (timed.py); 0 = off
 mkdir -p "$R5RUN"
-export EXPECT_FREEZE_MD5=${EXPECT_FREEZE_MD5:-a8bfe7750e3af2ac5933be8168ce3437}   # uv pip freeze of the mini ~/venv (MACHINE_CHECK.md, PREREG section 11); laptop tests override it
+export EXPECT_FREEZE_MD5=${EXPECT_FREEZE_MD5:-a8bfe7750e3af2ac5933be8168ce3437}   # uv pip freeze of the mini ~/venv (MACHINE_CHECK.md); laptop tests override it

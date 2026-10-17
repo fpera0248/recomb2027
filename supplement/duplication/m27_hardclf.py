@@ -17,7 +17,7 @@ def fit(seed, arm):
     b = np.load(f'{D}/s{seed}_base.npz')
     Ztr, ytr, cts, n_c, probe = b['Ztr'], b['ytr'], b['cts'], b['n_c'], b['probe']
     Zev = (b['Xev'] - b['pmean']) @ b['comp'].T; yev = b['yev']
-    if arm in STAT_ARMS:   # gene space + renormalized, then the same PCA (stat16.gene_arm; Jiaqi 2026-09-28)
+    if arm in STAT_ARMS:   # gene space + renormalized, then the same PCA (stat16.gene_arm)
         A = gene_arm(arm, b['Xtr'], ytr, probe, n_c, seed)
         Z = np.vstack([Ztr] + [(v[0] - b['pmean']) @ b['comp'].T for v in A.values()]); y = np.concatenate([ytr] + [v[1] for v in A.values()])
     else:

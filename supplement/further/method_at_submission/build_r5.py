@@ -1,7 +1,7 @@
-"""Round-5 pool builder (PREREG_ATLAS5 sections 3, 4, 5). Reuses build_atlas5.pools (round-4 engine) and its pilot / slim-h5ad format unchanged.
+"""Test-pool builder for the second set of atlases. Reuses build_atlas5.pools and its pilot / slim-h5ad format unchanged.
 Structure only: reads obs, raw counts and truth labels (targets), never any score. Env R5 = data root (outputs), R5_WORK = static inputs (default ~/work/r5).
   python build_r5.py build NAME [NAME ...]      NAME = 8-char dataset id of an ATL entry; atlas file $R5/atlas/<dataset_id>.h5ad
-  python build_r5.py r4 luad                    round-4 config regression (no round-5 drops, 24 pools max, split test4)
+  python build_r5.py r4 luad                    regression check against the first set's config (no drops, 24 pools max, split test4)
   python build_r5.py promote                    BC1-BC4 statuses -> primary / alternate decision (atlas5_final.csv)
   python build_r5.py donors NAME                donor checks from the API cache only (no download)
 Outputs ($R5): slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv, leak5/ (log_<name>.csv, labels_<name>.csv,
@@ -9,7 +9,7 @@ targets_<name>.csv, ../leak5_log.csv), build5/status_<name>.json."""
 import os, sys, re, json, glob, time, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
 from anndata.io import sparse_dataset
 os.environ.setdefault("SI_H", os.path.join(os.path.dirname(os.path.abspath(__file__)), "hmod"))   # hlib / rprec for score_hlca without copying them to $R5/hmod
-import build_atlas5 as b          # round-4 engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
+import build_atlas5 as b          # pool engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
 
 R5, N, MAXP = b.R5, b.N, 8
 W = os.environ.get("R5_WORK") or os.path.expanduser("~/work/r5")
@@ -30,13 +30,13 @@ _T = [("6f9de485-58cd-4342-bfc4-b3d3dd223aa8", "author_cell_type", "cell_state",
       ("c3bf8bcf-abb7-4d71-8491-bd4901b474cf", "main_cell_type", "subtype", "non-tumour", "primary", 5),
       ("551ad2bc-2e82-4541-8aab-849988d43752", "annotation_level0", "annotation_level2", "non-tumour", "alternate", 1)]
 ATL = {t[0][:8]: dict(zip(("id", "lab", "fine", "stratum", "role", "order"), t)) for t in _T}
-R4 = {"luad": ("author_cell_type_level_1", "author_cell_type_level_2")}     # round-4 regression config (build_atlas6.CFG["luad"]), no drops
+R4 = {"luad": ("author_cell_type_level_1", "author_cell_type_level_2")}     # regression config for luad, no drops
 
 # donors dropped by decision before lock (section 4); every one has an exact string match in the reference set
 DROP_PRE = {
     "fe067858": "CV0902 CV0904 CV0911 CV0915 CV0917 CV0926 CV0929 CV0934 CV0939 CV0940 CV0944 "
                 "MH8919176 MH8919177 MH8919178 MH8919179 MH8919226 MH8919227 MH8919282 MH8919283 MH8919332 MH8919333 newcastle65 newcastle74 A35 A36".split(),
-    "551ad2bc": "582C 583B 591C 621B 640C 398B 343B 367C 411C".split()}      # 411C added 2026-10-09 (amendment 3): norm match to psccolon 411c, alias match to "A32 (411C)" in panel file 80a2c5b6 and the CBTM siblings
+    "551ad2bc": "582C 583B 591C 621B 640C 398B 343B 367C 411C".split()}      # 411C added: norm match to psccolon 411c, alias match to "A32 (411C)" in panel file 80a2c5b6 and the CBTM siblings
 # check 4b mechanical rule (amendment 3): all non-primary cells of these atlases are dropped before pooling (meta-atlas with generic-id donors whose source cannot be found)
 NPDROP = {"fe067858"}
 # section 5 CELLDROP (ii): visible OR truth label, lower-cased and stripped, equals one of these
@@ -82,7 +82,7 @@ def _jload(p):
 
 def reference(refresh=False):
     """{'donors': [(donor, source)], 'corpus': lowercase text of donor ids + titles + citations + collection names of the used collections}.
-    Sources: API donor lists of the 672 datasets in tmp/opus_check/ds, the panel files' obs donor_id, the round 1-4 manifest pool names. Cached in $R5/leak5/ref.json."""
+    Sources: API donor lists of the 672 datasets, the panel files' obs donor_id, the manifest pool names of the earlier atlas sets. Cached in $R5/leak5/ref.json."""
     cp = f"{LK}/ref.json"
     if os.path.exists(cp) and not refresh: return _jload(cp)
     don, text = [], []
@@ -201,7 +201,7 @@ def _finish(P, o, keep):
 
 
 def packs(P):
-    """Donor packs in the round-4 seeded order: [(donor list, local row indices)]; trailing partial pack discarded. Same order / accumulation as b.pools."""
+    """Donor packs in the seeded order of the first atlas set: [(donor list, local row indices)]; trailing partial pack discarded. Same order / accumulation as b.pools."""
     o = P["o"]; order = np.random.RandomState(0).permutation(sorted(o.donor_id.unique())); by = o.groupby("donor_id").indices
     out, cur, names = [], [], []
     for d in order:
@@ -211,7 +211,7 @@ def packs(P):
 
 
 def write_pool(P, pn, pid, r, split, extra_src=None):
-    """Round-4 writer (build_atlas5.build), unchanged format. r = local row indices into P['o'] (sorted)."""
+    """Pool writer (build_atlas5.build), unchanged format. r = local row indices into P['o'] (sorted)."""
     rows = P["pos"][r]
     with h5py.File(P["f"], "r") as h: X = sparse_dataset(h[P["xk"]])[rows]
     X = sp.csr_matrix(X).astype(np.float32)
@@ -253,7 +253,7 @@ def build(name, force=False):
         if len(P["donors"]) < 8: bc["BC1"] = bc.get("BC1") or f"FAIL F4/check 4: {len(P['donors'])} donors after drops (<8)"
     pk, _ = packs(P); maxp = 24 if r4 else MAXP
     pools = [(("+".join(n))[:200], r) for n, r in pk]
-    chk = b.pools(o, "pack", "donor_id", np.random.RandomState(0))           # round-4 engine: sampled rows of every pack
+    chk = b.pools(o, "pack", "donor_id", np.random.RandomState(0))           # pool engine: sampled rows of every pack
     assert [x[0] for x in chk] == [p[0] for p in pools], "pack bookkeeping differs from build_atlas5.pools"
     sel = chk[:maxp]; st.update(n_packs=len(chk), n_pools=len(sel))
     if not r4 and (len(sel) < 2 or P["n_cells"] < 60000): bc["BC2"] = f"FAIL: {len(chk)} packs, {P['n_cells']} cells (need >=2 pools of {N} and >=60000 cells)"

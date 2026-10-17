@@ -34,7 +34,7 @@ def n_seeds(D):
 
 NOISE_ARMS = ('jitter_s1.0', 'jitternz_s1.0', 'smote_k5')   # built on the fly (gene_arm), never saved as npz,
 # so they never show up in H.ARMS' glob of s*_*.npz -- m27_hlclf.py's own run block adds them as a
-# separate hardcoded job list; same fix needed here or they'd silently be missing (caught 2026-10-04).
+# separate hardcoded job list; same fix needed here or they'd silently be missing.
 
 def arm_list(H):
     return sorted(set(H.ARMS) | {'real'} | set(NOISE_ARMS))

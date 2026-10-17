@@ -86,7 +86,7 @@ SEEDS=[0] if SMOKE else [0,1,2]
 # driven by ontology coarseness (unspecified parent labels vs specific child subtypes), not by
 # raw rarity -- unlike gen16's physically-rare probes, which turned out to be the MORE separable
 # half of AIDA's 31 types (m27_step1_report.txt).
-# 2026-09-28 (Opus check): the coarse set above was 6 annotator "unknown" bins (T_unknown, B_unknown, ...)
+# Note: the coarse set above was 6 annotator "unknown" bins (T_unknown, B_unknown, ...)
 # whose nearest type is their own child and which hold ~all of India's coarse-only annotation, so it
 # measured label depth + site, not mixing. Replaced by a Cell-Ontology LEAF set, neighbour-disjoint (no
 # probe is another probe's kNN neighbour, so every neighbour stays abundant at CAP), and the 6 unknown

@@ -5,7 +5,7 @@ PAPER
     Generalization by Group Interpolation", arXiv:2210.12195 (extended
     version of the NeurIPS 2021 Workshop on Distribution Shifts paper,
     https://neurips.cc/virtual/2021/35437).
-    Fetched 2026-09-24 via curl (public pages, no login):
+    Public pages (no login):
         https://arxiv.org/abs/2210.12195           (abstract/metadata)
         https://arxiv.org/html/2210.12195v1        (full text, method + appendix)
 

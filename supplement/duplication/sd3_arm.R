@@ -77,7 +77,7 @@ ok <- tryCatch(withCallingHandlers({
   # so cache it per temp dir. Keyed on the matrix shape to make a stale cache impossible to reuse.
   # cache in the PARENT of the per-run temp dir, keyed by seed: the driver makes a fresh mkdtemp
   # every run, so a cache inside DIR can never be reused across runs.
-  # 2026-10-04: shape alone collided across panel datasets with equal train counts (another dataset's fit was
+  # shape alone collided across panel datasets with equal train counts (another dataset's fit was
   # loaded), so the key also carries the md5 of this run's counts + labels.
   key <- paste(substr(tools::md5sum(file.path(DIR, c('train_counts.mtx', 'train_meta.csv'))), 1, 10), collapse='')
   mrf <- file.path(dirname(DIR), sprintf('mr_s%d_%dx%d_%s.rds', SEED, nrow(sce), ncol(sce), key))

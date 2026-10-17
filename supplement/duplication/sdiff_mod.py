@@ -90,6 +90,6 @@ def sample_sdiff(M, cls, k, scale=10.0, bs=128):
         with torch.no_grad():
             out.append(M['vae'](z*M['zsd']+M['zmu'], return_decoded=True).numpy())
     # decoder output is only ReLU-clipped (values up to ~65, rows far from 1e4 CPM); put it through the
-    # shared normalizer like every other arm (Jiaqi 2026-09-28): expm1 -> rows to 1e4 -> log1p
+    # shared normalizer like every other arm: expm1 -> rows to 1e4 -> log1p
     from stat16 import renorm
     return renorm(np.vstack(out))

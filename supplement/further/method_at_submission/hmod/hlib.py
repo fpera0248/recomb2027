@@ -5,10 +5,10 @@ true cell type comes back as a separate Series so nothing passes it by
 accident. See h/manifest.csv for pilot_id -> (design, dataset, rare_type, ...).
 
 Leaks fixed here:
- - (2026-10-04, H1b-fix-leaks) raw_adata() returns the source slice UNCHANGED
+ - raw_adata() returns the source slice UNCHANGED
    (including its obsm/uns/varm/layers/var columns) whenever the source h5ad
    has no .raw. Fixed: load_pilot always strips those slots itself.
- - (2026-10-04, H5-design-fix) stage3_build.py writes every pilot parquet
+ - stage3_build.py writes every pilot parquet
    sorted by TRUE type (D1: [m1 block][m2 block][rare block], always in that
    order; D2: one contiguous block per true type), AND obs_names are the
    source h5ad's own row index, so a source file sorted by cell type would

@@ -1,4 +1,4 @@
-"""python run_base.py PILOT_ID -> si/preds_base/<method>/<pid>.parquet for m1-m8 (unchanged methods.py, CPU only). 2026-10-07, PREREG_v3 amendment 1."""
+"""python run_base.py PILOT_ID -> si/preds_base/<method>/<pid>.parquet for m1-m8 (unchanged methods.py, CPU only).."""
 import os, sys
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")

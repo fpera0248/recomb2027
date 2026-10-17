@@ -1,4 +1,4 @@
-"""m14 = learn13 + natural-hierarchy training targets (truth(): union of score_hlca targets on HLCA / atlas pilots) and CV grouped by atlas (DEV 2026-10-07).
+"""Learned scorer with natural-hierarchy training targets (truth(): union of score_hlca targets on HLCA / atlas pilots) and CV grouped by atlas.
 Learned candidate-group scorer. Scale-free group features -> P(group is the hidden rare type) with a gradient-boosted
 classifier; cell score = max over its groups of P**g / size**a (a = 0: rank by P; a = 1: Smith's rule for an unknown matched k).
 Training label (offline truth, never a method input): purity >= 0.5 and recall >= 0.3 against the pilot's hidden type.
@@ -80,7 +80,7 @@ def extra(pid, G):
 
 
 def model():
-    """TARGET=pur: regress the group's union purity (= P(a member is a target cell), what matched-k precision rewards); default: m12 classifier."""
+    """TARGET=pur: regress the group's union purity (= P(a member is a target cell), what matched-k precision rewards); default: classifier."""
     kw = dict(max_depth=4, learning_rate=0.05, max_iter=300, l2_regularization=1.0, random_state=0)
     return HistGradientBoostingRegressor(**kw) if os.environ.get("TARGET") == "pur" else HistGradientBoostingClassifier(**kw)
 

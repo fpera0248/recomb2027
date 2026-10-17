@@ -1,4 +1,4 @@
-"""Halo-contrast marker features for every sr3 candidate group (DEV 2026-10-07, after the HLCA diagnosis: 60% of the groups outranking small
+"""Halo-contrast marker features for every sr3 candidate group (dev; motivated by the HLCA diagnosis: 60% of the groups outranking small
 HLCA targets were pure FRAGMENTS of abundant subtypes, which rest-of-label markers (sr3m) cannot tell from a whole rare type).
 halo = the `size` cells of the same label, outside the group, nearest the group's centroid in global PCA-50. A fragment shares its markers
 with its halo (the rest of its own population); a whole rare type does not. Blind: counts + visible labels only.

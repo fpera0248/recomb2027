@@ -1,5 +1,5 @@
 """python score_hlca.py PRED_ROOT OUT.csv : matched-k rprec (rprec.rprec, unchanged) per (HLCA pilot, method, target).
-Targets (PREREG_HLCA.md, fixed before any HLCA prediction existed): within a pilot, every (visible label L, finest type T) with
+Targets (fixed before any HLCA prediction existed): within a pilot, every (visible label L, finest type T) with
 T != L, T not in {None, nan, Unknown}, n(L,T) >= 10 and n(L,T) / n(L) < 0.10. is_rare = the pool cells with label L and finest type T.
 One method score vector per pilot is scored against every target of that pilot."""
 import os, sys, glob, numpy as np, pandas as pd
