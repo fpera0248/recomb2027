@@ -28,13 +28,14 @@ Leaks fixed here:
    attached to the AnnData a method receives.
 """
 import os
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import hashlib
 import numpy as np
 import pandas as pd
 import scanpy as sc
 from rawutil import raw_adata
 
-R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 H = os.path.join(R5, "hmod")
 PILOTS_DIR = os.path.join(H, "pilots")
 

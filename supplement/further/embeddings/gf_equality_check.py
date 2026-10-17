@@ -10,11 +10,12 @@ Deviations from a stock run, both in memory only, no file in the Geneformer chec
 EmbExtractor expresses everything our run did (layer -1 = hidden_states[5], mean over non-pad tokens, no CLS/EOS). Our run used batch 16; EmbExtractor forward_batch_size=16 here.
 Refuses to overwrite an existing RESULT.txt / npy in --out."""
 import os, sys, types, importlib.util, hashlib, argparse, subprocess, tempfile, shutil
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np
 HOME = os.path.expanduser("~"); HERE = os.path.dirname(os.path.abspath(__file__))
 GF = f"{HOME}/geneformer/Geneformer"; PKG = f"{GF}/geneformer"; D30 = f"{PKG}/gene_dictionaries_30m"; CKPT = f"{GF}/gf-6L-30M-i2048"
 MED, TOK, MAP = (f"{D30}/{n}_gc30M.pkl" for n in ("gene_median_dictionary", "token_dictionary", "ensembl_mapping_dict"))
-STORED = f"{HOME}/work/jiaqi1011/out/w2_fm_lap/emb/gf"; BATCH = 16; K = 15
+STORED = f"{HR_WORK}/jiaqi1011/out/w2_fm_lap/emb/gf"; BATCH = 16; K = 15
 
 ap = argparse.ArgumentParser(); ap.add_argument("--out", required=True); ap.add_argument("--pool"); ap.add_argument("--subsample", type=int, default=0)
 ap.add_argument("--device", default="cpu"); ap.add_argument("--stored", default=STORED); o = ap.parse_args()

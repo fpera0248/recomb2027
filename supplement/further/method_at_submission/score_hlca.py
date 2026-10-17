@@ -3,7 +3,8 @@ Targets (fixed before any HLCA prediction existed): within a pilot, every (visib
 T != L, T not in {None, nan, Unknown}, n(L,T) >= 10 and n(L,T) / n(L) < 0.10. is_rare = the pool cells with label L and finest type T.
 One method score vector per pilot is scored against every target of that pilot."""
 import os, sys, glob, numpy as np, pandas as pd
-sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or os.path.expanduser("~/work/r5/data"), "hmod")); from hlib import _opaque_order, PILOTS_DIR
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or HR_WORK + "/r5/data", "hmod")); from hlib import _opaque_order, PILOTS_DIR
 from rprec import rprec
 BAD = {"None", "nan", "Unknown"}
 

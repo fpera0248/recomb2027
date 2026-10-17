@@ -1,6 +1,7 @@
 """python make_variants.py PID [PID ...] : write corrupted pilot parquets for every variant under W/<variant>/hmod/pilots (ORIGINAL pid and row order kept, so cell ids/order match the clean run).
 Also W/relabel/<variant>/<pid>.parquet (obs_name, new_label, changed) and W/transfer_log.csv. Resumable (skips existing parquets). Test: python make_variants.py --selftest"""
 import os, sys, shutil, hashlib, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from w6common import *
 K = 15
@@ -41,13 +42,13 @@ def merge_labels(labels, Xlog):
     new = np.where(np.isin(labels, [labs[i], labs[j]]), f"{labs[i]}+{labs[j]}", labels); return new, (labs[i], labs[j], float(C[i, j]))
 
 def _load(pid):
-    sys.path.insert(0, f"{HOME}/work/jiaqi1011/code/w1"); import harness  # sets env, sys.path to locked code
+    sys.path.insert(0, f"{HR_WORK}/jiaqi1011/code/w1"); import harness  # sets env, sys.path to locked code
     import loader, methods as M
     os.environ["SLIM_DIR"] = f"{CLEAN}/slim_atlas"
     a, tt = loader.load_pilot(pid); return a, M
 
 def make(pid, force=False):
-    sys.path.insert(0, f"{HOME}/work/jiaqi1011/code/w1"); import harness, hlib
+    sys.path.insert(0, f"{HR_WORK}/jiaqi1011/code/w1"); import harness, hlib
     df = pd.read_parquet(f"{CLEAN}/hmod/pilots/{pid}.parquet")
     si, oid = hlib._opaque_order(pid, df.obs_name.values)
     todo = [v for v in VARIANTS if force or not os.path.exists(f"{root(v)}/hmod/pilots/{pid}.parquet")]

@@ -21,7 +21,8 @@ REPORTING RULE (fixed before re-deriving; NOT a pre-registration, all numbers we
 Output  : OUT/e4_markers.csv (one row per arm x metric), printed table.
 """
 import sys, os, itertools, numpy as np, pandas as pd
-D = sys.argv[1] if len(sys.argv) > 1 else '/Users/fperaltacastro/work/recomb27/rev1015/p1data'
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+D = sys.argv[1] if len(sys.argv) > 1 else HR_WORK + '/recomb27/rev1015/p1data'
 O = sys.argv[2] if len(sys.argv) > 2 else os.path.dirname(os.path.abspath(__file__))
 S = np.array(list(itertools.product((-1, 1), repeat=8)))
 

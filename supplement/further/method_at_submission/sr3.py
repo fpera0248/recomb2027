@@ -7,8 +7,9 @@ Per visible label (>= MIN_PARENT cells) and space (g = global PCA-50, l = the la
   cell features: within-label isolation rank (m11's tie-break) and LOF (n_neighbors 20) in each space.
   python sr3.py PILOT_ID -> $SI/cands/<pid>.groups.parquet + <pid>.cells.parquet   (blind: truth is never loaded into the method)"""
 import os, sys, time
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS"): os.environ.setdefault(v, "2")
-SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 import numpy as np, pandas as pd
 import loader, split_island_v2 as S2
 from sklearn.neighbors import NearestNeighbors, LocalOutlierFactor

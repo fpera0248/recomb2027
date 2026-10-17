@@ -2,7 +2,7 @@
 # Re-derive every scDiffusion number after the log1p(1e4) ceiling was added to stat16.renorm.
 # Pre-clip outputs are in pcaspace_bak/preclip/. Lane A: AIDA readers (mk16 cells already rewritten).
 # Lane B: regenerate sdiff for the hard / lupus sets, then their readers.
-cd /Users/fperaltacastro/work/cfgen_natrare
+cd ${HR_WORK:-$HOME/work}/cfgen_natrare
 export OMP_NUM_THREADS=3 MKL_NUM_THREADS=3 OPENBLAS_NUM_THREADS=3 NJ=3 M27_THREADS=3
 st(){ echo "=== $1 $(date +%H:%M:%S)"; }
 laneA(){

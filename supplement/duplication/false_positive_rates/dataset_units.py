@@ -1,9 +1,10 @@
 import itertools, glob, os, sys
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np, pandas as pd
 pd.set_option('display.width', 250); pd.set_option('display.max_rows', 500)
 D = os.path.dirname(os.path.abspath(__file__)) + '/data/part1_results/'
-J21 = '/Users/fperaltacastro/work/recomb27/monday_q/donorfix/build/ovr_t/ref_j21/'
-M27 = '/Users/fperaltacastro/work/recomb27/rev1015/p1data/'
+J21 = HR_WORK + '/recomb27/monday_q/donorfix/build/ovr_t/ref_j21/'
+M27 = HR_WORK + '/recomb27/rev1015/p1data/'
 
 
 def sfp(d, g):

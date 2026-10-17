@@ -1,7 +1,8 @@
 """python run_base.py PILOT_ID -> si/preds_base/<method>/<pid>.parquet for m1-m8 (unchanged methods.py, CPU only).."""
 import os, sys
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
-SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 import numpy as np, pandas as pd
 import loader, methods as M
 al = lambda v: v.reindex(a.obs_names).values if isinstance(v, pd.Series) else np.asarray(v)   # align by cell id

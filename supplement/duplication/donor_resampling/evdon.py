@@ -8,13 +8,14 @@ import os, sys, numpy as np, pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import splits as S
 E = os.path.expanduser
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 LOGGED = {'aida8': {0: (283, 619), 1: (283, 619), 2: (290, 619)},
           'lupus': {0: (62, 261), 1: (67, 261), 2: (58, 261)}, 'hlca': {0: (24, 106), 1: (22, 106), 2: (19, 106)}}
 CFG = {  # ds: (probe, seeds, p31, cache file pattern)
-    'aida8': (S.AIDA_PROBE, range(20), False, lambda s: f"{E(os.environ.get('REPDIR', '~/work/recomb27/monday_q/donorfix/data'))}/rep16t_seed{s}.npz"),
-    'aida31': (None, range(31), True, lambda s: f"{E(os.environ.get('REPDIR', '~/work/recomb27/monday_q/donorfix/data'))}/rep31t_seed{s}.npz"),
-    'lupus': (S.LUPUS_PROBE, range(3), False, lambda s: f"{E(os.environ.get('LUPUS_BASE', '~/work/recomb27/rev1015/hvg_c3/from_mini/m27_mk_t'))}/s{s}_base.npz"),
-    'hlca': (S.HLCA_PROBE, range(3), False, lambda s: f"{E(os.environ.get('HLCA_BASE', '~/work/recomb27/rev1015/hvg_c3/from_mini/m27_hl_t'))}/s{s}_base.npz")}
+    'aida8': (S.AIDA_PROBE, range(20), False, lambda s: f"{E(os.environ.get('REPDIR', HR_WORK + '/recomb27/monday_q/donorfix/data'))}/rep16t_seed{s}.npz"),
+    'aida31': (None, range(31), True, lambda s: f"{E(os.environ.get('REPDIR', HR_WORK + '/recomb27/monday_q/donorfix/data'))}/rep31t_seed{s}.npz"),
+    'lupus': (S.LUPUS_PROBE, range(3), False, lambda s: f"{E(os.environ.get('LUPUS_BASE', HR_WORK + '/recomb27/rev1015/hvg_c3/from_mini/m27_mk_t'))}/s{s}_base.npz"),
+    'hlca': (S.HLCA_PROBE, range(3), False, lambda s: f"{E(os.environ.get('HLCA_BASE', HR_WORK + '/recomb27/rev1015/hvg_c3/from_mini/m27_hl_t'))}/s{s}_base.npz")}
 
 def load(ds):
     if ds.startswith('aida'): return S.load_aida(E(os.environ.get('AIDA_DIR', '~/data/pilots/aida')))

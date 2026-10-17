@@ -3,11 +3,12 @@ Data: ~/work/jiaqi1011/out/w1_scale/scale.csv (time, memory), out/w2_fm/res_{pca
 out/w6_annot_atac/p1_summary.csv + p1_atlas_union_AP.csv (random label errors).
 Run: OMP_NUM_THREADS=4 nice -n 10 python3 figS_further.py"""
 import sys, os, itertools, numpy as np, pandas as pd
-sys.path.insert(0, '/Users/fperaltacastro/work/recomb27/v2/figs'); sys.path.insert(0, '/Users/fperaltacastro/work/recomb27/rev1015/figaudit'); sys.dont_write_bytecode = True
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, HR_WORK + '/recomb27/v2/figs'); sys.path.insert(0, HR_WORK + '/recomb27/rev1015/figaudit'); sys.dont_write_bytecode = True
 import matplotlib.pyplot as plt
 from paperstyle import *
 apply_style()
-J = os.path.expanduser('~/work/jiaqi1011/out/')
+J = HR_WORK + '/jiaqi1011/out/'
 ok = lambda x, v, d: abs(x - v) < 0.5 * 10 ** -d + 1e-9   # x equals printed v at d decimals
 def pflip(x):   # exact two-sided sign-flip over atlas values
     s = [abs(sum(g * v for g, v in zip(c, x))) for c in itertools.product([1, -1], repeat=len(x))]

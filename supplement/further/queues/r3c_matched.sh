@@ -2,7 +2,7 @@
 # R3c: annotation improvement at a matched number of classes, 29 set-B pools (pool index < 3). Laptop, takes the laptop lock, 2 workers, memgate per job. Resumable.
 # Estimate (not measured): ~~18 bisection steps x all labels per pool (partitions cached, shared across the four thresholds), ~5-15 min per pool -> about 2-5 h with 2 workers. Scoring afterwards is seconds per pool.
 set -eu
-H=$HOME/work/jiaqi1011; C=$H/code/small; O=$H/out/small/matched; ID=$H/data/w6/ID; G=$H/laptop_queue/memgate.sh; LOG=$H/logs/r3c_matched.log
+H=${HR_WORK:-$HOME/work}/jiaqi1011; C=$H/code/small; O=$H/out/small/matched; ID=$H/data/w6/ID; G=$H/laptop_queue/memgate.sh; LOG=$H/logs/r3c_matched.log
 mkdir -p $O $H/logs; trap 'touch $O/FAILED' ERR; rm -f $O/FAILED $O/DONE
 while ! mkdir $H/.laptop_lock 2>/dev/null; do sleep 60; done
 trap 'rmdir $H/.laptop_lock 2>/dev/null || true' EXIT

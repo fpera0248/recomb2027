@@ -3,8 +3,9 @@ Imports m27_hlclf.py and stat16.py unmodified (sets M27_HL before import so its 
 the right cache dir). Does NOT edit either file.
 """
 import os, sys, glob, numpy as np
-sys.path.insert(0, '/Users/fperaltacastro/work/cfgen_natrare')
-os.chdir('/Users/fperaltacastro/work/cfgen_natrare')   # m27_hlclf._base/_fn use paths relative to this dir
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, HR_WORK + '/cfgen_natrare')
+os.chdir(HR_WORK + '/cfgen_natrare')   # m27_hlclf._base/_fn use paths relative to this dir
 os.environ.setdefault('OMP_NUM_THREADS', '2')
 os.environ.setdefault('MKL_NUM_THREADS', '2')
 os.environ.setdefault('OPENBLAS_NUM_THREADS', '2')

@@ -12,8 +12,8 @@ from harness import L, S, hlib
 
 ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("diag"); ap.add_argument("arms", nargs="+"); ap.add_argument("--pools"); ap.add_argument("--model")
 o = ap.parse_args()
-MODEL = o.model or next(p for p in (os.environ.get("R5_MODEL", ""), f"{W.HOME}/work/r5/refit_dev_nat.pkl",
-        f"{W.HOME}/work/cfgen_natrare/j1004/h/si_v3/vm3_m12/r4_out/verify/v4_integ/refit_dev_nat.pkl") if p and os.path.exists(p))
+MODEL = o.model or next(p for p in (os.environ.get("R5_MODEL", ""), f"{W.HR_WORK}/r5/refit_dev_nat.pkl",
+        f"{W.HR_WORK}/cfgen_natrare/j1004/h/si_v3/vm3_m12/r4_out/verify/v4_integ/refit_dev_nat.pkl") if p and os.path.exists(p))
 frozen = pickle.load(open(MODEL, "rb")); print("model", MODEL, flush=True)
 atlas = lambda pid: pid.split("_")[1]
 

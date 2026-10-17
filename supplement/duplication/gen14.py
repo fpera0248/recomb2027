@@ -22,7 +22,8 @@ from. Counts are identical, so nothing is confounded with n:
 The decisive number is zeroB_oracle minus zeroB_up. That is the entire headroom any generator
 could ever capture on this task. If it is zero, no generator can win it and the fork closes.
 """
-import sys, time, warnings, numpy as np, pandas as pd, anndata as ad, scanpy as sc
+import os, sys, time, warnings, numpy as np, pandas as pd, anndata as ad, scanpy as sc
+HR_DATA = os.environ.get("HR_DATA", os.path.expanduser("~/data"))
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from scipy import stats
@@ -39,7 +40,7 @@ TARGETS=['mature B cell','CD16-negative, CD56-bright natural killer cell, human'
          'memory B cell','gamma-delta T cell','plasmacytoid dendritic cell',
          'mucosal invariant T cell','plasma cell']
 if SMOKE: TARGETS=TARGETS[:3]
-D='/Users/fperaltacastro/data/pilots/aida/'
+D=HR_DATA + '/pilots/aida/'
 t0=time.time()
 
 A=ad.concat([ad.read_h5ad(D+'AIDA_AbundantPool_120k.h5ad'), ad.read_h5ad(D+'AIDA_RarePool.h5ad')],

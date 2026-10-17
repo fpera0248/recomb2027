@@ -13,14 +13,15 @@ RULE (frozen v2, changed from v1 on checker evidence): method differs from dupli
  Bootstrap CIs (over types) are kept as descriptive. Default-threshold FPR is descriptive, always shown with default TPR.
  Metric for rare types is TPR + FPR, never F1."""
 import io, sys, tarfile, os, glob, importlib.util
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
 import numpy as np, pandas as pd
 
 SMOKE = '--smoke' in sys.argv
 HERE = os.path.dirname(os.path.abspath(__file__))
-TGZ = '/Users/fperaltacastro/work/recomb2027-assets/part1_results.tgz'
-J21 = '/Users/fperaltacastro/work/recomb27/monday_q/donorfix/build/ovr_t/ref_j21'
-sp = importlib.util.spec_from_file_location('sf', '/Users/fperaltacastro/work/recomb2027-r8i3wt/part1/signflip.py')
+TGZ = HR_WORK + '/recomb2027-assets/part1_results.tgz'
+J21 = HR_WORK + '/recomb27/monday_q/donorfix/build/ovr_t/ref_j21'
+sp = importlib.util.spec_from_file_location('sf', HR_WORK + '/recomb2027-r8i3wt/part1/signflip.py')
 sf = importlib.util.module_from_spec(sp); sp.loader.exec_module(sf)
 sfx = '_smoke' if SMOKE else ''
 

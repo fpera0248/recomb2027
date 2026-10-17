@@ -12,7 +12,7 @@ import numpy as np, pandas as pd
 
 ap = argparse.ArgumentParser(); ap.add_argument("space"); ap.add_argument("pids", nargs="*"); ap.add_argument("--device", default=os.environ.get("W2_DEVICE", "cpu"))
 ap.add_argument("--toolin"); ap.add_argument("--subsample", type=int, default=0, help="plumbing test only: first N cells (output goes to space+_sub)")
-ap.add_argument("--ckpt", default=os.environ.get("SCGPT_CKPT", f"{W.HOME}/work/r5/tools/scgpt_ckpt")); o = ap.parse_args()
+ap.add_argument("--ckpt", default=os.environ.get("SCGPT_CKPT", f"{W.HR_WORK}/r5/tools/scgpt_ckpt")); o = ap.parse_args()
 pids = o.pids or W.pools()
 
 
@@ -48,7 +48,7 @@ def embed_scgpt(pid):
 
 def embed_gf(pid):
     import shutil, tempfile, torch, anndata as ad, scipy.sparse as sp
-    GFS = f"{W.HOME}/work/gf6l_emb/src"; sys.path.insert(0, GFS); import gfcfg as C
+    GFS = f"{W.HR_WORK}/gf6l_emb/src"; sys.path.insert(0, GFS); import gfcfg as C
     import gfload, types, importlib.util
     def make_tokenizer():
         """gfload.make_tokenizer, but the REAL tokenizer.py is exec'd with ONE in-memory change (pandas>=3 removed positional fallback in Series[int array]):

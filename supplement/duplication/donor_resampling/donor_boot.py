@@ -11,7 +11,8 @@ Env: REPDIR (rep16t npz), LUPUS_BASE / HLCA_BASE (m27_*_t dirs: s<seed>_base.npz
 (dir of m27_hlclf.py + polh.py). New outputs only: boot_df_<ds>_<clf>_s<seed>.npz, boot_df_<ds>_<clf>_summary.csv/_pertype.csv."""
 import os, sys, glob, numpy as np, pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__)); E = os.path.expanduser
-W = E('~/work/recomb27')
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+W = HR_WORK + '/recomb27'
 DEF = dict(stat16=W + '/rev1015/hvg1015/parent', src=W + '/monday_q/donorfix/src_mini')
 FM = W + '/rev1015/hvg_c3/from_mini'
 # logged references: list of csv files (rows without a clf column are LR). lupus: upsample from the 4-classifier reader (exact), real arm LR from m27_lupus_t.csv

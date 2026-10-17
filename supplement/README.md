@@ -2,7 +2,7 @@
 
 These are the scripts behind the supplement analyses that `reproduce.sh` does not run. They cover the further analyses of the duplication study (Supplementary Section S7) and the further analyses of the hidden-subtype study with Figure S5 (Supplementary Section S17). Each file is an unchanged copy of a script we ran. Most produced printed numbers. The rest are the helpers, queues and checks they need. For the S7 paragraph on HLCA, `duplication/m27_hlclf.py` (`run`, then `report`) scored the generated cells. The scripts that generated them are not here.
 
-The scripts do not run from this repository alone. Paths inside them point to our machines (`/Users/...`, `/private/tmp/...` and the external volume `/Volumes/Files`). Most read inputs that we did not release: the AIDA, HLCA and lupus files, the generated cells and the subsamples of the 10-atlas set. Read them as a record of what we ran.
+The scripts do not run from this repository alone. Paths inside them default to folders under `~/work` and `~/data` on our machines and the external volume `/Volumes/Files`; set `HR_WORK` or `HR_DATA` to move the first two. Most read inputs that we did not release: the AIDA, HLCA and lupus files, the generated cells and the subsamples of the 10-atlas set. Read them as a record of what we ran.
 
 ## Where each analysis lives
 

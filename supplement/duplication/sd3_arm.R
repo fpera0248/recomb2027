@@ -25,7 +25,7 @@ DIR <- a[1]; NC <- as.integer(a[2]); SEED <- as.integer(a[3])
 # .Environment holds that gene's training rows (5202 -> 19 bytes/cell/gene).
 # Unpatched, 2000 genes x 12010 cells = 125 GB across 8 forks, so every
 # worker dies and fit_marginal returns try-errors. Patched it is 456 MB.
-MEMP <- '/Users/fperaltacastro/work/step0b_ht/mem_patch.R'
+MEMP <- file.path(Sys.getenv("HR_WORK", path.expand("~/work")), "step0b_ht/mem_patch.R")
 stopifnot(file.exists(MEMP)); Sys.setenv(SD3_MEM='1'); source(MEMP)
 set.seed(SEED)
 

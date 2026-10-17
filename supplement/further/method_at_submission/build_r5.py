@@ -7,12 +7,13 @@ Structure only: reads obs, raw counts and truth labels (targets), never any scor
 Outputs ($R5): slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv, leak5/ (log_<name>.csv, labels_<name>.csv,
 targets_<name>.csv, ../leak5_log.csv), build5/status_<name>.json."""
 import os, sys, re, json, glob, time, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 from anndata.io import sparse_dataset
 os.environ.setdefault("SI_H", os.path.join(os.path.dirname(os.path.abspath(__file__)), "hmod"))   # hlib / rprec for score_hlca without copying them to $R5/hmod
 import build_atlas5 as b          # pool engine: b.pools, b.N, b.OUT, b.PIL, b.AT, b.SI
 
 R5, N, MAXP = b.R5, b.N, 8
-W = os.environ.get("R5_WORK") or os.path.expanduser("~/work/r5")
+W = os.environ.get("R5_WORK") or HR_WORK + "/r5"
 LK, ST = f"{R5}/leak5", f"{R5}/build5"
 SPLIT = "test5"
 
@@ -103,7 +104,7 @@ def reference(refresh=False):
                 v = read_elem(h["obs/donor_id"]); v = v.astype(str) if hasattr(v, "astype") else v
                 for d in pd.unique(np.asarray(v)): don.append((str(d), "panel:" + os.path.basename(f)[:-5]))
         except Exception as e: don.append(("", f"panel_unreadable:{os.path.basename(f)}:{type(e).__name__}"))
-    for f in glob.glob(os.path.expanduser("~/work/cfgen_natrare/j1004/h/si_v3/vm3_m12/r_all/atlas_manifest_*.csv")):
+    for f in glob.glob(HR_WORK + "/cfgen_natrare/j1004/h/si_v3/vm3_m12/r_all/atlas_manifest_*.csv"):
         for nm in pd.read_csv(f, usecols=["block"]).block.astype(str):
             t = nm.split("+")
             if len(nm) >= 200: t = t[:-1]          # the last name may be cut at 200 characters

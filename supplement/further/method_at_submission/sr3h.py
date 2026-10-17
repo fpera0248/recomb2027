@@ -4,8 +4,9 @@ halo = the `size` cells of the same label, outside the group, nearest the group'
 with its halo (the rest of its own population); a whole rare type does not. Blind: counts + visible labels only.
   python sr3h.py PILOT_ID -> $SI/cands/<pid>.halo.parquet (row-aligned with <pid>.groups.parquet)"""
 import os, sys, time
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMBA_NUM_THREADS"): os.environ.setdefault(v, "2")
-SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data")
+SI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, SI); R5 = os.environ.get("R5") or HR_WORK + "/r5/data"
 import numpy as np, pandas as pd, scipy.sparse as sp
 
 

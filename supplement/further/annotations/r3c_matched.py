@@ -5,8 +5,9 @@
   python r3c_matched.py summary                                                              -> out/small/matched_summary.csv, matched_pool.csv
   python r3c_matched.py demo         (synthetic, <=1,500 cells)"""
 import os, sys, json, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
-HOME = os.path.expanduser('~'); J = HOME + '/work/jiaqi1011'; OUT = J + '/out/small/matched'; W6 = J + '/out/w6_annot_atac'
+HOME = os.path.expanduser('~'); J = HR_WORK + '/jiaqi1011'; OUT = J + '/out/small/matched'; W6 = J + '/out/w6_annot_atac'
 MIN_LABEL_N = 20; THR = ('tcal', 't0.3', 't0.5', 't0.7')
 
 def bisect(count, n, lo=0.01, hi=10.0, it=18):
@@ -37,7 +38,7 @@ def targets_cmd(pid):
 
 def grid(pid):
     """per pool and threshold: the global Leiden resolution (bisected) whose total class count matches ours within 1; needs targets PID first."""
-    sys.path.insert(0, os.environ['SI_H']); sys.path.insert(0, HOME + '/work/r5/code')
+    sys.path.insert(0, os.environ['SI_H']); sys.path.insert(0, HR_WORK + '/r5/code')
     import loader, methods as M
     a, _ = loader.load_pilot(pid); X, _h = M.preprocess_pca(a); ids = a.obs_names.values; labels = a.obs['label'].astype(str).values; T = json.load(open(f'{OUT}/targets_{pid}.json'))
     idx = {lab: np.where(labels == lab)[0] for lab in pd.unique(labels)}; cache = {}

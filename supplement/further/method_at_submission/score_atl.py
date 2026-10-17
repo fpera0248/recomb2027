@@ -5,8 +5,9 @@ Pool rows:   E1_union (PRIMARY, matched-k precision on the union), union_AP, E1_
 Target rows: masked_AP and masked_rprec (KEY SECONDARY: the other targets' cells removed, so each target is scored alone, ceiling 1, equal weight),
              det50 (1 if >= 50% of the target's cells are in the top K), recall_at_K, E2_within_label, per_target (shared ranking; ceiling < 1)."""
 import os, sys, glob, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 from sklearn.metrics import average_precision_score
-sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or os.path.expanduser("~/work/r5/data"), "hmod")); from hlib import _opaque_order, PILOTS_DIR
+sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or HR_WORK + "/r5/data", "hmod")); from hlib import _opaque_order, PILOTS_DIR
 from rprec import rprec
 from score_hlca import targets, BAD
 

@@ -12,15 +12,16 @@ SUCCESS iff policy-minus-dup d>=+0.01 AND q<0.05 in >=2 of 4 classifiers AND pol
 Else report 'not shown'. Deep generators are not in this table (only dup/no-aug/jitter/jitternz/smote/li2025/jmo).
 """
 import os, sys, argparse
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 os.environ.setdefault("OMP_NUM_THREADS", "4")
 import numpy as np, pandas as pd
-R = os.environ.get("R8", "/Users/fperaltacastro/work/recomb2027-r8i3wt")
+R = os.environ.get("R8", HR_WORK + "/recomb2027-r8i3wt")
 sys.path.insert(0, R)
 from part1.signflip import signflip_p
 from statsmodels.stats.multitest import multipletests
 
 ap = argparse.ArgumentParser(); ap.add_argument("--smoke", action="store_true")
-ap.add_argument("--csv", default="/Users/fperaltacastro/work/recomb27/v2/p1/part1_results/probe31_runs.csv")
+ap.add_argument("--csv", default=HR_WORK + "/recomb27/v2/p1/part1_results/probe31_runs.csv")
 ap.add_argument("--out", default=None)
 ap.add_argument("--exclude", default="", help="comma list of arms to drop (secondary run: own diagnostics)")
 a = ap.parse_args()

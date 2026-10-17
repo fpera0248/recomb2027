@@ -4,9 +4,10 @@ full-cohort array that is NaN everywhere else; standardize() asserts every train
 which fails loudly if the split ever drifts from cells_needed.csv.
 POOL=cls|mean picks the pooling (mean matches the 6L run). Output: fm3/<POOL>/results*.csv."""
 import os, sys
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 sys.dont_write_bytecode = True
 import numpy as np
-sys.path.insert(0, '/Users/fperaltacastro/work/cfgen_natrare/j1004/fm')
+sys.path.insert(0, HR_WORK + '/cfgen_natrare/j1004/fm')
 import run_fm_dup as R
 
 H = os.path.dirname(os.path.abspath(__file__))

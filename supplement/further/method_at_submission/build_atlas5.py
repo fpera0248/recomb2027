@@ -5,8 +5,9 @@ until >= 20,000 cells, each pack one pool (donor-disjoint). At most MAXP pools p
 TEST atlases are md5-parity-1 datasets never used to train the learned scorer; DEV atlases are parity 0.
   python build_atlas.py NAME [NAME ...] -> slim_atlas/<name>_p<k>.h5ad, hmod/pilots/atl_<name>_p<k>.parquet, atlas_manifest_<name>.csv"""
 import os, sys, numpy as np, pandas as pd, anndata as ad, h5py, scipy.sparse as sp
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 from anndata.io import sparse_dataset
-R5 = os.environ.get("R5") or os.path.expanduser("~/work/r5/data"); SI = R5; AT = f"{R5}/atlas"; OUT = f"{SI}/slim_atlas"; PIL = f"{SI}/hmod/pilots"
+R5 = os.environ.get("R5") or HR_WORK + "/r5/data"; SI = R5; AT = f"{R5}/atlas"; OUT = f"{SI}/slim_atlas"; PIL = f"{SI}/hmod/pilots"
 N, MINP, MAXP = 20000, 2000, 24   # up to 24 pools per atlas (power)
 CFG = {  # name: (label col, finer col, mode, block col, split). Parity-1 atlases accepted after scouting.
     "pbmc": ("cell_type", "annotation_detailed", "pack", "donor_id", "test3"),

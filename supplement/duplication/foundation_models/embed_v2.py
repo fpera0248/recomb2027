@@ -50,6 +50,7 @@ loading anything, and exits with an actionable message instead of silently runni
 checkpoint.
 """
 import os, sys, json, time, shutil
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 import numpy as np
 import pandas as pd
 
@@ -60,8 +61,8 @@ try:
 except Exception:
     pass
 
-SRC_H5AD   = '/Users/fperaltacastro/work/aida_sg/aida_sg.h5ad'                       # READ-ONLY
-GF_ROOT    = '/Users/fperaltacastro/geneformer/Geneformer'                          # READ-ONLY
+SRC_H5AD   = HR_WORK + '/aida_sg/aida_sg.h5ad'                       # READ-ONLY
+GF_ROOT    = os.environ.get('GF_ROOT', os.path.expanduser('~/geneformer/Geneformer'))                          # READ-ONLY
 PKG        = os.path.join(GF_ROOT, 'geneformer')
 GENE_MEDIAN_FILE      = os.path.join(PKG, 'gene_median_dictionary_gc95M.pkl')
 TOKEN_DICTIONARY_FILE = os.path.join(PKG, 'token_dictionary_gc95M.pkl')

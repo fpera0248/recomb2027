@@ -1,9 +1,9 @@
 """Track E6 (C18): does duplication combined with foundation-model embeddings give a more
 effective rare-type classifier than PCA-50?
 
-Dataset: AIDA Singapore, full cohort, /Users/fperaltacastro/work/aida_sg/aida_sg.h5ad
+Dataset: AIDA Singapore, full cohort, ~/work/aida_sg/aida_sg.h5ad
 (355,046 cells, 216 donors, 32 cell types; raw counts in X). FM embeddings: GF-6L-30M frozen,
-/Users/fperaltacastro/work/gf6l_emb/emb/emb_%04d.npy, 256-dim, order-matched to h5ad rows
+~/work/gf6l_emb/emb/emb_%04d.npy, 256-dim, order-matched to h5ad rows
 (manifest.json: src_h5ad=aida_sg.h5ad, n_cells=355046, shard=10000; 36 files of 10000/10000/.../5046
 sum exactly to 355046, confirming contiguous in-order sharding).
 
@@ -23,6 +23,7 @@ Matched operating point (primary): top-NEVc eval cells by score, NEVc = that typ
 Default threshold (secondary): argmax recall, ncall, precision, FPR (C3).
 """
 import os, sys, json, warnings, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 warnings.filterwarnings('ignore', category=RuntimeWarning, module='sklearn.utils.extmath')
 warnings.filterwarnings('ignore', category=RuntimeWarning, module='sklearn.linear_model._linear_loss')
 # ponytail: TruncatedSVD's randomized power-iteration step, and LogisticRegression(class_weight=
@@ -34,14 +35,14 @@ warnings.filterwarnings('ignore', category=RuntimeWarning, module='sklearn.linea
 # the assertion.
 os.environ.setdefault('OMP_NUM_THREADS', '2'); os.environ.setdefault('MKL_NUM_THREADS', '2')
 os.environ.setdefault('OPENBLAS_NUM_THREADS', '2')
-sys.path.insert(0, '/Users/fperaltacastro/work/cfgen_natrare')
+sys.path.insert(0, HR_WORK + '/cfgen_natrare')
 from stat16 import dup, jitter, smote, lognorm, readout  # reused, not copied
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import TruncatedSVD
 
-AIDA_H5 = '/Users/fperaltacastro/work/aida_sg/aida_sg.h5ad'
-EMB_DIR = '/Users/fperaltacastro/work/gf6l_emb/emb'
+AIDA_H5 = HR_WORK + '/aida_sg/aida_sg.h5ad'
+EMB_DIR = HR_WORK + '/gf6l_emb/emb'
 OUT = os.path.dirname(os.path.abspath(__file__))
 
 PROBE = ['mature B cell', 'CD16-negative, CD56-bright natural killer cell, human', 'B cell',

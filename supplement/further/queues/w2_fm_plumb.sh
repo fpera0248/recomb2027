@@ -5,12 +5,12 @@
 #     QA, candidates, and scoring of each space against PCA on this one pool (leiden + frozen; LOAO needs >= 2 atlases and is skipped).
 # Marker: out/w2_fm_plumb/DONE_plumb | FAILED_plumb.
 set -eu
-if [ -z "${W2_LOCKED:-}" ]; then export W2_LOCKED=1; exec "$HOME/work/jiaqi1011/code/w2_fm/laptop_lock_run.sh" "$0" "$@"; fi
-export W2_OUT=$HOME/work/jiaqi1011/out/w2_fm_plumb PY=/usr/local/bin/python3 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 NUMBA_NUM_THREADS=4
-MARK=plumb; source "$HOME/work/jiaqi1011/code/w2_fm/w2_common.sh"; rm -f "$O/DONE_plumb" "$O/FAILED_plumb"
-export PYTORCH_ENABLE_MPS_FALLBACK=1 KMP_DUPLICATE_LIB_OK=TRUE SCGPT_CKPT=$HOME/work/cfgen_natrare/j1004/tools/scgpt_ckpt
+if [ -z "${W2_LOCKED:-}" ]; then export W2_LOCKED=1; exec "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/laptop_lock_run.sh" "$0" "$@"; fi
+export W2_OUT=${HR_WORK:-$HOME/work}/jiaqi1011/out/w2_fm_plumb PY=/usr/local/bin/python3 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 NUMBA_NUM_THREADS=4
+MARK=plumb; source "${HR_WORK:-$HOME/work}/jiaqi1011/code/w2_fm/w2_common.sh"; rm -f "$O/DONE_plumb" "$O/FAILED_plumb"
+export PYTORCH_ENABLE_MPS_FALLBACK=1 KMP_DUPLICATE_LIB_OK=TRUE SCGPT_CKPT=${HR_WORK:-$HOME/work}/cfgen_natrare/j1004/tools/scgpt_ckpt
 P=atl_0bf30b02_p0; $PY $C/w2_cands.py pca F $P; $PY $C/w2_embed.py noise512 $P; $PY $C/w2_qa.py noise512 $P; for v in F P; do $PY $C/w2_cands.py noise512 $v $P; done
-L=atl_luad_p0; ls "$W/data/w2_fm/toolin/r/$L.h5ad" >/dev/null || { R5=$W/data/w2_fm SLIM_DIR=$W/data/w2_fm/slim_atlas SI_H=$W/data/w2_fm/hmod $PY $HOME/work/r5/run/adapt_pool.py $L slim_atlas $HOME/work/r5/data/atlas/luad.h5ad; }
+L=atl_luad_p0; ls "$W/data/w2_fm/toolin/r/$L.h5ad" >/dev/null || { R5=$W/data/w2_fm SLIM_DIR=$W/data/w2_fm/slim_atlas SI_H=$W/data/w2_fm/hmod $PY ${HR_WORK:-$HOME/work}/r5/run/adapt_pool.py $L slim_atlas ${HR_WORK:-$HOME/work}/r5/data/atlas/luad.h5ad; }
 $PY $C/w2_cands.py pca F $L
 $PYT $C/w2_embed.py scgpt $L --device mps; $PY $C/w2_qa.py scgpt $L; for v in F H P; do $PY $C/w2_cands.py scgpt $v $L; done
 $PY $C/w2_embed.py gf $L --device mps; $PY $C/w2_qa.py gf $L; for v in F P; do $PY $C/w2_cands.py gf $v $L; done

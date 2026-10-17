@@ -7,6 +7,7 @@ Label columns must now also have a cell-type-annotation name (CTLAB below; cell_
 Optional OUT/not_zero_shot.csv (dataset_id,reason) overrides the zero-shot flag (study-level overlap the id lists miss).
 Writes OUT/selection.csv (one row per dataset) and OUT/<dataset_id>/selection.json (chosen pair, all valid pairs, donors, zero-shot status)."""
 import os, re, sys, json, argparse, glob, numpy as np, pandas as pd
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
 HOME = os.path.expanduser("~"); BAD = {"None", "nan", "Unknown"}
 DROP = re.compile(r"^(|unknown|unassigned|unclassified|unannotated|undefined|na|n/a|nan|none|empty|-)$|doublet|low[ _.-]?quality", re.I)   # labels dropped first
 # columns that are never labels: spec list (donor, sample, batch, assay, sex, tissue, disease, development stage, ethnicity) + ontology ids + CELLxGENE technical columns
@@ -66,9 +67,9 @@ def zero_shot(did, cid, out=None):
     if ov and os.path.exists(ov):
         o = pd.read_csv(ov).set_index("dataset_id").reason
         if did in o.index: return f"not zero-shot on study: {o[did]}"
-    uf = f"{HOME}/work/r5/used_datasets.csv"
+    uf = f"{HR_WORK}/r5/used_datasets.csv"
     if not os.path.exists(uf): return "zero-shot status unknown (used_datasets.csv missing)"
-    u = pd.read_csv(uf); ds = set(u.dataset_id) | {a for f in glob.glob(f"{HOME}/work/r5/data/atlas_manifest_*.csv") + glob.glob(f"{HOME}/work/ablation_donor/data/atlas_manifest_*.csv") for a in pd.read_csv(f).atlas.astype(str)}
+    u = pd.read_csv(uf); ds = set(u.dataset_id) | {a for f in glob.glob(f"{HR_WORK}/r5/data/atlas_manifest_*.csv") + glob.glob(f"{HR_WORK}/ablation_donor/data/atlas_manifest_*.csv") for a in pd.read_csv(f).atlas.astype(str)}
     d_used = did in set(u.dataset_id) or did[:8] in ds; c_used = cid in set(u.collection_id) or cid[:8] in ds
     return "not zero-shot on dataset" if d_used else "not zero-shot on study" if c_used else "zero-shot"
 
@@ -103,7 +104,7 @@ def demo():
 
 if __name__ == "__main__":
     if len(sys.argv) == 1: demo(); print("demo ok"); sys.exit(0)
-    p = argparse.ArgumentParser(); p.add_argument("--cand", default=f"{HOME}/work/jiaqi1011/out/w6_annot_atac/atac21_candidates.csv"); p.add_argument("--h5ad-dir"); p.add_argument("--h5ad"); p.add_argument("--dataset")
+    p = argparse.ArgumentParser(); p.add_argument("--cand", default=f"{HR_WORK}/jiaqi1011/out/w6_annot_atac/atac21_candidates.csv"); p.add_argument("--h5ad-dir"); p.add_argument("--h5ad"); p.add_argument("--dataset")
     p.add_argument("--out", required=True); p.add_argument("--only"); A = p.parse_args(); os.makedirs(A.out, exist_ok=True)
     C = pd.read_csv(A.cand); C = C[C.dataset_id.isin(A.only.split(","))] if A.only else C
     C = C[C.dataset_id == A.dataset] if A.dataset else C; rows = []

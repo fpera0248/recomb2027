@@ -15,7 +15,7 @@ Usage: python3 run.py [--smoke] ; env PANEL=dir AIDA=dir OUT=dir
 import os, sys, glob
 import numpy as np, pandas as pd
 os.environ.setdefault('OMP_NUM_THREADS', '4')
-W = '/Users/fperaltacastro/work'
+W = os.environ.get('HR_WORK', os.path.expanduser('~/work'))
 PANEL = os.environ.get('PANEL', f'{W}/recomb27/v2/p1/part1_results/panel_runs')
 AIDA = os.environ.get('AIDA', f'{W}/recomb27/rev1015/p1data')
 OUT = os.environ.get('OUT', f'{W}/jiaqi1016/E2_major_types/out' + ('_smoke' if '--smoke' in sys.argv else ''))

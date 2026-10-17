@@ -11,8 +11,9 @@ Their pipeline, kept intact:
 Conditioning is therefore through a classifier gradient, not a label embedding (CFGen) and not
 a decoder covariate (scVI). Three different conditioning mechanisms, same shared decoder.
 """
-import sys, numpy as np, torch, torch.nn.functional as F
-sys.path.insert(0, '/Users/fperaltacastro/work/scDiffusion')
+import os, sys, numpy as np, torch, torch.nn.functional as F
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, HR_WORK + '/scDiffusion')
 from VAE.VAE_model import VAE
 from guided_diffusion.cell_model import Cell_Unet, Cell_classifier
 from guided_diffusion.script_util import create_gaussian_diffusion

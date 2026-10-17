@@ -11,7 +11,8 @@ Final score = mean over thinnings. call = score >= TAU (one global constant, cal
 Removed vs v1: the simulated one-population null (it could not absorb native subtypes), full-count HVGs, saturating T.
 No truth is read; nothing is tuned per pilot."""
 import os, sys
-sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or os.path.expanduser("~/work/r5/data"), "hmod"))
+HR_WORK = os.environ.get("HR_WORK", os.path.expanduser("~/work"))
+sys.path.insert(0, os.environ.get("SI_H") or os.path.join(os.environ.get("R5") or HR_WORK + "/r5/data", "hmod"))
 import numpy as np, pandas as pd, scipy.sparse as sp, igraph as ig, random
 import anndata as ad
 from sklearn.neighbors import NearestNeighbors

@@ -4,7 +4,7 @@
 # Data: /Volumes/Files/atac/{h5ad,frag,ref,work}. Results: $OUT/<dataset>/{selection.json,pools.json,arms/units/*.csv}, $OUT/selection.csv, $OUT/aggregate/. Markers: $OUT/<dataset>/{DL,PREP,BUILD,ROOTS,ARMS}_DONE|FAILED, $OUT/DONE|FAILED.
 # Optional $OUT/pair_override.csv (dataset_id,coarse,fine) replaces the mechanical pair for listed datasets (main-session decision only). Kidney regression = dataset 09b518f9 rerun with the pilot's choices (key <id>__pilot).
 set -u
-J=$HOME/work/jiaqi1011; A=/Volumes/Files/atac; CODE=$J/code/w6; AA=$CODE/atac_all; OUT=${OUT:-$J/out/atac_all}; PY=$HOME/venv/bin/python; SNAP=$J/venvs/atac/bin/python
+J=${HR_WORK:-$HOME/work}/jiaqi1011; A=/Volumes/Files/atac; CODE=$J/code/w6; AA=$CODE/atac_all; OUT=${OUT:-$J/out/atac_all}; PY=$HOME/venv/bin/python; SNAP=$J/venvs/atac/bin/python
 CAND=$J/out/w6_annot_atac/atac21_candidates.csv; GTF=$A/ref/ensdb110_genes_idkey.gtf; KID=09b518f9-da64-44cc-aec8-70a89d55611f; LOG=$J/logs/atac_all.log
 mkdir -p $OUT $J/logs $A/h5ad $A/frag $A/work; rm -f $OUT/DONE $OUT/FAILED $OUT/NEEDS_FILES
 exec >> $LOG 2>&1; echo "start $(date)"
@@ -12,8 +12,8 @@ export PYTHONDONTWRITEBYTECODE=1 PYTHONWARNINGS=ignore OMP_NUM_THREADS=2 MKL_NUM
 trap 'rc=$?; [ $rc -ne 0 ] && echo "exit $rc $(date)" > $OUT/FAILED' EXIT
 # ---- files that must already be on the mini (rsync from the laptop; none is written by this script) ----
 need=""; for f in \
-  $CAND $GTF $PY $SNAP $HOME/work/r5/refit_dev_nat.pkl $HOME/work/r5/used_datasets.csv $HOME/work/ablation_donor/out/train_xy.npz \
-  $HOME/work/r5/code/{sr3,sr3m,sr3h,sr2,split_island_v2,loader,learn14,rescore,score_atl,score_hlca,combo_r2}.py $HOME/work/r5/code/hmod/{hlib,methods,rawutil,rprec}.py $HOME/work/r5/data/hmod/{hlib,methods,rawutil,rprec}.py \
+  $CAND $GTF $PY $SNAP ${HR_WORK:-$HOME/work}/r5/refit_dev_nat.pkl ${HR_WORK:-$HOME/work}/r5/used_datasets.csv ${HR_WORK:-$HOME/work}/ablation_donor/out/train_xy.npz \
+  ${HR_WORK:-$HOME/work}/r5/code/{sr3,sr3m,sr3h,sr2,split_island_v2,loader,learn14,rescore,score_atl,score_hlca,combo_r2}.py ${HR_WORK:-$HOME/work}/r5/code/hmod/{hlib,methods,rawutil,rprec}.py ${HR_WORK:-$HOME/work}/r5/data/hmod/{hlib,methods,rawutil,rprec}.py \
   $J/code/w1/harness.py $CODE/{run_unit,w6common,m1_full}.py $AA/{select_ds,pools,build_ga,aggregate,qhelp}.py; do [ -e "$f" ] || need="$need $f"; done
 [ -z "$need" ] || { echo "missing:$need" | tee $OUT/NEEDS_FILES; exit 2; }
 $PY -c 'import igraph, leidenalg, scanpy, sklearn, pyarrow, anndata' && $SNAP -c 'import snapatac2' || { echo "missing python imports (igraph leidenalg scanpy sklearn pyarrow anndata | snapatac2)" | tee $OUT/NEEDS_FILES; exit 2; }
