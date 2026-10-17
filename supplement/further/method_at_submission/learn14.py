@@ -2,11 +2,11 @@
 Learned candidate-group scorer. Scale-free group features -> P(group is the hidden rare type) with a gradient-boosted
 classifier; cell score = max over its groups of P**g / size**a (a = 0: rank by P; a = 1: Smith's rule for an unknown matched k).
 Training label (offline truth, never a method input): purity >= 0.5 and recall >= 0.3 against the pilot's hidden type.
-  python learn.py cv      DEV_IDS  OUT.csv           -> out-of-fold P (GroupKFold by dataset, 5 folds), rprec per (pilot, rule)
-  python learn.py fit     DEV_IDS[,IDS2]  MODEL.pkl  -> fit on every group of the listed pilots
-  python learn.py loao    BENCH_IDS NAT_IDS OUT.csv  -> leave-one-atlas-out E1_union on natural pools
-  python learn.py apply   MODEL.pkl IDS OUT.csv      -> rprec per (pilot, rule) on new pilots (the model never saw them)
-  python learn.py predict MODEL.pkl PID OUT.parquet RULE -> cell scores for one pilot without truth (the frozen method's output)"""
+  python learn14.py cv      DEV_IDS  OUT.csv           -> out-of-fold P (GroupKFold by dataset, 5 folds), rprec per (pilot, rule)
+  python learn14.py fit     DEV_IDS[,IDS2]  MODEL.pkl  -> fit on every group of the listed pilots
+  python learn14.py loao    BENCH_IDS NAT_IDS OUT.csv  -> leave-one-atlas-out E1_union on natural pools
+  python learn14.py apply   MODEL.pkl IDS OUT.csv      -> rprec per (pilot, rule) on new pilots (the model never saw them)
+  python learn14.py predict MODEL.pkl PID OUT.parquet RULE -> cell scores for one pilot without truth (the frozen method's output)"""
 import os, sys, pickle, numpy as np, pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
 from sklearn.model_selection import GroupKFold

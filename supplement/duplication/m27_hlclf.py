@@ -2,8 +2,8 @@
 log1p-CPM, from SAVE_GENE=m27_hl python3 m27_gen_hlca.py) re-read under stat16's four readouts
 (lr/knn/rf/mlp), plus jitter_s1.0 and smote_k5 built in gene space and renormalized (stat16.gene_arm), then the same PCA. rec200 uses the per-class NEVc saved by m27_gen_hlca.py (hlca fallback: a
 probe type with < 200 held-out cells is scored at its own held-out count, not 200).
-  python3 m27_sd3clf.py run      -> m27_hlclf.csv
-  python3 m27_sd3clf.py report
+  python3 m27_hlclf.py run      -> m27_hlclf.csv
+  python3 m27_hlclf.py report
 """
 import sys, os, glob, numpy as np, pandas as pd
 HL = os.environ.get('M27_HL', 'm27_hl'); CSV = os.environ.get('M27_CSV', 'm27_hlclf.csv')   # panel run: per-dataset dirs
