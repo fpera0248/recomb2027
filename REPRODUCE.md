@@ -62,7 +62,7 @@ pip install -r requirements.txt    # Python 3.12
 
 You can run the code in a Python environment or in a container.
 
-**Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). The pins are the package versions of the Python 3.12 environment (macOS arm64) that computed the 10-atlas results. `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
+**Python environment.** Run `pip install -r requirements.txt` under Python 3.12, or `conda env create -f environment_hiddenrare.yml` (scikit-learn 1.5.2 is required). The pins are the package versions of the Python 3.12 interpreter (macOS arm64) that reproduces the paper's 10-atlas predictions exactly on the machine that computed them (nbconvert and nbformat excepted). `ENVIRONMENTS.md` has the platform and score-reproducibility notes and the separate environment of the published tools.
 
 **Container.** Two images are defined in `docker/` and published on GHCR with the release tag `v0.1.2`. They pull without a login. Use `v0.1.2`. The `v0.1.1` images have not been checked, and `latest` and `main` move with later builds. The `recomb2027-hiddenrare` image passes the `paper` and `rerun` levels on a GitHub Actions runner ([container check](https://github.com/fpera0248/recomb2027/actions/runs/38940072528)), as the `v0.1.0` image did. The `recomb2027-tools` image has not been run end to end. Both are amd64 only (emulated on Apple silicon, for example `docker run --platform linux/amd64`):
 
